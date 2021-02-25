@@ -1,25 +1,46 @@
 package com.zuko.billingz.lib.products
 
+import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import com.android.billingclient.api.BillingClient
+import com.android.billingclient.api.ConsumeParams
 import com.android.billingclient.api.Purchase
-import com.android.billingclient.api.SkuDetails
+import com.zuko.billingz.lib.LogUtil
 
-interface Consumable : Product {
+import com.zuko.billingz.lib.sales.Order
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 
-    var consumables: Map<String, SkuDetails>
+object Consumable: Product {
 
-    /**
-     * For consumables, the consumeAsync() method fulfills the acknowledgement requirement and
-     * indicates that your app has granted entitlement to the user. This method also enables your app
-     * to make the one-time product available for purchase again.
-     * To indicate that a one-time product has been consumed, call consumeAsync() and include the
-     * purchase token that Google Play should make available for repurchase. You must also pass an
-     * object that implements the ConsumeResponseListener interface. This object handles the result
-     * of the consumption operation. You can override the onConsumeResponse() method,
-     * which the Google Play Billing Library calls when the operation is complete.
-     */
-    fun processConsumable(purchase: Purchase)
+    private const val TAG = "Consumable"
+    override val type: Product.ProductType = Product.ProductType.CONSUMABLE
 
-    fun loadConsumableProducts(skuList: MutableList<String>)
-    //findConsumableById
-    //get Consumable details
+    override fun completeOrder(billingClient: BillingClient?,
+                               purchase: Purchase,
+                               order: MutableLiveData<Order>,
+                               mainScope: CoroutineScope?) {
+
+        val consumeParams = ConsumeParams.newBuilder()
+            .setPurchaseToken(purchase.purchaseToken)
+            .build()
+
+        billingClient?.consumeAsync(consumeParams) { billingResult, p ->
+            val msg: String
+            if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                msg = "Consumable successfully purchased"
+                Log.d(TAG, "Product successfully purchased: ${purchase.sku}")
+            } else {
+                msg = billingResult.debugMessage
+                LogUtil.log.e(TAG, "Error purchasing consumable. $msg")
+            }
+            val data = Order(
+                purchase = purchase,
+                billingResult = billingResult,
+                msg = msg
+            )
+            order.postValue(data)
+        }
+    }
 }

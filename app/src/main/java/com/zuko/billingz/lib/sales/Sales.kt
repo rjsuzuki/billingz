@@ -1,25 +1,29 @@
 package com.zuko.billingz.lib.sales
 
 import android.app.Activity
+import androidx.annotation.UiThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.android.billingclient.api.*
 import com.zuko.billingz.lib.client.Billing
+import com.zuko.billingz.lib.model.CleanUp
 import com.zuko.billingz.lib.products.Product
 import kotlinx.coroutines.CoroutineScope
 
-interface Sales {
+interface Sales: CleanUp {
 
+    var orderUpdateListener: OrderUpdateListener?
     var orderValidatorListener: OrderValidatorListener?
-    var orderUpdatedListener: OrderUpdateListener?
     var purchasesUpdatedListener: PurchasesUpdatedListener
 
     /**
      * Provides a liveData [Order] object for
      * developers to observe and react to on
      * the UI/Main thread.
+     * Objects can be passed from the normal purchase flow
+     * or when the app is verifying a list of queried purchases.
      */
-    var currentOrder: MutableLiveData<Order>
+    var order: MutableLiveData<Order>
 
     fun startPurchaseRequest(activity: Activity,
                              skuDetails: SkuDetails,
@@ -27,17 +31,27 @@ interface Sales {
 
     /**
      * Handler method for responding to updates from Android's PurchaseUpdatedListener class
+     * or when checking results from queryPurchases()
      * @param billingResult
      * @param purchases
      * Should run on background thread.
      */
-    fun processUpdatedPurchases(billingResult: BillingResult, purchases: MutableList<Purchase>?)
+    fun processUpdatedPurchases(billingResult: BillingResult?, purchases: MutableList<Purchase>?)
 
     fun processValidation(purchase: Purchase)
 
-    fun isPurchaseVerified(purchase: Purchase) : Boolean
+    /**
+     * Simple validation checks before
+     * allowing developer to implement their
+     * validator
+     */
+    fun isNewPurchase(purchase: Purchase) : Boolean
 
     fun processInAppPurchase(purchase: Purchase)
+
+    fun processSubscription(purchase: Purchase)
+
+
 
     fun processPendingTransaction(purchase: Purchase)
 
@@ -48,10 +62,29 @@ interface Sales {
      * show in-app popup, or deliver msg to an inbox, or use an OS notification
      */
     // fun notifyPurchase()
+
+    /**
+     * Set by Manager class
+     */
     interface OrderUpdateListener {
-        fun completeOrder(purchase: Purchase, productType: Product.ProductType)
+        fun resumeOrder(purchase: Purchase, productType: Product.ProductType)
     }
+
+    /**
+     * For dev to implement
+     */
+    // Verify the purchase.
+    // Ensure entitlement was not already granted for this purchaseToken.
+    // Grant entitlement to the user.
     interface OrderValidatorListener {
-        fun isValidPurchase(purchase: Purchase) : Boolean
+        fun validate(purchase: Purchase, callback: ValidatorCallback)
+    }
+
+    /**
+     * Respond to the events triggered by the developer's validator
+     */
+    interface ValidatorCallback {
+        fun onSuccess(purchase: Purchase)
+        fun onFailure(purchase: Purchase)
     }
 }

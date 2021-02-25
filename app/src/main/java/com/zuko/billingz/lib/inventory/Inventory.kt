@@ -5,19 +5,15 @@ import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.SkuDetails
 import com.android.billingclient.api.SkuDetailsParams
-import com.zuko.billingz.BillingManager
 import com.zuko.billingz.lib.LogUtil
 import com.zuko.billingz.lib.client.Billing
 import com.zuko.billingz.lib.products.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class Inventory(val billing: Billing) : Search {
 
-    var subscription: Product = Subscriptions()
-    var consumable: Product = Consumables()
-    var nonConsumable: Product = NonConsumables()
+    var subscription: Product = Subscription()
+    var consumable: Product = Consumable()
+    var nonConsumable: Product = NonConsumable()
 
     var promotions: Map<String, SkuDetails> = HashMap()
     var freeProducts: Map<String, SkuDetails> = HashMap()
@@ -103,6 +99,10 @@ class Inventory(val billing: Billing) : Search {
 
     override fun isConsumable(purchase: Purchase): Boolean {
         return !consumables.isNullOrEmpty() && consumables.contains(purchase.sku)
+    }
+
+    override fun destroy() {
+
     }
 
     companion object {

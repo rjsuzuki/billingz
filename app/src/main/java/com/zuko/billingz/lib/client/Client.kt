@@ -2,53 +2,66 @@ package com.zuko.billingz.lib.client
 
 import android.content.Context
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
+import androidx.annotation.UiThread
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.PurchasesUpdatedListener
-import com.zuko.billingz.lib.model.PurchaseWrapper
-import com.zuko.billingz.lib.model.Result
-import com.zuko.billingz.lib.sales.Order
+import com.zuko.billingz.lib.LogUtil
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
+import java.lang.Exception
 
 /**
  * @author rjsuzuki
  */
-class Client (val context: Context) : Billing {
+class Client : Billing, Billing.GooglePlayReconnectListener {
 
-    override var order: MutableLiveData<Order> = MutableLiveData()
+    private val mainScope = MainScope()
 
     private var billingClient: BillingClient? = null
+    private var isInitialized = false
     private var isConnected = false
+
+    private var googlePlayConnectListener: Billing.GooglePlayConnectListener? = null
 
     override fun getBillingClient(): BillingClient? {
         return billingClient
     }
 
-    /**
-     * @return Boolean
-     * Checks if the client both initialized and is currently connected to the service,
-     * so that requests to other methods will succeed.
-     */
+    override fun initialized(): Boolean {
+        return isInitialized
+    }
+
     override fun isReady(): Boolean {
-        return isConnected && billingClient?.isReady == true
+        return initialized() && isConnected && billingClient?.isReady == true
     }
 
     /*****************************************************************************************************
      * Initialization
      *****************************************************************************************************/
 
+    override fun initClient(context: Context?,
+                            purchasesUpdatedListener: PurchasesUpdatedListener,
+                            googlePlayConnectListener: Billing.GooglePlayConnectListener) {
 
-    override fun initClient(context: Context?, listener: PurchasesUpdatedListener) {
-        if(billingClient != null) {
-            billingClient?.endConnection() //will this throw an error?
-            billingClient = null
-        }
-        context?.let {
-            billingClient = BillingClient.newBuilder(context)
-                .setListener(listener)
-                .enablePendingPurchases() //switch
-                .build()
+        this.googlePlayConnectListener = googlePlayConnectListener
+
+        try {
+            if(billingClient != null) {
+                billingClient?.endConnection()
+                billingClient = null
+                isInitialized = false
+            }
+            context?.let {
+                billingClient = BillingClient.newBuilder(context)
+                    .setListener(purchasesUpdatedListener)
+                    .enablePendingPurchases() //switch
+                    .build()
+                isInitialized = true
+            }
+        } catch (e: Exception) {
+            LogUtil.log.wtf(TAG, "Failed to instantiate Android BillingClient. ${e.localizedMessage}")
         }
     }
 
@@ -59,6 +72,7 @@ class Client (val context: Context) : Billing {
                     BillingClient.BillingResponseCode.OK -> {
                         // The BillingClient is ready. You can query purchases here.
                         isConnected = true
+                        googlePlayConnectListener?.connected()
                         //isReadyLiveData.postValue(true)
                         //initMockData()
                     }
@@ -80,11 +94,25 @@ class Client (val context: Context) : Billing {
     }
 
     override fun disconnect() {
+        billingClient?.endConnection()
+    }
+
+    override fun checkConnection() {
         TODO("Not yet implemented")
     }
 
-    override fun error(billingResult: BillingResult?) {
+    override fun retry() {
         TODO("Not yet implemented")
+    }
+
+    override fun cancel() {
+        TODO("Not yet implemented")
+    }
+
+    override fun destroy() {
+        isInitialized = false
+        disconnect()
+        mainScope.cancel()
     }
 
     companion object {

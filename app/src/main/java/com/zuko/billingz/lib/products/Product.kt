@@ -1,7 +1,11 @@
 package com.zuko.billingz.lib.products
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.Purchase
 import com.zuko.billingz.lib.client.Billing
+import com.zuko.billingz.lib.sales.Order
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 
@@ -30,4 +34,8 @@ interface Product {
 
     val type: ProductType
 
+    fun completeOrder(billingClient: BillingClient?,
+                      purchase: Purchase,
+                      order: MutableLiveData<Order>,
+                      mainScope: CoroutineScope? = null)
 }

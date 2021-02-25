@@ -1,11 +1,13 @@
 package com.zuko.billingz.lib.inventory
 
+import androidx.annotation.UiThread
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.SkuDetails
+import com.zuko.billingz.lib.model.CleanUp
 import com.zuko.billingz.lib.products.Product
 
 
-interface Search {
+interface Search : CleanUp {
 
    /* fun getAllProducts(): Map<String, SkuDetails>
     fun getConsumables(): Map<String, SkuDetails>
@@ -36,4 +38,5 @@ interface Search {
     fun querySkuDetails(skuList: MutableList<String>, productType: Product.ProductType)
 
     fun updateSkuDetails(skuDetailsList: List<SkuDetails>?, productType: Product.ProductType)
+
 }

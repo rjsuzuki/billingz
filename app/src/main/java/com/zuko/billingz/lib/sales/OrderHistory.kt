@@ -2,73 +2,100 @@ package com.zuko.billingz.lib.sales
 
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.Purchase
+import com.android.billingclient.api.PurchaseHistoryResponseListener
 import com.zuko.billingz.lib.LogUtil
 import com.zuko.billingz.lib.client.Billing
-import com.zuko.billingz.lib.inventory.Inventory
+import kotlinx.coroutines.*
 
-class OrderHistory(val client: Billing, val inventory: Inventory): History {
+class OrderHistory(val client: Billing): History {
 
-    private var ownedSubscriptions: MutableList<Purchase> = mutableListOf()
-    private var ownedInAppProducts: MutableList<Purchase> = mutableListOf()
+    private val mainScope = MainScope()
+    private var activeSubscriptions: MutableList<Purchase> = mutableListOf()
+    private var activeInAppProducts: MutableList<Purchase> = mutableListOf()
+    private var subscriptionHistory: MutableList<Purchase> = mutableListOf()
+    private var inAppProductsHistory: MutableList<Purchase> = mutableListOf()
 
     private var isAlreadyQueried = false
 
-    override fun getInAppProductsHistory(): MutableList<Purchase> {
-        return ownedInAppProducts
+    override fun getOwnedSubscriptions(): MutableList<Purchase> {
+        return activeSubscriptions
+    }
+
+    override fun getOwnedInAppProducts(): MutableList<Purchase> {
+        return activeInAppProducts
     }
 
     override fun getSubscriptionHistory(): MutableList<Purchase> {
-        return ownedSubscriptions
+        return subscriptionHistory
     }
 
-    override fun refreshPurchaseHistory(isOnCreateEvent: Boolean) {
-        if(isOnCreateEvent) {
-            queryPurchases()
-            isAlreadyQueried = true
-        } else if(isAlreadyQueried) {
+    override fun getInAppProductsHistory(): MutableList<Purchase> {
+        return inAppProductsHistory
+    }
+
+    override fun refreshPurchaseHistory(sales: Sales) {
+        LogUtil.log.v(TAG, "queryPurchases")
+        if(isAlreadyQueried) {
+            LogUtil.log.d(TAG, "Skipping purchase history refresh.")
             // skip - prevents double queries on initialization
             isAlreadyQueried = false
         } else {
-            queryPurchases()
+            LogUtil.log.d(TAG, "Refreshing purchase history.")
+            queryPurchases(sales)
+            isAlreadyQueried = true
         }
     }
-    //todo - get Purchase retrieved from BillingClient - queryPurchases
-    override fun queryPurchases() {
+
+    override fun queryPurchases(sales: Sales) {
+        LogUtil.log.v(TAG, "queryPurchases")
         if(client.isReady()) {
             LogUtil.log.i(TAG, "Fetching all purchases made by user.")
 
-            //todo - background thread async
-            val inAppResult = client.getBillingClient()?.queryPurchases(BillingClient.SkuType.INAPP)
-            if(inAppResult?.responseCode == BillingClient.BillingResponseCode.OK) {
-                inAppResult.purchasesList?.let { purchases ->
-                    ownedInAppProducts = purchases
-                    LogUtil.log.i(TAG, "In-app order history received: $purchases")
-                } ?: LogUtil.log.d(TAG, "No In-app products history available.")
-            }
-
-            //todo - background thread async
-            val subsResult =  client.getBillingClient()?.queryPurchases(BillingClient.SkuType.SUBS)
-            if(subsResult?.responseCode == BillingClient.BillingResponseCode.OK) {
-                subsResult.purchasesList?.let { subscriptions ->
-                    ownedSubscriptions = subscriptions
-                    LogUtil.log.i(TAG, "Subscription order history received: $subscriptions")
-                } ?: LogUtil.log.d(TAG, "No subscription history available.")
+            mainScope.launch(Dispatchers.IO) {
+                querySubscriptions(sales)
+                queryInAppProducts(sales)
             }
         } else {
             LogUtil.log.e(TAG, "Android BillingClient was not ready yet to continue queryPurchases()")
         }
     }
 
-    private suspend fun querySubscriptions() {
-
+    //todo - run async
+    private fun querySubscriptions(sales: Sales) {
+        LogUtil.log.v(TAG, "querySubscriptions")
+        val subsResult =  client.getBillingClient()?.queryPurchases(BillingClient.SkuType.SUBS)
+        if(subsResult?.responseCode == BillingClient.BillingResponseCode.OK) { //todo verify
+            subsResult.purchasesList?.let { subscriptions ->
+                activeSubscriptions = subscriptions
+                if(activeSubscriptions.isNotEmpty())
+                    sales.processUpdatedPurchases(null, activeSubscriptions)
+                LogUtil.log.i(TAG, "Subscription order history received: $subscriptions")
+            } ?: LogUtil.log.d(TAG, "No subscription history available.")
+        }
     }
 
-    private suspend fun queryInAppProducts() {
-
+    //todo - run async
+    private fun queryInAppProducts(sales: Sales) {
+        LogUtil.log.v(TAG, "queryInAppProducts")
+        val inAppResult = client.getBillingClient()?.queryPurchases(BillingClient.SkuType.INAPP)
+        if(inAppResult?.responseCode == BillingClient.BillingResponseCode.OK) { //todo verify
+            inAppResult.purchasesList?.let { purchases ->
+                activeInAppProducts = purchases
+                if(activeInAppProducts.isNotEmpty())
+                    sales.processUpdatedPurchases(null, activeSubscriptions)
+                LogUtil.log.i(TAG, "In-app order history received: $purchases")
+            } ?: LogUtil.log.d(TAG, "No In-app products history available.")
+        }
     }
 
-    //todo - complete the purchases?
+    //when to query history?
+    override fun queryPurchaseHistory(skuType: String, listener: PurchaseHistoryResponseListener) {
+        client.getBillingClient()?.queryPurchaseHistoryAsync(skuType, listener)
+    }
 
+    override fun destroy() {
+        mainScope.cancel()
+    }
 
     companion object {
         private const val TAG = "OrderHistory"

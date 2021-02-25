@@ -1,8 +1,10 @@
 package com.zuko.billingz.lib.sales
 
 import com.android.billingclient.api.Purchase
+import com.android.billingclient.api.PurchaseHistoryResponseListener
+import com.zuko.billingz.lib.model.CleanUp
 
-interface History {
+interface History: CleanUp {
 
     /**
      *
@@ -11,11 +13,13 @@ interface History {
      * could create untracked purchases - call this method in the
      * onCreate and onResume lifecycle events.
      */
-    fun refreshPurchaseHistory(isOnCreateEvent: Boolean)
-
-
-    fun queryPurchases()
+    fun refreshPurchaseHistory(sales: Sales)
+    fun queryPurchases(sales: Sales)
+    fun queryPurchaseHistory(skuType: String, listener: PurchaseHistoryResponseListener)
 
     fun getSubscriptionHistory() : MutableList<Purchase>
     fun getInAppProductsHistory() : MutableList<Purchase>
+
+    fun getOwnedSubscriptions() : MutableList<Purchase>
+    fun getOwnedInAppProducts() : MutableList<Purchase>
 }
