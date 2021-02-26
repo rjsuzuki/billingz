@@ -12,8 +12,7 @@ class OrderHistory(val client: Billing): History {
     private val mainScope = MainScope()
     private var activeSubscriptions: MutableList<Purchase> = mutableListOf()
     private var activeInAppProducts: MutableList<Purchase> = mutableListOf()
-    private var subscriptionHistory: MutableList<Purchase> = mutableListOf()
-    private var inAppProductsHistory: MutableList<Purchase> = mutableListOf()
+
 
     private var isAlreadyQueried = false
 
@@ -23,14 +22,6 @@ class OrderHistory(val client: Billing): History {
 
     override fun getOwnedInAppProducts(): MutableList<Purchase> {
         return activeInAppProducts
-    }
-
-    override fun getSubscriptionHistory(): MutableList<Purchase> {
-        return subscriptionHistory
-    }
-
-    override fun getInAppProductsHistory(): MutableList<Purchase> {
-        return inAppProductsHistory
     }
 
     override fun refreshPurchaseHistory(sales: Sales) {

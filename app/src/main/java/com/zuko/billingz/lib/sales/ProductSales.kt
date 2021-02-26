@@ -10,11 +10,11 @@ import com.zuko.billingz.lib.LogUtil
 import com.zuko.billingz.lib.inventory.Inventory
 import com.zuko.billingz.lib.products.Product
 
-
 class ProductSales(private val inventory: Inventory): Sales {
 
+    private var isQueriedOrders = false
     override var order = MutableLiveData<Order>()
-
+    override var queriedOrder = MutableLiveData<Order>()
     override var orderUpdateListener: Sales.OrderUpdateListener? = null
     override var orderValidatorListener: Sales.OrderValidatorListener? = null
     override var purchasesUpdatedListener: PurchasesUpdatedListener =
@@ -24,7 +24,7 @@ class ProductSales(private val inventory: Inventory): Sales {
      *
      * ArrayMap<OrderId, Purchase>
      */
-    private var pendingPurchases = ArrayMap<String, Purchase>()
+    override var pendingPurchases = ArrayMap<String, Purchase>()
 
     private val validation: Sales.ValidatorCallback = object: Sales.ValidatorCallback {
         override fun onSuccess(purchase: Purchase) {
@@ -34,6 +34,10 @@ class ProductSales(private val inventory: Inventory): Sales {
         override fun onFailure(purchase: Purchase) {
             processPurchasingError(null)
         }
+    }
+
+    override fun getOrderOrQueried(): MutableLiveData<Order> {
+        return if(isQueriedOrders) queriedOrder else order
     }
 
     @UiThread
@@ -60,14 +64,21 @@ class ProductSales(private val inventory: Inventory): Sales {
                 billingResult = billingResult,
                 msg = "Null/Empty list of purchases"
             )
-            this.order.postValue(order)
+            if(billingResult == null) {
+                isQueriedOrders = true
+                //only queried orders start with a null billingResult
+                this.queriedOrder.postValue(order)
+            } else {
+                isQueriedOrders = false
+                this.order.postValue(order)
+            }
             Log.d(TAG, "No purchases available")
         } else {
             for(p in purchases) {
                 when(p.purchaseState) {
                     Purchase.PurchaseState.PURCHASED -> processValidation(p)
                     Purchase.PurchaseState.PENDING -> processPendingTransaction(p)
-                    Purchase.PurchaseState.UNSPECIFIED_STATE -> processPurchasingError(null)
+                    Purchase.PurchaseState.UNSPECIFIED_STATE -> processPurchasingError(billingResult)
                 }
             }
         }
@@ -84,7 +95,6 @@ class ProductSales(private val inventory: Inventory): Sales {
     }
 
     private fun processPurchase(purchase: Purchase) {
-        //is inApp or Sub?
         val type = inventory.allProducts[purchase.sku]?.type
 
         if(type?.equals(BillingClient.SkuType.INAPP, ignoreCase = true) == true) {
@@ -150,10 +160,8 @@ class ProductSales(private val inventory: Inventory): Sales {
         orderUpdateListener?.resumeOrder(purchase, Product.ProductType.SUBSCRIPTION)
     }
 
-
     override fun destroy() {
-        //todo
-        //pendingPurchases
+        isQueriedOrders = false
     }
 
     companion object {

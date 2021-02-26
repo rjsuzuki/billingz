@@ -10,7 +10,9 @@ object LogUtil {
      * Public method
      */
     fun setLogLevel(level: Int) {
-
+        if(level in 2..7) {
+            verbosity = level
+        }
     }
 
     private var isWarningsEnabled = true
@@ -47,12 +49,12 @@ object LogUtil {
         //5
         fun w(tag: String, msg: String) {
             if(isWarningsEnabled)
-                 Log.w(tag, msg)
+                Log.w(tag, msg)
         }
         //6
         fun e(tag: String, msg: String) {
             if(isErrorsEnabled)
-                 Log.e(tag, msg)
+                Log.e(tag, msg)
         }
 
         //7

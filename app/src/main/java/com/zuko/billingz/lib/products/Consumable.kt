@@ -1,7 +1,6 @@
 package com.zuko.billingz.lib.products
 
 import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.ConsumeParams
@@ -10,7 +9,6 @@ import com.zuko.billingz.lib.LogUtil
 
 import com.zuko.billingz.lib.sales.Order
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 
 object Consumable: Product {
 
@@ -29,7 +27,7 @@ object Consumable: Product {
         billingClient?.consumeAsync(consumeParams) { billingResult, p ->
             val msg: String
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                msg = "Consumable successfully purchased"
+                msg = "Consumable successfully purchased: $p"
                 Log.d(TAG, "Product successfully purchased: ${purchase.sku}")
             } else {
                 msg = billingResult.debugMessage

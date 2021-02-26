@@ -2,6 +2,7 @@ package com.zuko.billingz.lib.sales
 
 import android.app.Activity
 import androidx.annotation.UiThread
+import androidx.collection.ArrayMap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.android.billingclient.api.*
@@ -24,7 +25,10 @@ interface Sales: CleanUp {
      * or when the app is verifying a list of queried purchases.
      */
     var order: MutableLiveData<Order>
+    var queriedOrder: MutableLiveData<Order>
+    fun getOrderOrQueried(): MutableLiveData<Order>
 
+    var pendingPurchases: ArrayMap<String, Purchase>
     fun startPurchaseRequest(activity: Activity,
                              skuDetails: SkuDetails,
                              billingClient: BillingClient) : BillingResult
@@ -50,8 +54,6 @@ interface Sales: CleanUp {
     fun processInAppPurchase(purchase: Purchase)
 
     fun processSubscription(purchase: Purchase)
-
-
 
     fun processPendingTransaction(purchase: Purchase)
 

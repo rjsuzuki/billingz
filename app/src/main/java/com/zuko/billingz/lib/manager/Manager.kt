@@ -6,9 +6,10 @@ import androidx.lifecycle.*
 import com.android.billingclient.api.*
 import com.zuko.billingz.lib.LogUtil
 import com.zuko.billingz.lib.client.Client
-import com.zuko.billingz.lib.inventory.Inventory
+import com.zuko.billingz.lib.inventory.StoreInventory
 import com.zuko.billingz.lib.client.Billing
 import com.zuko.billingz.lib.facade.BillingAgent
+import com.zuko.billingz.lib.inventory.Inventory
 import com.zuko.billingz.lib.products.Consumable
 import com.zuko.billingz.lib.products.NonConsumable
 import com.zuko.billingz.lib.products.Product
@@ -19,17 +20,18 @@ import kotlinx.coroutines.*
 
 /**
  * @author rjsuzuki
+ * //TODO handle pending purchases?
+ * //TODO retry connection
  */
 class Manager: LifecycleObserver, ManagerLifecycle {
 
     private val mainScope = MainScope()
 
     private val billing: Billing = Client()
-    private val inventory = Inventory(billing)
+    private val inventory: Inventory = StoreInventory(billing)
     private val sales: Sales = ProductSales(inventory)
     private val history: History = OrderHistory(billing)
     private var isInitialized = false
-
 
     private val googlePlayConnectListener = object: Billing.GooglePlayConnectListener {
         override fun connected() {
@@ -59,6 +61,10 @@ class Manager: LifecycleObserver, ManagerLifecycle {
         history.refreshPurchaseHistory(sales) //might need to react to connection
     }
 
+    override fun start() {
+        LogUtil.log.v(TAG, "starting...")
+    }
+
     override fun resume() {
         LogUtil.log.v(TAG, "resuming...")
         billing.checkConnection()
@@ -67,7 +73,11 @@ class Manager: LifecycleObserver, ManagerLifecycle {
 
     override fun pause() {
         LogUtil.log.v(TAG, "pausing...")
-        //todo billing.disconnect()
+    }
+
+    override fun stop() {
+        LogUtil.log.v(TAG, "stopping...")
+        billing.disconnect()
     }
 
     override fun destroy() {
@@ -88,14 +98,14 @@ class Manager: LifecycleObserver, ManagerLifecycle {
                 LogUtil.log.i(TAG, "Attempting to complete purchase order : $purchase, type: $productType")
                 when(productType) {
                     Product.ProductType.SUBSCRIPTION -> {
-                        Subscription.completeOrder(billing.getBillingClient(), purchase, sales.order, mainScope = mainScope)
+                        Subscription.completeOrder(billing.getBillingClient(), purchase, sales.getOrderOrQueried(), mainScope = mainScope)
                     }
                     Product.ProductType.NON_CONSUMABLE -> {
-                        NonConsumable.completeOrder(billing.getBillingClient(), purchase, sales.order, mainScope = mainScope)
+                        NonConsumable.completeOrder(billing.getBillingClient(), purchase, sales.getOrderOrQueried(), mainScope = mainScope)
                     }
 
                     Product.ProductType.CONSUMABLE -> {
-                        Consumable.completeOrder(billing.getBillingClient(), purchase, sales.order)
+                        Consumable.completeOrder(billing.getBillingClient(), purchase, sales.getOrderOrQueried())
                     }
                     else -> LogUtil.log.v(TAG, "Unhandled product type: $productType")
                 }
@@ -104,6 +114,15 @@ class Manager: LifecycleObserver, ManagerLifecycle {
     }
 
     private val billingAgent = object : BillingAgent {
+
+        override fun isBillingClientReady(): LiveData<Boolean> {
+            return billing.isBillingClientReady
+        }
+
+        override fun queriedOrders(listener: Sales.OrderValidatorListener) : LiveData<Order> {
+            sales.orderValidatorListener = listener
+            return sales.queriedOrder
+        }
 
         override fun purchase(
             activity: Activity?,
@@ -130,10 +149,10 @@ class Manager: LifecycleObserver, ManagerLifecycle {
             return sales.order
         }
 
-        override fun addProductsToInventory(
+        override fun getAvailableProducts(
             skuList: MutableList<String>,
             productType: Product.ProductType
-        ) {
+        ) : LiveData<Map<String, SkuDetails>> {
             LogUtil.log.v(TAG, "addProductsToInventory")
             when(productType) {
                 Product.ProductType.NON_CONSUMABLE -> inventory.loadInAppProducts(skuList, false)
@@ -147,23 +166,13 @@ class Manager: LifecycleObserver, ManagerLifecycle {
                 Product.ProductType.PROMO_SUBSCRIPTION -> inventory.loadPromotions(skuList, productType)
                 else -> LogUtil.log.w(TAG, "Unhandled product type: $productType")
             }
+            return inventory.requestedProducts
         }
 
-        override fun getInAppProductsHistory(): MutableList<Purchase> {
-            return history.getInAppProductsHistory()
+        override fun getProductDetails(productId: String) : SkuDetails? {
+            return inventory.getProductDetails(productId)
         }
 
-        override fun getSubscriptionHistory(): MutableList<Purchase> {
-            return history.getSubscriptionHistory()
-        }
-
-        //move to initializer
-        override fun setOrderValidator(validator: Sales.OrderValidatorListener) {
-            sales.orderValidatorListener = validator
-        }
-
-        //todo fun cancel() ???
-        //todo is this necessary?
         override fun getPurchaseHistory(skuType: String, listener: PurchaseHistoryResponseListener) {
             billing.getBillingClient()?.queryPurchaseHistoryAsync(skuType, listener)
         }

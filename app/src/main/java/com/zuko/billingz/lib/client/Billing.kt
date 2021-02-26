@@ -2,6 +2,7 @@ package com.zuko.billingz.lib.client
 
 import android.content.Context
 import androidx.annotation.UiThread
+import androidx.lifecycle.MutableLiveData
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.zuko.billingz.lib.model.CleanUp
@@ -9,7 +10,7 @@ import com.zuko.billingz.lib.model.CleanUp
 interface Billing: CleanUp {
 
     fun getBillingClient(): BillingClient?
-
+    var isBillingClientReady: MutableLiveData<Boolean>
     @UiThread
     fun initialized(): Boolean
 

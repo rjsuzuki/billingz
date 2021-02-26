@@ -17,9 +17,6 @@ interface History: CleanUp {
     fun queryPurchases(sales: Sales)
     fun queryPurchaseHistory(skuType: String, listener: PurchaseHistoryResponseListener)
 
-    fun getSubscriptionHistory() : MutableList<Purchase>
-    fun getInAppProductsHistory() : MutableList<Purchase>
-
     fun getOwnedSubscriptions() : MutableList<Purchase>
     fun getOwnedInAppProducts() : MutableList<Purchase>
 }
