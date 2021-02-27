@@ -17,11 +17,19 @@ Android Billing Lib --> Manager --> Client -->
 
 1. Clone or download project
 2. Open Android Studio > open project you want to install the library into.
-3a. File > New > New Module
-4a. Import .JAR/.AAR Package > click Next
-Or.
-3b. File > New > Import Module
-4b. Enter the location of the library module directory then click Finish
+
+Next, choose one of the available methods:
+
+3. File > New > New Module
+4. Import .JAR/.AAR Package > click Next
+   
+Or
+
+3. File > New > Import Module
+4. Enter the location of the library module directory then click Finish
+
+continue
+
 5. Make sure the library is listed at the top of your settings.gradle file,
 as shown here for a library named "my-library-module":
 `include ':app', ':my-library-module'`
