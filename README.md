@@ -24,7 +24,7 @@ Or.
 4b. Enter the location of the library module directory then click Finish
 5. Make sure the library is listed at the top of your settings.gradle file,
 as shown here for a library named "my-library-module":
-`include ':app', ':my-library-module'
+`include ':app', ':my-library-module'`
 6. Open the app module's build.gradle file and add a new line to the dependencies:
 ```
 dependencies {
