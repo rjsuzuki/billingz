@@ -3,6 +3,12 @@
 a simple/convenience library for implementing Android's Billing Library.
 ### Version History
 `v1.0.0`
+
+### Linting
+
+- [dokka](https://github.com/Kotlin/dokka/blob/master/README.md)
+- [kdoc syntax](https://kotlinlang.org/docs/kotlin-doc.html#block-tags)
+
 ### Architecture
 
 
