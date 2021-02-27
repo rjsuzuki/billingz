@@ -63,7 +63,18 @@ dependencies {
 - Create an Issue through the repository's github Issues page.
 
 ### References
+
+- [security](https://developer.android.com/google/play/billing/security)
+A special case of sensitive data and logic that should be handled in the backend is purchase verification. After a user has made a purchase, you should do the following:
+
+1. Send the corresponding purchaseToken to your backend. This means that you should maintain a record of all purchaseToken values for all purchases.
+2. Verify that the purchaseToken value for the current purchase does not match any previous purchaseToken values. purchaseToken is globally unique, so you can safely use this value as a primary key in your database.
+3. Use the Purchases.products:get or Purchases.subscriptions:get endpoints in the Google Play Developer API to verify with Google that the purchase is legitimate.
+4. If the purchase is legitimate and has not been used in the past, you can then safely grant entitlement to the in-app item or subscription.
+5. For subscriptions, when linkedPurchaseToken is set in Purchases.subscriptions:get, you should also remove the linkedPurchaseToken from your database and revoke the entitlement that is granted to the linkedPurchaseToken to ensure that multiple users are not entitled for the same purchase.
+6. Note: Do not use orderId to check for duplicate purchases or as a primary key in your database, as not all purchases are guaranteed to generate an orderId. In particular, purchases made with promo codes do not generate an orderId.
 Google Play tracks products and transactions using purchase tokens and Order IDs.
+7. Ensure to support [voided purchases](https://developers.google.com/android-publisher/voided-purchases)
 
 A purchase token is a string that represents a buyer's entitlement to a product on Google Play. It indicates that a Google user is entitled to a specific product that is represented by a SKU. You can use the purchase token with the Google Play Developer API.
 An Order ID is a string that represents a financial transaction on Google Play. This string is included in a receipt that is emailed to the buyer. You can use the Order ID to manage refunds in the used in sales and payout reports.
