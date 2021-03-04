@@ -4,28 +4,28 @@ a simple/convenience library for implementing Android's Billing Library.
 ### Version History
 `v1.0.0`
 
-### Architecture
+## Architecture
 
 [Click here to view full documentation](https://rjsuzuki.github.io/billingz-dokka/)
 
 Android Billing Lib --> Manager --> Agent 
 
-### How to add module to your project
+## How to add module to your project
 
-1. Clone or download project
-2. Open Android Studio > open project you want to install the library into.
+ 1. Clone or download project
+ 2. Open Android Studio > open project you want to install the library into.
 
 Next, choose one of the available methods:
 
 3. File > New > New Module
 4. Import .JAR/.AAR Package > click Next
    
-Or
+or,
 
 3. File > New > Import Module
 4. Enter the location of the library module directory then click Finish
 
-continue
+continue.
 
 5. Make sure the library is listed at the top of your settings.gradle file,
 as shown here for a library named "my-library-module":
@@ -39,19 +39,19 @@ dependencies {
 7. Sync project with gradle files.
 [Android Reference](https://developer.android.com/studio/projects/android-library)
 
-### Requirements
+## Requirements
 
 - minSdk = 21
 
-### Permissions
+## Permissions
 
 - android.permission.ACCESS_NETWORK_STATE
 
-### Licensing
+## Licensing
 
 - todo
 
-### Changelog
+## Changelog
 
 [Keep a changelog](https://keepachangelog.com/en/1.0.0/)
 
@@ -59,13 +59,13 @@ dependencies {
 
 - Create an Issue through the repository's github Issues page.
 
-### Linting
+## Linting
 
 - [dokka](https://github.com/Kotlin/dokka/blob/master/README.md)
 - [kdoc syntax](https://kotlinlang.org/docs/kotlin-doc.html#block-tags)
 - `./gradlew dokkaHtml`
 
-#### Common kdoc annotations
+### Common kdoc annotations
 `@param name description`
 `@Deprecated` not `@deprecated`
 `Use the method [foo] for this purpose.`
