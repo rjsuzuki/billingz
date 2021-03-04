@@ -10,6 +10,9 @@ import com.zuko.billingz.lib.LogUtil
 import com.zuko.billingz.lib.sales.Order
 import kotlinx.coroutines.CoroutineScope
 
+/**
+ * @author rjsuzuki
+ */
 object Consumable: Product {
 
     private const val TAG = "Consumable"

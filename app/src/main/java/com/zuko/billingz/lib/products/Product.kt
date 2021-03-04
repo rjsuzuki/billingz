@@ -8,6 +8,8 @@ import kotlinx.coroutines.CoroutineScope
 
 
 /**
+ * @author rjsuzuki
+ *
  * Note: Do not use orderId to check for duplicate purchases or as a primary key in your database,
  * as not all purchases are guaranteed to generate an orderId.
  * In particular, purchases made with promo codes do not generate an orderId.

@@ -11,6 +11,11 @@ interface Billing: CleanUp {
 
     fun getBillingClient(): BillingClient?
     var isBillingClientReady: MutableLiveData<Boolean>
+
+    /**
+     * @return Boolean
+     * Checks if the client has been initialized yet
+     */
     @UiThread
     fun initialized(): Boolean
 
@@ -22,22 +27,49 @@ interface Billing: CleanUp {
     @UiThread
     fun isReady(): Boolean
 
+    /**
+     * Initialize the Android Billing Library
+     * INTERNAL USE ONLY
+     * @param context
+     * @param purchasesUpdatedListener
+     * @param googlePlayConnectListener
+     */
     @UiThread
     fun initClient(context: Context?,
                    purchasesUpdatedListener: PurchasesUpdatedListener,
                    googlePlayConnectListener: GooglePlayConnectListener)
+
+    /**
+     * Starts connection to GooglePlay
+     * INTERNAL USE ONLY
+     */
     @UiThread
     fun connect()
 
+    /**
+     * Stops connection to GooglePlay
+     * INTERNAL USE ONLY
+     */
     @UiThread
     fun disconnect()
 
+    /**
+     * Verifies connection to GooglePlay
+     */
     fun checkConnection()
 
+    /**
+     * Callback used to respond to a successful connection.
+     * INTERNAL USE ONLY
+     */
     interface GooglePlayConnectListener {
         fun connected()
     }
 
+    /**
+     * Interface for reconnection logic to Google Play
+     * INTERNAL USE ONLY
+     */
     interface GooglePlayReconnectListener {
         @UiThread
         fun retry()

@@ -181,7 +181,13 @@ class Manager: LifecycleObserver, ManagerLifecycle {
     /*****************************************************************************************************
      * Public Methods - Facade Pattern
      *****************************************************************************************************/
-    
+
+    /**
+     * Returns the primary class for developers to conveniently
+     * interact with Android's Billing Library (Facade pattern).
+     * @return [BillingAgent]
+     */
+    @Suppress("unused")
     fun getAgent(): BillingAgent {
         return billingAgent
     }
