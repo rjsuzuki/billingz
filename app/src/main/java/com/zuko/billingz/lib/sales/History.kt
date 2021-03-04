@@ -4,6 +4,9 @@ import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchaseHistoryResponseListener
 import com.zuko.billingz.lib.model.CleanUp
 
+/**
+ * @author rjsuzuki
+ */
 interface History: CleanUp {
 
     /**

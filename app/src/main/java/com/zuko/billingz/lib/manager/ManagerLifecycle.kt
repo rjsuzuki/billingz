@@ -5,7 +5,15 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.OnLifecycleEvent
 import com.zuko.billingz.lib.sales.Sales
 
+/**
+ * @author rjsuzuki
+ */
 interface ManagerLifecycle {
+
+    /**
+     * Public method that must be called by developer to properly
+     * integrate the library.
+     */
     fun init(context: Context?)
 
     /**

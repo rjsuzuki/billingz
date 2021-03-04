@@ -10,6 +10,9 @@ import com.zuko.billingz.lib.LogUtil
 import com.zuko.billingz.lib.inventory.Inventory
 import com.zuko.billingz.lib.products.Product
 
+/**
+ * @author rjsuzuki
+ */
 class ProductSales(private val inventory: Inventory): Sales {
 
     private var isQueriedOrders = false

@@ -4,6 +4,10 @@ a simple/convenience library for implementing Android's Billing Library.
 ### Version History
 `v1.0.0`
 
+### Changelog
+
+[Keep a changelog](https://keepachangelog.com/en/1.0.0/)
+
 ### Linting
 
 - [dokka](https://github.com/Kotlin/dokka/blob/master/README.md)
@@ -15,15 +19,18 @@ a simple/convenience library for implementing Android's Billing Library.
 `@Deprecated` not `@deprecated`
 `Use the method [foo] for this purpose.`
 
+### Requirements
+
+- minSdk = 21
+
+### Permissions Required
+
+- android.permission.ACCESS_NETWORK_STATE
+
 ### Architecture
 
-
-Facade Pattern
-
-Android Billing Lib --> Manager --> Client -->
-
-
-
+Android Billing Lib --> Manager --> Agent
+- [See our full documentation here]()
 
 ### How to add module to your project
 
@@ -54,21 +61,9 @@ dependencies {
 7. Sync project with gradle files.
 [Android Reference](https://developer.android.com/studio/projects/android-library)
 
-### Requirements
-
-- minSdk = 21
-
-### Permissions
-
-- android.permission.ACCESS_NETWORK_STATE
-
 ### Licensing
 
 - todo
-
-### Changelog
-
-[Keep a changelog](https://keepachangelog.com/en/1.0.0/)
 
 ### Bug Reporting
 

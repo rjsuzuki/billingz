@@ -7,6 +7,9 @@ import com.zuko.billingz.lib.LogUtil
 import com.zuko.billingz.lib.client.Billing
 import kotlinx.coroutines.*
 
+/**
+ * @author rjsuzuki
+ */
 class OrderHistory(val client: Billing): History {
 
     private val mainScope = MainScope()

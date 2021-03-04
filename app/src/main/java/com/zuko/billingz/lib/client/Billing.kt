@@ -7,6 +7,9 @@ import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.zuko.billingz.lib.model.CleanUp
 
+/**
+ * @author rjsuzuki
+ */
 interface Billing: CleanUp {
 
     fun getBillingClient(): BillingClient?

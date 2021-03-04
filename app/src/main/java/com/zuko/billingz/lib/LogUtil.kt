@@ -2,6 +2,10 @@ package com.zuko.billingz.lib
 
 import android.util.Log
 
+/**
+ * Custom Logging class with android.util.Log
+ * @author rjsuzuki
+ */
 object LogUtil {
 
     private var verbosity: Int = Log.DEBUG

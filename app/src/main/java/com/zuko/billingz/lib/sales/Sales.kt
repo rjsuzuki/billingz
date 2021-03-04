@@ -11,6 +11,9 @@ import com.zuko.billingz.lib.model.CleanUp
 import com.zuko.billingz.lib.products.Product
 import kotlinx.coroutines.CoroutineScope
 
+/**
+ * @author rjsuzuki
+ */
 interface Sales: CleanUp {
 
     var orderUpdateListener: OrderUpdateListener?

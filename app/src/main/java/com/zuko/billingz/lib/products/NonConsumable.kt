@@ -10,6 +10,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+/**
+ * @author rjsuzuki
+ */
 object NonConsumable: Product {
     private const val TAG = "NonConsumable"
     override val type: Product.ProductType = Product.ProductType.NON_CONSUMABLE

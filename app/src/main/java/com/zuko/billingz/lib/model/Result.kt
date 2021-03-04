@@ -1,5 +1,10 @@
 package com.zuko.billingz.lib.model
 
+/**
+ * Wrapper class for LiveData objects
+ * Currently unused
+ * @author rjsuzuki
+ */
 class Result<T> private constructor(val status: Status, val data: T?, val msg: String?) {
 
     enum class Status { UNKNOWN, SUCCESS, ERROR, LOADING }

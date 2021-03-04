@@ -7,7 +7,9 @@ import com.android.billingclient.api.SkuDetails
 import com.zuko.billingz.lib.model.CleanUp
 import com.zuko.billingz.lib.products.Product
 
-
+/**
+ * @author rjsuzuki
+ */
 interface Inventory : CleanUp {
     var requestedProducts: MutableLiveData<Map<String, SkuDetails>>
     fun isConsumable(purchase: Purchase) : Boolean
