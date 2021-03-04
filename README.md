@@ -4,26 +4,11 @@ a simple/convenience library for implementing Android's Billing Library.
 ### Version History
 `v1.0.0`
 
-### Linting
-
-- [dokka](https://github.com/Kotlin/dokka/blob/master/README.md)
-- [kdoc syntax](https://kotlinlang.org/docs/kotlin-doc.html#block-tags)
-- `./gradlew dokkaHtml`
-
-#### Common kdoc annotations
-`@param name description`
-`@Deprecated` not `@deprecated`
-`Use the method [foo] for this purpose.`
-
 ### Architecture
 
+[Click here to view full documentation](https://rjsuzuki.github.io/billingz-dokka/)
 
-Facade Pattern
-
-Android Billing Lib --> Manager --> Client -->
-
-
-
+Android Billing Lib --> Manager --> Agent 
 
 ### How to add module to your project
 
@@ -73,6 +58,17 @@ dependencies {
 ### Bug Reporting
 
 - Create an Issue through the repository's github Issues page.
+
+### Linting
+
+- [dokka](https://github.com/Kotlin/dokka/blob/master/README.md)
+- [kdoc syntax](https://kotlinlang.org/docs/kotlin-doc.html#block-tags)
+- `./gradlew dokkaHtml`
+
+#### Common kdoc annotations
+`@param name description`
+`@Deprecated` not `@deprecated`
+`Use the method [foo] for this purpose.`
 
 ### References
 
