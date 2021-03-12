@@ -47,9 +47,6 @@ dependencies {
 
 - android.permission.ACCESS_NETWORK_STATE
 
-## Licensing
-
-- todo
 
 ## Changelog
 
