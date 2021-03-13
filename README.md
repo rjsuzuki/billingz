@@ -39,9 +39,19 @@ dependencies {
 7. Sync project with gradle files.
 [Android Reference](https://developer.android.com/studio/projects/android-library)
 
+8. Initialize the Manager class in Activity class's `onCreate()` method:
+```
+override fun onCreate(savedInstanceState: Bundle?) {
+  val manager = Manager()
+  manager.init(context)
+  lifecycle.addObserver(manager)
+}
+```
+
 ## Requirements
 
 - minSdk = 21
+- This is an opinionated design to be used with Android's LiveData and Lifecycle components.
 
 ## Permissions
 
