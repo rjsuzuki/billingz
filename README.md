@@ -1,6 +1,9 @@
 # Billingz
 
-a simple/convenience library for implementing Android's Billing Library.
+A simple/convenience library for implementing Android's Billing Library.
+
+Currently supports up to : `com.android.billingclient:billing-ktx:3.0.2`
+
 ### Version History
 `v1.0.0`
 
