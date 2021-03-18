@@ -99,7 +99,7 @@ class StoreInventory(val billing: Billing) : Inventory {
                     subscriptions = subscriptions + skuDetailsList.associateBy { it.sku }
                     requestedProducts.postValue(subscriptions)
                 }
-                Product.ProductType.UNDEFINED -> {
+                Product.ProductType.ALL -> {
                     requestedProducts.postValue(allProducts)
                 }
                 else -> LogUtil.log.w(TAG, "Unhandled product type: $productType")

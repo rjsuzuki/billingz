@@ -1,10 +1,9 @@
 package com.zuko.billingz.lib.inventory
 
-import androidx.annotation.UiThread
 import androidx.lifecycle.MutableLiveData
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.SkuDetails
-import com.zuko.billingz.lib.model.CleanUp
+import com.zuko.billingz.lib.extra.CleanUp
 import com.zuko.billingz.lib.products.Product
 
 /**

@@ -1,23 +1,30 @@
 package com.zuko.billingz.lib.sales
 
 import android.app.Activity
-import androidx.annotation.UiThread
 import androidx.collection.ArrayMap
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.android.billingclient.api.*
-import com.zuko.billingz.lib.client.Billing
-import com.zuko.billingz.lib.model.CleanUp
+import com.zuko.billingz.lib.extra.CleanUp
 import com.zuko.billingz.lib.products.Product
-import kotlinx.coroutines.CoroutineScope
 
 /**
  * @author rjsuzuki
  */
 interface Sales: CleanUp {
 
+    /**
+     *
+     */
     var orderUpdateListener: OrderUpdateListener?
+
+    /**
+     *
+     */
     var orderValidatorListener: OrderValidatorListener?
+
+    /**
+     *
+     */
     var purchasesUpdatedListener: PurchasesUpdatedListener
 
     /**
@@ -28,10 +35,26 @@ interface Sales: CleanUp {
      * or when the app is verifying a list of queried purchases.
      */
     var order: MutableLiveData<Order>
+
+    /**
+     *
+     */
     var queriedOrder: MutableLiveData<Order>
+
+    /**
+     *
+     */
     fun getOrderOrQueried(): MutableLiveData<Order>
 
+    /**
+     *
+     * ArrayMap<OrderId, Purchase>
+     */
     var pendingPurchases: ArrayMap<String, Purchase>
+
+    /**
+     *
+     */
     fun startPurchaseRequest(activity: Activity,
                              skuDetails: SkuDetails,
                              billingClient: BillingClient) : BillingResult
@@ -45,6 +68,9 @@ interface Sales: CleanUp {
      */
     fun processUpdatedPurchases(billingResult: BillingResult?, purchases: MutableList<Purchase>?)
 
+    /**
+     *
+     */
     fun processValidation(purchase: Purchase)
 
     /**
@@ -54,12 +80,24 @@ interface Sales: CleanUp {
      */
     fun isNewPurchase(purchase: Purchase) : Boolean
 
+    /**
+     *
+     */
     fun processInAppPurchase(purchase: Purchase)
 
+    /**
+     *
+     */
     fun processSubscription(purchase: Purchase)
 
+    /**
+     *
+     */
     fun processPendingTransaction(purchase: Purchase)
 
+    /**
+     *
+     */
     fun processPurchasingError(billingResult: BillingResult?)
 
     /**

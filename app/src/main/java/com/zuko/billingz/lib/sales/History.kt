@@ -2,7 +2,7 @@ package com.zuko.billingz.lib.sales
 
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchaseHistoryResponseListener
-import com.zuko.billingz.lib.model.CleanUp
+import com.zuko.billingz.lib.extra.CleanUp
 
 /**
  * @author rjsuzuki

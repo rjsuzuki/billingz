@@ -10,7 +10,7 @@ import kotlinx.coroutines.*
 /**
  * @author rjsuzuki
  */
-class OrderHistory(val client: Billing): History {
+class OrderHistory(private val client: Billing): History {
 
     private val mainScope = MainScope()
     private var activeSubscriptions: MutableList<Purchase> = mutableListOf()

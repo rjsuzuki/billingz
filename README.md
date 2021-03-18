@@ -1,6 +1,9 @@
 # Billingz
 
-a simple/convenience library for implementing Android's Billing Library.
+A simple/convenience library for implementing Android's Billing Library.
+
+Currently supports up to : `com.android.billingclient:billing-ktx:3.0.2`
+
 ### Version History
 `v1.0.0`
 
@@ -30,25 +33,26 @@ a simple/convenience library for implementing Android's Billing Library.
 
 ### Architecture
 
+[Click here to view full documentation](https://rjsuzuki.github.io/billingz-dokka/)
+
 Android Billing Lib --> Manager --> Agent
-- [See our full documentation here]()
 
-### How to add module to your project
+## How to add module to your project
 
-1. Clone or download project
-2. Open Android Studio > open project you want to install the library into.
+ 1. Clone or download project
+ 2. Open Android Studio > open project you want to install the library into.
 
 Next, choose one of the available methods:
 
 3. File > New > New Module
 4. Import .JAR/.AAR Package > click Next
    
-Or
+or,
 
 3. File > New > Import Module
 4. Enter the location of the library module directory then click Finish
 
-continue
+continue.
 
 5. Make sure the library is listed at the top of your settings.gradle file,
 as shown here for a library named "my-library-module":
@@ -62,9 +66,28 @@ dependencies {
 7. Sync project with gradle files.
 [Android Reference](https://developer.android.com/studio/projects/android-library)
 
-### Licensing
+8. Initialize the Manager class in Activity class's `onCreate()` method:
+```
+override fun onCreate(savedInstanceState: Bundle?) {
+  val manager = Manager()
+  manager.init(context)
+  lifecycle.addObserver(manager)
+}
+```
 
-- todo
+## Requirements
+
+- minSdk = 21
+- This is an opinionated design to be used with Android's LiveData and Lifecycle components.
+
+## Testing your integration
+1. Review the Android documentation for testing in-app billing [here](https://developer.android.com/google/play/billing/test#testing-purchases)
+2. Sign into your [Google Play Developer Account](https://play.google.com/apps/publish/) and setup [application licensing](https://developer.android.com/google/play/licensing/overview.html)
+3. In Play Console > navigate to Settings > Account details > "License Testing" > add your testers Gmail address > Save
+
+## Permissions
+
+- android.permission.ACCESS_NETWORK_STATE
 
 ### Bug Reporting
 
@@ -102,3 +125,27 @@ In grace period: User experienced a payment issue, but still has access while Go
 On hold: User experienced a payment issue, and no longer has access while Google is retrying the payment method.
 Paused: User paused their access, and does not have access until they resume.
 Expired: User has cancelled and lost access to the subscription. The user is considered churned at expiration.
+
+### Licensing
+
+MIT License
+
+Copyright (c) [2021] [ryanjsuzuki.com]
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

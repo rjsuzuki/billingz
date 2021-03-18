@@ -1,9 +1,8 @@
-package com.zuko.billingz.lib.facade
+package com.zuko.billingz.lib.agent
 
 import android.app.Activity
 import androidx.annotation.UiThread
 import androidx.lifecycle.LiveData
-import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchaseHistoryResponseListener
 import com.android.billingclient.api.SkuDetails
 import com.zuko.billingz.lib.products.Product
@@ -11,6 +10,8 @@ import com.zuko.billingz.lib.sales.Order
 import com.zuko.billingz.lib.sales.Sales
 
 /**
+ * Facade pattern - a simple interface for interacting with the main features of
+ * the Google Billing Library
  * @author rjsuzuki
  */
 interface BillingAgent {
@@ -47,10 +48,9 @@ interface BillingAgent {
 
     /**
      * Get all available products,
-     * set productType to UNDEFINED to query all products.
+     * set productType to ALL to query all products.
      * @param skuList: MutableList<String>
      * @param productType: Product.ProductType
-     * @param skuType: BillingClient.SkuType
      * @return [LiveData<Map<String, SkuDetails>]
      */
     fun getAvailableProducts(skuList: MutableList<String>,

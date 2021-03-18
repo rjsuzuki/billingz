@@ -1,4 +1,4 @@
-package com.zuko.billingz.lib.model
+package com.zuko.billingz.lib.extra
 
 import android.util.Log
 import com.android.billingclient.api.BillingClient
