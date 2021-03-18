@@ -13,6 +13,7 @@ a simple/convenience library for implementing Android's Billing Library.
 - [dokka](https://github.com/Kotlin/dokka/blob/master/README.md)
 - [kdoc syntax](https://kotlinlang.org/docs/kotlin-doc.html#block-tags)
 - `./gradlew dokkaHtml`
+- `./gradlew dokkaJavadoc`
 
 #### Common kdoc annotations
 `@param name description`
