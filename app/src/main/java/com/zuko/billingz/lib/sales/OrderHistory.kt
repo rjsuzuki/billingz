@@ -7,7 +7,7 @@ import com.zuko.billingz.lib.LogUtil
 import com.zuko.billingz.lib.client.Billing
 import kotlinx.coroutines.*
 
-class OrderHistory(val client: Billing): History {
+class OrderHistory(private val client: Billing): History {
 
     private val mainScope = MainScope()
     private var activeSubscriptions: MutableList<Purchase> = mutableListOf()

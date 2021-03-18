@@ -20,10 +20,7 @@ class ProductSales(private val inventory: Inventory): Sales {
     override var purchasesUpdatedListener: PurchasesUpdatedListener =
         PurchasesUpdatedListener { billingResult, purchases -> processUpdatedPurchases(billingResult, purchases) }
 
-    /**
-     *
-     * ArrayMap<OrderId, Purchase>
-     */
+
     override var pendingPurchases = ArrayMap<String, Purchase>()
 
     private val validation: Sales.ValidatorCallback = object: Sales.ValidatorCallback {

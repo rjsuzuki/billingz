@@ -2,21 +2,24 @@ package com.zuko.billingz.lib.manager
 
 import android.app.Activity
 import android.content.Context
-import androidx.lifecycle.*
-import com.android.billingclient.api.*
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.LiveData
+import com.android.billingclient.api.Purchase
+import com.android.billingclient.api.PurchaseHistoryResponseListener
+import com.android.billingclient.api.SkuDetails
 import com.zuko.billingz.lib.LogUtil
-import com.zuko.billingz.lib.client.Client
-import com.zuko.billingz.lib.inventory.StoreInventory
-import com.zuko.billingz.lib.client.Billing
 import com.zuko.billingz.lib.agent.BillingAgent
+import com.zuko.billingz.lib.client.Billing
+import com.zuko.billingz.lib.client.Client
 import com.zuko.billingz.lib.inventory.Inventory
+import com.zuko.billingz.lib.inventory.StoreInventory
 import com.zuko.billingz.lib.products.Consumable
 import com.zuko.billingz.lib.products.NonConsumable
 import com.zuko.billingz.lib.products.Product
 import com.zuko.billingz.lib.products.Subscription
 import com.zuko.billingz.lib.sales.*
-
-import kotlinx.coroutines.*
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
 
 /**
  * @author rjsuzuki
@@ -100,12 +103,13 @@ class Manager: LifecycleObserver, ManagerLifecycle {
                     Product.ProductType.SUBSCRIPTION -> {
                         Subscription.completeOrder(billing.getBillingClient(), purchase, sales.getOrderOrQueried(), mainScope = mainScope)
                     }
+
                     Product.ProductType.NON_CONSUMABLE -> {
                         NonConsumable.completeOrder(billing.getBillingClient(), purchase, sales.getOrderOrQueried(), mainScope = mainScope)
                     }
 
                     Product.ProductType.CONSUMABLE -> {
-                        Consumable.completeOrder(billing.getBillingClient(), purchase, sales.getOrderOrQueried())
+                        Consumable.completeOrder(billing.getBillingClient(), purchase, sales.getOrderOrQueried(), null)
                     }
                     else -> LogUtil.log.v(TAG, "Unhandled product type: $productType")
                 }

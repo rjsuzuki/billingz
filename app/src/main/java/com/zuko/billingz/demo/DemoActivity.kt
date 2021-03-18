@@ -17,7 +17,9 @@ class DemoActivity: AppCompatActivity() {
             if(isReady) {
                 // load products
                 val products = mutableListOf<String>("product_01", "product_02", "product_03")
-                bm.getAgent().getAvailableProducts(products, Product.ProductType.ALL)
+                bm.getAgent().getAvailableProducts(products, Product.ProductType.ALL).observe(this, Observer { map ->
+
+                })
             }
         })
     }
@@ -32,6 +34,10 @@ class DemoActivity: AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+    }
+
+    private fun createMockProducts() {
+
     }
 
     companion object {

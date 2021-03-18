@@ -56,6 +56,11 @@ override fun onCreate(savedInstanceState: Bundle?) {
 - minSdk = 21
 - This is an opinionated design to be used with Android's LiveData and Lifecycle components.
 
+## Testing your integration
+1. Review the Android documentation for testing in-app billing [here](https://developer.android.com/google/play/billing/test#testing-purchases)
+2. Sign into your [Google Play Developer Account](https://play.google.com/apps/publish/) and setup [application licensing](https://developer.android.com/google/play/licensing/overview.html)
+3. In Play Console > navigate to Settings > Account details > "License Testing" > add your testers Gmail address > Save
+
 ## Permissions
 
 - android.permission.ACCESS_NETWORK_STATE

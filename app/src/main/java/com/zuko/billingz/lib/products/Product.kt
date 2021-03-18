@@ -3,6 +3,7 @@ package com.zuko.billingz.lib.products
 import androidx.lifecycle.MutableLiveData
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.Purchase
+import com.android.billingclient.api.SkuDetails
 import com.zuko.billingz.lib.sales.Order
 import kotlinx.coroutines.CoroutineScope
 
@@ -16,7 +17,36 @@ import kotlinx.coroutines.CoroutineScope
  */
 interface Product {
 
-    enum class SkuType { INAPP, SUB }
+    /**
+     * A convenience variable for database management.
+     * You may need to override each class to provide annotations for Room
+     */
+    var id: Int?
+
+    /**
+     * The sku product id that is referenced by your Google Play account
+     */
+    var sku: String?
+
+    /**
+     * A convenience variable to provide the name of your product
+     */
+    var name: String?
+
+    /**
+     * A convenience variable to provide the price of your product as a String
+     */
+    var price: String?
+
+    /**
+     * A convenience variable to provide a description of your product
+     */
+    var description: String?
+
+    /**
+     * @see [SkuDetails]
+     */
+    var details: SkuDetails?
 
     enum class ProductType {
         FREE_CONSUMABLE,
@@ -31,10 +61,15 @@ interface Product {
         ALL
     }
 
+    /**
+     * @see [BillingClient.SkuType]
+     */
+    val skuType: String
+
+    /**
+     *
+     */
     val type: ProductType
 
-    fun completeOrder(billingClient: BillingClient?,
-                      purchase: Purchase,
-                      order: MutableLiveData<Order>,
-                      mainScope: CoroutineScope? = null)
+
 }
