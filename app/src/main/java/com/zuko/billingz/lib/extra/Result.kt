@@ -1,4 +1,4 @@
-package com.zuko.billingz.lib.model
+package com.zuko.billingz.lib.extra
 
 class Result<T> private constructor(val status: Status, val data: T?, val msg: String?) {
 

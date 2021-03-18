@@ -5,7 +5,7 @@ import androidx.annotation.UiThread
 import androidx.lifecycle.MutableLiveData
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.PurchasesUpdatedListener
-import com.zuko.billingz.lib.model.CleanUp
+import com.zuko.billingz.lib.extra.CleanUp
 
 interface Billing: CleanUp {
 

@@ -28,7 +28,7 @@ interface Product {
         PROMO_CONSUMABLE,
         PROMO_NON_CONSUMABLE,
         PROMO_SUBSCRIPTION,
-        UNDEFINED
+        ALL
     }
 
     val type: ProductType

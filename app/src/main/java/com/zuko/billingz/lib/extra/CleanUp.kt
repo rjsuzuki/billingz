@@ -1,4 +1,4 @@
-package com.zuko.billingz.lib.model
+package com.zuko.billingz.lib.extra
 
 import androidx.annotation.UiThread
 

@@ -8,7 +8,7 @@ import com.zuko.billingz.lib.LogUtil
 import com.zuko.billingz.lib.client.Client
 import com.zuko.billingz.lib.inventory.StoreInventory
 import com.zuko.billingz.lib.client.Billing
-import com.zuko.billingz.lib.facade.BillingAgent
+import com.zuko.billingz.lib.agent.BillingAgent
 import com.zuko.billingz.lib.inventory.Inventory
 import com.zuko.billingz.lib.products.Consumable
 import com.zuko.billingz.lib.products.NonConsumable

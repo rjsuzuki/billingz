@@ -1,15 +1,11 @@
 package com.zuko.billingz.lib.sales
 
 import android.app.Activity
-import androidx.annotation.UiThread
 import androidx.collection.ArrayMap
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.android.billingclient.api.*
-import com.zuko.billingz.lib.client.Billing
-import com.zuko.billingz.lib.model.CleanUp
+import com.zuko.billingz.lib.extra.CleanUp
 import com.zuko.billingz.lib.products.Product
-import kotlinx.coroutines.CoroutineScope
 
 interface Sales: CleanUp {
 
