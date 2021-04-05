@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.res.ResourcesCompat
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.lottie.LottieAnimationView
 import com.zuko.billingz.R
@@ -76,6 +77,18 @@ class ProductAdapter(private val list: MutableList<Product>, private var listene
             list.remove(product)
             notifyItemRemoved(position)
         }
+    }
+
+    /**
+     * Update Product list with diffUtil.
+     */
+    fun updateList(newList: MutableList<Product>) {
+        val oldList = mutableListOf<Product>()
+        oldList.addAll(list)
+        list.clear()
+        list.addAll(newList)
+        val diffResult = DiffUtil.calculateDiff(ProductDiffCallback(oldList, list))
+        diffResult.dispatchUpdatesTo(this)
     }
 
     companion object {
