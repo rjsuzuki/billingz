@@ -161,7 +161,7 @@ class Manager: LifecycleObserver, ManagerLifecycle {
             when(productType) {
                 Product.ProductType.NON_CONSUMABLE -> inventory.loadInAppProducts(skuList, false)
                 Product.ProductType.CONSUMABLE -> inventory.loadInAppProducts(skuList, true)
-                Product.ProductType.SUBSCRIPTION -> inventory.loadSubscriptionProducts(skuList)
+                Product.ProductType.SUBSCRIPTION -> inventory.loadSubscriptions(skuList)
                 Product.ProductType.FREE_CONSUMABLE -> inventory.loadFreeProducts(skuList, productType)
                 Product.ProductType.FREE_NON_CONSUMABLE -> inventory.loadFreeProducts(skuList, productType)
                 Product.ProductType.FREE_SUBSCRIPTION -> inventory.loadFreeProducts(skuList, productType)
@@ -177,7 +177,7 @@ class Manager: LifecycleObserver, ManagerLifecycle {
             return inventory.getProductDetails(productId)
         }
 
-        override fun getPurchaseHistory(skuType: String, listener: PurchaseHistoryResponseListener) {
+        override fun getBillingHistory(skuType: String, listener: PurchaseHistoryResponseListener) {
             billing.getBillingClient()?.queryPurchaseHistoryAsync(skuType, listener)
         }
     }

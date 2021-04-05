@@ -1,10 +1,9 @@
-package com.zuko.billingz.demo
+package com.zuko.billingz.ui
 
 import android.content.DialogInterface
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -16,12 +15,7 @@ import com.zuko.billingz.lib.products.Product
 /**
  * @author rjsuzuki
  */
-class ProductAdapter(
-    /**
-     * Provide a list of the products you created from your Google Play account
-     */
-    private val list: MutableList<Product>
-): RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
+class ProductAdapter(private val list: MutableList<Product>, private var listener: ProductSelectedListener?): RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
 
     inner class ProductViewHolder(val binding: ListItemProductBinding): RecyclerView.ViewHolder(binding.root)
 
@@ -35,11 +29,11 @@ class ProductAdapter(
         holder.binding.productTitle.text = item.sku ?: ""
         holder.binding.productDescription.text = item.description ?: ""
         holder.binding.productBuyBtn.setOnClickListener {
-            //todo vm.productToPurchaseLD.value = item
+            listener?.onPurchaseRequested(item)
             (it as LottieAnimationView).playAnimation()
         }
         holder.binding.productEditIb.setOnClickListener {
-            Toast.makeText(it.context, "TODO", Toast.LENGTH_SHORT).show()
+            listener?.onEditRequested(item)
         }
 
         holder.binding.productRemoveIb.setOnClickListener {
@@ -49,9 +43,7 @@ class ProductAdapter(
             dialog.setIcon(ResourcesCompat.getDrawable(it.context.resources, R.drawable.ic_baseline_delete_24, it.context.theme))
             dialog.setButton(DialogInterface.BUTTON_NEGATIVE, it.resources.getString(R.string.no)) { d, _ -> d?.cancel() }
             dialog.setButton(DialogInterface.BUTTON_POSITIVE, it.resources.getString(R.string.yes)) { d, _ ->
-                //todo vm.productRepository.delete(item) //db
-                list.remove(item) //local
-                notifyItemRemoved(position)
+                removeProduct(item)
                 d.dismiss()
             }
             dialog.show()
@@ -67,6 +59,7 @@ class ProductAdapter(
     /**
      * Add [Product] to list
      */
+    @Suppress("unused")
     fun addProduct(product: Product) {
         val previousSize = list.size
         list.add(product)
@@ -79,6 +72,7 @@ class ProductAdapter(
     fun removeProduct(product: Product) {
         val position = list.indexOf(product)
         if(position > -1) {
+            listener?.onProductDeleted(product)
             list.remove(product)
             notifyItemRemoved(position)
         }

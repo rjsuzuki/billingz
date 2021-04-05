@@ -69,5 +69,5 @@ interface BillingAgent {
      * @param skuType - INAPP or SUB
      * @param listener - @see [PurchaseHistoryResponseListener]
      */
-    fun getPurchaseHistory(skuType: String, listener: PurchaseHistoryResponseListener)
+    fun getBillingHistory(skuType: String, listener: PurchaseHistoryResponseListener)
 }

@@ -26,7 +26,7 @@ interface Inventory : CleanUp {
      * @param skuList, a list of string productIds that will try to match
      * against Google Play's list of available subscriptions
      */
-    fun loadSubscriptionProducts(skuList: MutableList<String>)
+    fun loadSubscriptions(skuList: MutableList<String>)
 
     fun loadFreeProducts(skuList: MutableList<String>, productType: Product.ProductType)
 

@@ -32,7 +32,7 @@ class StoreInventory(val billing: Billing) : Inventory {
         querySkuDetails(skuList, type)
     }
 
-    override fun loadSubscriptionProducts(skuList: MutableList<String>) {
+    override fun loadSubscriptions(skuList: MutableList<String>) {
         querySkuDetails(skuList, Product.ProductType.SUBSCRIPTION)
     }
 
