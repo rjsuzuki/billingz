@@ -8,7 +8,7 @@ import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchaseHistoryResponseListener
 import com.android.billingclient.api.SkuDetails
 import com.zuko.billingz.lib.LogUtil
-import com.zuko.billingz.lib.agent.BillingAgent
+import com.zuko.billingz.lib.agent.Agent
 import com.zuko.billingz.lib.client.Billing
 import com.zuko.billingz.lib.client.Client
 import com.zuko.billingz.lib.inventory.Inventory
@@ -117,7 +117,7 @@ class Manager: LifecycleObserver, ManagerLifecycle {
         }
     }
 
-    private val billingAgent = object : BillingAgent {
+    private val billingAgent = object : Agent {
 
         override fun isBillingClientReady(): LiveData<Boolean> {
             return billing.isBillingClientReady
@@ -177,6 +177,7 @@ class Manager: LifecycleObserver, ManagerLifecycle {
             return inventory.getProductDetails(productId)
         }
 
+        //todo -remove?
         override fun getBillingHistory(skuType: String, listener: PurchaseHistoryResponseListener) {
             billing.getBillingClient()?.queryPurchaseHistoryAsync(skuType, listener)
         }
@@ -189,10 +190,10 @@ class Manager: LifecycleObserver, ManagerLifecycle {
     /**
      * Returns the primary class for developers to conveniently
      * interact with Android's Billing Library (Facade pattern).
-     * @return [BillingAgent]
+     * @return [Agent]
      */
     @Suppress("unused")
-    fun getAgent(): BillingAgent {
+    fun getAgent(): Agent {
         return billingAgent
     }
 

@@ -16,7 +16,6 @@
 
     <!-- Alert Dialog -->
     <style name="StudioDialog" parent="ThemeOverlay.AppCompat.Dialog.Alert">
-        <item name="android:background">@color/teal_200</item>
 
         <item name="android:buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>
         <item name="android:buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
