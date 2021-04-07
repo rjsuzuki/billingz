@@ -10,7 +10,7 @@ object LogUtil {
      * Public method
      */
     fun setLogLevel(level: Int) {
-        if(level in 2..7) {
+        if (level in 2..7) {
             verbosity = level
         }
     }
@@ -25,39 +25,38 @@ object LogUtil {
      */
     private var isLogForwardingEnabled = false
 
-
     object log {
 
-        //2
+        // 2
         fun v(tag: String, msg: String) {
-            if(verbosity >= Log.VERBOSE)
+            if (verbosity >= Log.VERBOSE)
                 Log.v(tag, msg)
         }
 
-        //3
+        // 3
         fun d(tag: String, msg: String) {
-            if(verbosity >= Log.DEBUG)
+            if (verbosity >= Log.DEBUG)
                 Log.d(tag, msg)
         }
 
-        //4
+        // 4
         fun i(tag: String, msg: String) {
-            if(verbosity >= Log.INFO)
+            if (verbosity >= Log.INFO)
                 Log.i(tag, msg)
         }
 
-        //5
+        // 5
         fun w(tag: String, msg: String) {
-            if(isWarningsEnabled)
+            if (isWarningsEnabled)
                 Log.w(tag, msg)
         }
-        //6
+        // 6
         fun e(tag: String, msg: String) {
-            if(isErrorsEnabled)
+            if (isErrorsEnabled)
                 Log.e(tag, msg)
         }
 
-        //7
+        // 7
         fun wtf(tag: String, msg: String) {
             Log.wtf(tag, msg)
         }
