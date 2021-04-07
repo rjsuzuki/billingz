@@ -7,6 +7,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.android.billingclient.api.PurchaseHistoryRecord
 import com.zuko.billingz.R
 import com.zuko.billingz.databinding.ListItemHistoryRecordBinding
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class ReceiptsAdapter(private val list: MutableList<PurchaseHistoryRecord>) : RecyclerView.Adapter<ReceiptsAdapter.HistoryRecordViewHolder>() {
 
@@ -19,6 +22,9 @@ class ReceiptsAdapter(private val list: MutableList<PurchaseHistoryRecord>) : Re
 
     override fun onBindViewHolder(holder: HistoryRecordViewHolder, position: Int) {
         val item = list[position]
+        holder.binding.recordSku.text = item.sku
+        val time = SimpleDateFormat("MM-dd-yyyy hh:mm", Locale.getDefault()).format(Date(item.purchaseTime))
+        holder.binding.recordTime.text = time
         item.sku
         item.signature
         item.purchaseTime
