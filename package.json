@@ -1,0 +1,19 @@
+{
+  "name": "@rjsuzuki/billingz",
+  "version": "1.0.0",
+  "description": "Billingz library package on Github",
+  "main": "index.js",
+  "scripts": {
+    "test": "exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rjsuzuki/billingz.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rjsuzuki/billingz/issues"
+  },
+  "homepage": "https://github.com/rjsuzuki/billingz#readme"
+}
