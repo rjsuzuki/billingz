@@ -113,3 +113,14 @@ dokkaHtml.configure {
         }
     }
 }
+
+task installGitHook(type: Copy) {
+    println "Installing git hooks..."
+
+    from new File(rootProject.rootDir, "scripts/pre-commit")
+    into { new File(rootProject.rootDir, '.git/hooks') }
+
+    fileMode 0775
+}
+
+tasks.getByName("preBuild").dependsOn installGitHook
