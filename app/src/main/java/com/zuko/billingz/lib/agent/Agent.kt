@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import com.android.billingclient.api.PurchaseHistoryResponseListener
 import com.android.billingclient.api.SkuDetails
 import com.zuko.billingz.lib.products.Product
+import com.zuko.billingz.lib.sales.History
 import com.zuko.billingz.lib.sales.Order
 import com.zuko.billingz.lib.sales.Sales
 
@@ -14,7 +15,7 @@ import com.zuko.billingz.lib.sales.Sales
  * the Google Billing Library
  * @author rjsuzuki
  */
-interface BillingAgent {
+interface Agent {
 
     /**
      * Observe changes to the BillingClient's connection to GooglePlay
@@ -69,5 +70,6 @@ interface BillingAgent {
      * @param skuType - INAPP or SUB
      * @param listener - @see [PurchaseHistoryResponseListener]
      */
-    fun getBillingHistory(skuType: String, listener: PurchaseHistoryResponseListener)
+    //fun getBillingHistory(skuType: String, listener: PurchaseHistoryResponseListener)
+    fun getBillingHistory(): History
 }
