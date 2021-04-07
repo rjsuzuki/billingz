@@ -1,29 +1,33 @@
-package com.zuko.billingz.lib.sales
+package com.zuko.billingz.lib.store.sales
 
 import android.app.Activity
 import androidx.collection.ArrayMap
 import androidx.lifecycle.MutableLiveData
-import com.android.billingclient.api.*
-import com.zuko.billingz.lib.extra.CleanUp
-import com.zuko.billingz.lib.products.Product
+import com.android.billingclient.api.BillingClient
+import com.android.billingclient.api.BillingResult
+import com.android.billingclient.api.Purchase
+import com.android.billingclient.api.PurchasesUpdatedListener
+import com.android.billingclient.api.SkuDetails
+import com.zuko.billingz.lib.misc.CleanUp
+import com.zuko.billingz.lib.store.products.Product
 
 /**
  *
  */
-interface Sales: CleanUp {
+interface Sales : CleanUp {
 
     /**
-     *
+     * @see [OrderUpdateListener]
      */
     var orderUpdateListener: OrderUpdateListener?
 
     /**
-     *
+     * @see [OrderValidatorListener]
      */
     var orderValidatorListener: OrderValidatorListener?
 
     /**
-     *
+     * @see [PurchasesUpdatedListener]
      */
     var purchasesUpdatedListener: PurchasesUpdatedListener
 
@@ -37,12 +41,12 @@ interface Sales: CleanUp {
     var order: MutableLiveData<Order>
 
     /**
-     *
+     * mutable live data object of an [Order]
      */
     var queriedOrder: MutableLiveData<Order>
 
     /**
-     *
+     * @return - mutable live data observable for an [Order]
      */
     fun getOrderOrQueried(): MutableLiveData<Order>
 
@@ -53,11 +57,16 @@ interface Sales: CleanUp {
     var pendingPurchases: ArrayMap<String, Purchase>
 
     /**
-     *
+     * @param activity
+     * @param skuDetails
+     * @param billingClient
+     * @return [BillingResult]
      */
-    fun startPurchaseRequest(activity: Activity,
-                             skuDetails: SkuDetails,
-                             billingClient: BillingClient) : BillingResult
+    fun startPurchaseRequest(
+        activity: Activity,
+        skuDetails: SkuDetails,
+        billingClient: BillingClient
+    ): BillingResult
 
     /**
      * Handler method for responding to updates from Android's PurchaseUpdatedListener class
@@ -69,7 +78,7 @@ interface Sales: CleanUp {
     fun processUpdatedPurchases(billingResult: BillingResult?, purchases: MutableList<Purchase>?)
 
     /**
-     *
+     * @param purchase
      */
     fun processValidation(purchase: Purchase)
 
@@ -78,25 +87,25 @@ interface Sales: CleanUp {
      * allowing developer to implement their
      * validator
      */
-    fun isNewPurchase(purchase: Purchase) : Boolean
+    fun isNewPurchase(purchase: Purchase): Boolean
 
     /**
-     *
+     * @param purchase
      */
     fun processInAppPurchase(purchase: Purchase)
 
     /**
-     *
+     * @param purchase
      */
     fun processSubscription(purchase: Purchase)
 
     /**
-     *
+     * @param purchase
      */
     fun processPendingTransaction(purchase: Purchase)
 
     /**
-     *
+     * @param billingResult
      */
     fun processPurchasingError(billingResult: BillingResult?)
 
@@ -114,11 +123,11 @@ interface Sales: CleanUp {
     }
 
     /**
-     * For dev to implement
+     * For developers to implement.
+     * Enables the ability to verify purchases with your own logic,
+     * ensure entitlement was not already granted for this purchaseToken,
+     * and grant entitlement to the user.
      */
-    // Verify the purchase.
-    // Ensure entitlement was not already granted for this purchaseToken.
-    // Grant entitlement to the user.
     interface OrderValidatorListener {
         fun validate(purchase: Purchase, callback: ValidatorCallback)
     }

@@ -1,18 +1,20 @@
-package com.zuko.billingz.lib.sales
+package com.zuko.billingz.lib.store.sales
 
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchaseHistoryResponseListener
 import com.zuko.billingz.lib.LogUtil
-import com.zuko.billingz.lib.client.Billing
-import kotlinx.coroutines.*
+import com.zuko.billingz.lib.store.client.Billing
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
-class OrderHistory(private val client: Billing): History {
+class OrderHistory(private val client: Billing) : History {
 
     private val mainScope = MainScope()
     private var activeSubscriptions: MutableList<Purchase> = mutableListOf()
     private var activeInAppProducts: MutableList<Purchase> = mutableListOf()
-
 
     private var isAlreadyQueried = false
 
@@ -26,7 +28,7 @@ class OrderHistory(private val client: Billing): History {
 
     override fun refreshPurchaseHistory(sales: Sales) {
         LogUtil.log.v(TAG, "queryPurchases")
-        if(isAlreadyQueried) {
+        if (isAlreadyQueried) {
             LogUtil.log.d(TAG, "Skipping purchase history refresh.")
             // skip - prevents double queries on initialization
             isAlreadyQueried = false
@@ -39,7 +41,7 @@ class OrderHistory(private val client: Billing): History {
 
     override fun queryPurchases(sales: Sales) {
         LogUtil.log.v(TAG, "queryPurchases")
-        if(client.isReady()) {
+        if (client.isReady()) {
             LogUtil.log.i(TAG, "Fetching all purchases made by user.")
 
             mainScope.launch(Dispatchers.IO) {
@@ -51,16 +53,16 @@ class OrderHistory(private val client: Billing): History {
         }
     }
 
-    //todo - run async
+    // todo - run async
     private fun querySubscriptions(sales: Sales) {
         LogUtil.log.v(TAG, "querySubscriptions")
-        val subsResult =  client.getBillingClient()?.queryPurchases(BillingClient.SkuType.SUBS)
-        if(subsResult?.responseCode == BillingClient.BillingResponseCode.OK) { //todo verify
+        val subsResult = client.getBillingClient()?.queryPurchases(BillingClient.SkuType.SUBS)
+        if (subsResult?.responseCode == BillingClient.BillingResponseCode.OK) { // todo verify
             subsResult.purchasesList?.let { subscriptions ->
                 activeSubscriptions = subscriptions
-                if(activeSubscriptions.isNotEmpty()) {
+                if (activeSubscriptions.isNotEmpty()) {
                     sales.processUpdatedPurchases(null, activeSubscriptions)
-                    //queryPurchaseHistory(BillingClient.SkuType.SUBS)
+                    // queryPurchaseHistory(BillingClient.SkuType.SUBS)
                 }
 
                 LogUtil.log.i(TAG, "Subscription order history received: $subscriptions")
@@ -68,21 +70,21 @@ class OrderHistory(private val client: Billing): History {
         }
     }
 
-    //todo - run async
+    // todo - run async
     private fun queryInAppProducts(sales: Sales) {
         LogUtil.log.v(TAG, "queryInAppProducts")
         val inAppResult = client.getBillingClient()?.queryPurchases(BillingClient.SkuType.INAPP)
-        if(inAppResult?.responseCode == BillingClient.BillingResponseCode.OK) { //todo verify
+        if (inAppResult?.responseCode == BillingClient.BillingResponseCode.OK) { // todo verify
             inAppResult.purchasesList?.let { purchases ->
                 activeInAppProducts = purchases
-                if(activeInAppProducts.isNotEmpty())
+                if (activeInAppProducts.isNotEmpty())
                     sales.processUpdatedPurchases(null, activeSubscriptions)
                 LogUtil.log.i(TAG, "In-app order history received: $purchases")
             } ?: LogUtil.log.d(TAG, "No In-app products history available.")
         }
     }
 
-    //when to query history?
+    // when to query history?
     override fun queryPurchaseHistory(skuType: String, listener: PurchaseHistoryResponseListener) {
         client.getBillingClient()?.queryPurchaseHistoryAsync(skuType, listener)
     }

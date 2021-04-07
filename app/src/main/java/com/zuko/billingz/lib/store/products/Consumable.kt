@@ -1,4 +1,4 @@
-package com.zuko.billingz.lib.products
+package com.zuko.billingz.lib.store.products
 
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
@@ -7,8 +7,7 @@ import com.android.billingclient.api.ConsumeParams
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.SkuDetails
 import com.zuko.billingz.lib.LogUtil
-
-import com.zuko.billingz.lib.sales.Order
+import com.zuko.billingz.lib.store.sales.Order
 import kotlinx.coroutines.CoroutineScope
 
 /**
@@ -21,7 +20,7 @@ data class Consumable(
     override var price: String? = null,
     override var description: String? = null,
     override var details: SkuDetails? = null
-): Product {
+) : Product {
 
     override val skuType: String = BillingClient.SkuType.INAPP
     override val type: Product.ProductType = Product.ProductType.CONSUMABLE
@@ -29,10 +28,12 @@ data class Consumable(
     companion object {
         private const val TAG = "Consumable"
 
-        fun completeOrder(billingClient: BillingClient?,
-                          purchase: Purchase,
-                          order: MutableLiveData<Order>,
-                          mainScope: CoroutineScope?) {
+        fun completeOrder(
+            billingClient: BillingClient?,
+            purchase: Purchase,
+            order: MutableLiveData<Order>,
+            mainScope: CoroutineScope?
+        ) {
 
             val consumeParams = ConsumeParams.newBuilder()
                 .setPurchaseToken(purchase.purchaseToken)

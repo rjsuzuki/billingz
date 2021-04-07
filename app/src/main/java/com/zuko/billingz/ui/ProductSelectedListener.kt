@@ -1,6 +1,6 @@
 package com.zuko.billingz.ui
 
-import com.zuko.billingz.lib.products.Product
+import com.zuko.billingz.lib.store.products.Product
 
 interface ProductSelectedListener {
 

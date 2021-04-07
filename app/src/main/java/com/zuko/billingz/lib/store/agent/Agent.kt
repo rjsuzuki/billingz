@@ -1,14 +1,15 @@
-package com.zuko.billingz.lib.agent
+package com.zuko.billingz.lib.store.agent
 
 import android.app.Activity
 import androidx.annotation.UiThread
+import androidx.collection.ArrayMap
 import androidx.lifecycle.LiveData
+import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchaseHistoryResponseListener
 import com.android.billingclient.api.SkuDetails
-import com.zuko.billingz.lib.products.Product
-import com.zuko.billingz.lib.sales.History
-import com.zuko.billingz.lib.sales.Order
-import com.zuko.billingz.lib.sales.Sales
+import com.zuko.billingz.lib.store.products.Product
+import com.zuko.billingz.lib.store.sales.Order
+import com.zuko.billingz.lib.store.sales.Sales
 
 /**
  * Facade pattern - a simple interface for interacting with the main features of
@@ -36,7 +37,7 @@ interface Agent {
      * a purchase with your backend before completing the purchase flow.
      */
     @UiThread
-    fun purchase(activity: Activity?, productId: String?, listener: Sales.OrderValidatorListener?) : LiveData<Order>
+    fun startOrder(activity: Activity?, productId: String?, listener: Sales.OrderValidatorListener?): LiveData<Order>
 
     /**
      * Handle purchases still remaining from recent history. Observe the liveData object
@@ -45,7 +46,7 @@ interface Agent {
      * @return [LiveData<Order>]
      * @param listener - @see [Sales.OrderValidatorListener]
      */
-    fun queriedOrders(listener: Sales.OrderValidatorListener) : LiveData<Order>
+    fun queriedOrders(listener: Sales.OrderValidatorListener): LiveData<Order>
 
     /**
      * Get all available products,
@@ -54,15 +55,17 @@ interface Agent {
      * @param productType: Product.ProductType
      * @return [LiveData<Map<String, SkuDetails>]
      */
-    fun getAvailableProducts(skuList: MutableList<String>,
-                             productType: Product.ProductType): LiveData<Map<String, SkuDetails>>
+    fun getAvailableProducts(
+        skuList: MutableList<String>,
+        productType: Product.ProductType
+    ): LiveData<Map<String, SkuDetails>>
 
     /**
      * Get the details for a specified product.
      * @return [SkuDetails] - Android Billing Library object
      * @param productId - the product id that can be found on the GooglePlayConsole
      */
-    fun getProductDetails(productId: String) : SkuDetails?
+    fun getProductDetails(productId: String): SkuDetails?
 
     /**
      * Returns the most recent purchase made
@@ -70,6 +73,10 @@ interface Agent {
      * @param skuType - INAPP or SUB
      * @param listener - @see [PurchaseHistoryResponseListener]
      */
-    //fun getBillingHistory(skuType: String, listener: PurchaseHistoryResponseListener)
-    fun getBillingHistory(): History
+    fun getReceipts(skuType: String, listener: PurchaseHistoryResponseListener)
+
+    /**
+     * @return
+     */
+    fun getPendingOrders(): ArrayMap<String, Purchase>
 }

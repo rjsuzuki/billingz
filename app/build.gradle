@@ -1,9 +1,12 @@
 plugins {
     id "com.android.library"
+    id 'maven-publish'
     id "kotlin-android"
     id "kotlin-kapt"
     id "org.jetbrains.dokka"
 }
+
+apply from: "$project.rootDir/spotless.gradle"
 
 android {
     def versionProperties = new Properties()
@@ -90,7 +93,7 @@ android {
 }
 
 dependencies {
-    implementation "com.android.billingclient:billing-ktx:3.0.3"
+    api "com.android.billingclient:billing-ktx:3.0.3"
 
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.3-native-mt"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:1.4.32"

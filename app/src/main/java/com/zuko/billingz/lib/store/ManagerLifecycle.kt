@@ -1,9 +1,8 @@
-package com.zuko.billingz.lib.manager
+package com.zuko.billingz.lib.store
 
 import android.content.Context
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.OnLifecycleEvent
-import com.zuko.billingz.lib.sales.Sales
 
 interface ManagerLifecycle {
     fun init(context: Context?)

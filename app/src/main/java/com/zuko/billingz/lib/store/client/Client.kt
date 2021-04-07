@@ -1,4 +1,4 @@
-package com.zuko.billingz.lib.client
+package com.zuko.billingz.lib.store.client
 
 import android.content.Context
 import android.util.Log
@@ -8,7 +8,11 @@ import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.zuko.billingz.lib.LogUtil
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.lang.Exception
 
 /**
@@ -43,14 +47,16 @@ class Client : Billing, Billing.GooglePlayReconnectListener {
      * Initialization
      *****************************************************************************************************/
 
-    override fun initClient(context: Context?,
-                            purchasesUpdatedListener: PurchasesUpdatedListener,
-                            googlePlayConnectListener: Billing.GooglePlayConnectListener) {
+    override fun initClient(
+        context: Context?,
+        purchasesUpdatedListener: PurchasesUpdatedListener,
+        googlePlayConnectListener: Billing.GooglePlayConnectListener
+    ) {
 
         this.googlePlayConnectListener = googlePlayConnectListener
 
         try {
-            if(billingClient != null) {
+            if (billingClient != null) {
                 billingClient?.endConnection()
                 billingClient = null
                 isInitialized = false
@@ -58,7 +64,7 @@ class Client : Billing, Billing.GooglePlayReconnectListener {
             context?.let {
                 billingClient = BillingClient.newBuilder(context)
                     .setListener(purchasesUpdatedListener)
-                    .enablePendingPurchases() //switch
+                    .enablePendingPurchases() // switch
                     .build()
                 isInitialized = true
             }
@@ -68,9 +74,9 @@ class Client : Billing, Billing.GooglePlayReconnectListener {
     }
 
     override fun connect() {
-        billingClient?.startConnection(object: BillingClientStateListener {
+        billingClient?.startConnection(object : BillingClientStateListener {
             override fun onBillingSetupFinished(billingResult: BillingResult) {
-                when(billingResult.responseCode) {
+                when (billingResult.responseCode) {
                     BillingClient.BillingResponseCode.OK -> {
                         // The BillingClient is ready. You can query purchases here.
                         isConnected = true
@@ -99,20 +105,20 @@ class Client : Billing, Billing.GooglePlayReconnectListener {
     }
 
     override fun checkConnection() {
-        if(isInitialized && !isConnected) {
+        if (isInitialized && !isConnected) {
             connect()
         }
     }
 
     @Synchronized
     override fun retry() {
-        if(isInitialized && !isConnected) {
+        if (isInitialized && !isConnected) {
             retryAttempts++
-            if(retryAttempts <= maxAttempts) {
+            if (retryAttempts <= maxAttempts) {
                 val seconds = 5 * 1000L
                 LogUtil.log.wtf(TAG, "Connection failed - Next conection attempt #$retryAttempts in $seconds seconds.")
                 mainScope.launch(Dispatchers.IO) {
-                    delay(seconds) //wait 5 seconds
+                    delay(seconds) // wait 5 seconds
                     connect()
                 }
             }

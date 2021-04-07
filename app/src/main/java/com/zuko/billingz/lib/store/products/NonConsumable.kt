@@ -1,8 +1,12 @@
-package com.zuko.billingz.lib.products
+package com.zuko.billingz.lib.store.products
 
 import androidx.lifecycle.MutableLiveData
-import com.android.billingclient.api.*
-import com.zuko.billingz.lib.sales.Order
+import com.android.billingclient.api.AcknowledgePurchaseParams
+import com.android.billingclient.api.AcknowledgePurchaseResponseListener
+import com.android.billingclient.api.BillingClient
+import com.android.billingclient.api.Purchase
+import com.android.billingclient.api.SkuDetails
+import com.zuko.billingz.lib.store.sales.Order
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,7 +22,7 @@ data class NonConsumable(
     override var price: String? = null,
     override var description: String? = null,
     override var details: SkuDetails? = null
-): Product {
+) : Product {
 
     override val skuType: String = BillingClient.SkuType.INAPP
     override val type: Product.ProductType = Product.ProductType.NON_CONSUMABLE
@@ -33,7 +37,7 @@ data class NonConsumable(
             mainScope: CoroutineScope?
         ) {
             val listener = AcknowledgePurchaseResponseListener { billingResult ->
-                if(billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                     val data = Order(
                         purchase = purchase,
                         billingResult = billingResult,
@@ -43,8 +47,8 @@ data class NonConsumable(
                 }
             }
 
-            if(purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
-                if(!purchase.isAcknowledged) {
+            if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
+                if (!purchase.isAcknowledged) {
                     val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder().setPurchaseToken(purchase.purchaseToken)
                     mainScope?.launch(Dispatchers.IO) {
                         billingClient?.acknowledgePurchase(acknowledgePurchaseParams.build(), listener)

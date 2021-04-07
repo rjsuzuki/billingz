@@ -1,12 +1,7 @@
-package com.zuko.billingz.lib.products
+package com.zuko.billingz.lib.store.products
 
-import androidx.lifecycle.MutableLiveData
 import com.android.billingclient.api.BillingClient
-import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.SkuDetails
-import com.zuko.billingz.lib.sales.Order
-import kotlinx.coroutines.CoroutineScope
-
 
 /**
  * @author rjsuzuki
@@ -70,6 +65,4 @@ interface Product {
      *
      */
     val type: ProductType
-
-
 }

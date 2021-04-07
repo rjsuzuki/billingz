@@ -1,8 +1,12 @@
-package com.zuko.billingz.lib.products
+package com.zuko.billingz.lib.store.products
 
 import androidx.lifecycle.MutableLiveData
-import com.android.billingclient.api.*
-import com.zuko.billingz.lib.sales.Order
+import com.android.billingclient.api.AcknowledgePurchaseParams
+import com.android.billingclient.api.AcknowledgePurchaseResponseListener
+import com.android.billingclient.api.BillingClient
+import com.android.billingclient.api.Purchase
+import com.android.billingclient.api.SkuDetails
+import com.zuko.billingz.lib.store.sales.Order
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -22,7 +26,7 @@ data class Subscription(
     override var price: String? = null,
     override var description: String? = null,
     override var details: SkuDetails? = null
-): Product {
+) : Product {
 
     override val skuType: String = BillingClient.SkuType.SUBS
     override val type: Product.ProductType = Product.ProductType.SUBSCRIPTION
@@ -45,7 +49,7 @@ data class Subscription(
                 order.postValue(data)
             }
 
-            if(purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
+            if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
                 if (!purchase.isAcknowledged) {
                     val acknowledgePurchaseParams =
                         AcknowledgePurchaseParams.newBuilder().setPurchaseToken(purchase.purchaseToken)
@@ -58,5 +62,4 @@ data class Subscription(
             }
         }
     }
-
 }

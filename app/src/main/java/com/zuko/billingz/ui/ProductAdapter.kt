@@ -11,14 +11,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.lottie.LottieAnimationView
 import com.zuko.billingz.R
 import com.zuko.billingz.databinding.ListItemProductBinding
-import com.zuko.billingz.lib.products.Product
+import com.zuko.billingz.lib.store.products.Product
 
 /**
  * @author rjsuzuki
  */
-class ProductAdapter(private val list: MutableList<Product>, private var listener: ProductSelectedListener?): RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
+class ProductAdapter(private val list: MutableList<Product>, private var listener: ProductSelectedListener?) : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
 
-    inner class ProductViewHolder(val binding: ListItemProductBinding): RecyclerView.ViewHolder(binding.root)
+    inner class ProductViewHolder(val binding: ListItemProductBinding) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
         val binding = ListItemProductBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -72,7 +72,7 @@ class ProductAdapter(private val list: MutableList<Product>, private var listene
      */
     fun removeProduct(product: Product) {
         val position = list.indexOf(product)
-        if(position > -1) {
+        if (position > -1) {
             listener?.onProductDeleted(product)
             list.remove(product)
             notifyItemRemoved(position)

@@ -1,23 +1,28 @@
-package com.zuko.billingz.lib.manager
+package com.zuko.billingz.lib.store
 
 import android.app.Activity
 import android.content.Context
+import androidx.collection.ArrayMap
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LiveData
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchaseHistoryResponseListener
 import com.android.billingclient.api.SkuDetails
 import com.zuko.billingz.lib.LogUtil
-import com.zuko.billingz.lib.agent.Agent
-import com.zuko.billingz.lib.client.Billing
-import com.zuko.billingz.lib.client.Client
-import com.zuko.billingz.lib.inventory.Inventory
-import com.zuko.billingz.lib.inventory.ProductInventory
-import com.zuko.billingz.lib.products.Consumable
-import com.zuko.billingz.lib.products.NonConsumable
-import com.zuko.billingz.lib.products.Product
-import com.zuko.billingz.lib.products.Subscription
-import com.zuko.billingz.lib.sales.*
+import com.zuko.billingz.lib.store.agent.Agent
+import com.zuko.billingz.lib.store.client.Billing
+import com.zuko.billingz.lib.store.client.Client
+import com.zuko.billingz.lib.store.inventory.Inventory
+import com.zuko.billingz.lib.store.inventory.ProductInventory
+import com.zuko.billingz.lib.store.products.Consumable
+import com.zuko.billingz.lib.store.products.NonConsumable
+import com.zuko.billingz.lib.store.products.Product
+import com.zuko.billingz.lib.store.products.Subscription
+import com.zuko.billingz.lib.store.sales.History
+import com.zuko.billingz.lib.store.sales.Order
+import com.zuko.billingz.lib.store.sales.OrderHistory
+import com.zuko.billingz.lib.store.sales.ProductSales
+import com.zuko.billingz.lib.store.sales.Sales
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 
@@ -26,7 +31,7 @@ import kotlinx.coroutines.cancel
  * //TODO handle pending purchases?
  * //TODO retry connection
  */
-class Store: LifecycleObserver, ManagerLifecycle {
+class Store : LifecycleObserver, ManagerLifecycle {
 
     private val mainScope = MainScope()
 
@@ -36,7 +41,7 @@ class Store: LifecycleObserver, ManagerLifecycle {
     private val history: History = OrderHistory(billing)
     private var isInitialized = false
 
-    private val googlePlayConnectListener = object: Billing.GooglePlayConnectListener {
+    private val googlePlayConnectListener = object : Billing.GooglePlayConnectListener {
         override fun connected() {
             history.refreshPurchaseHistory(sales)
         }
@@ -58,10 +63,10 @@ class Store: LifecycleObserver, ManagerLifecycle {
     override fun create() {
         LogUtil.log.v(TAG, "creating...")
         setOrderUpdateListener()
-        if(isInitialized && billing.initialized()) {
+        if (isInitialized && billing.initialized()) {
             billing.connect()
         }
-        history.refreshPurchaseHistory(sales) //might need to react to connection
+        history.refreshPurchaseHistory(sales) // might need to react to connection
     }
 
     override fun start() {
@@ -96,10 +101,10 @@ class Store: LifecycleObserver, ManagerLifecycle {
      * Private methods
      *****************************************************************************************************/
     private fun setOrderUpdateListener() {
-        sales.orderUpdateListener = object: Sales.OrderUpdateListener {
+        sales.orderUpdateListener = object : Sales.OrderUpdateListener {
             override fun resumeOrder(purchase: Purchase, productType: Product.ProductType) {
                 LogUtil.log.i(TAG, "Attempting to complete purchase order : $purchase, type: $productType")
-                when(productType) {
+                when (productType) {
                     Product.ProductType.SUBSCRIPTION -> {
                         Subscription.completeOrder(billing.getBillingClient(), purchase, sales.getOrderOrQueried(), mainScope = mainScope)
                     }
@@ -123,12 +128,12 @@ class Store: LifecycleObserver, ManagerLifecycle {
             return billing.isBillingClientReady
         }
 
-        override fun queriedOrders(listener: Sales.OrderValidatorListener) : LiveData<Order> {
+        override fun queriedOrders(listener: Sales.OrderValidatorListener): LiveData<Order> {
             sales.orderValidatorListener = listener
             return sales.queriedOrder
         }
 
-        override fun purchase(
+        override fun startOrder(
             activity: Activity?,
             productId: String?,
             listener: Sales.OrderValidatorListener?
@@ -156,9 +161,9 @@ class Store: LifecycleObserver, ManagerLifecycle {
         override fun getAvailableProducts(
             skuList: MutableList<String>,
             productType: Product.ProductType
-        ) : LiveData<Map<String, SkuDetails>> {
+        ): LiveData<Map<String, SkuDetails>> {
             LogUtil.log.v(TAG, "addProductsToInventory")
-            when(productType) {
+            when (productType) {
                 Product.ProductType.NON_CONSUMABLE -> inventory.loadInAppProducts(skuList, false)
                 Product.ProductType.CONSUMABLE -> inventory.loadInAppProducts(skuList, true)
                 Product.ProductType.SUBSCRIPTION -> inventory.loadSubscriptions(skuList)
@@ -173,13 +178,16 @@ class Store: LifecycleObserver, ManagerLifecycle {
             return inventory.requestedProducts
         }
 
-        override fun getProductDetails(productId: String) : SkuDetails? {
+        override fun getProductDetails(productId: String): SkuDetails? {
             return inventory.getProductDetails(productId)
         }
 
-        //todo -remove?
-        override fun getBillingHistory(skuType: String, listener: PurchaseHistoryResponseListener) {
+        override fun getReceipts(skuType: String, listener: PurchaseHistoryResponseListener) {
             billing.getBillingClient()?.queryPurchaseHistoryAsync(skuType, listener)
+        }
+
+        override fun getPendingOrders(): ArrayMap<String, Purchase> {
+            return sales.pendingPurchases
         }
     }
 
@@ -200,5 +208,4 @@ class Store: LifecycleObserver, ManagerLifecycle {
     companion object {
         private const val TAG = "Manager"
     }
-
 }

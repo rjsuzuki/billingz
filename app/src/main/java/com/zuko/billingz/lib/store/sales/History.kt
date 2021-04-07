@@ -1,10 +1,10 @@
-package com.zuko.billingz.lib.sales
+package com.zuko.billingz.lib.store.sales
 
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchaseHistoryResponseListener
-import com.zuko.billingz.lib.extra.CleanUp
+import com.zuko.billingz.lib.misc.CleanUp
 
-interface History: CleanUp {
+interface History : CleanUp {
 
     /**
      *
@@ -14,9 +14,25 @@ interface History: CleanUp {
      * onCreate and onResume lifecycle events.
      */
     fun refreshPurchaseHistory(sales: Sales)
+
+    /**
+     * @param sales
+     */
     fun queryPurchases(sales: Sales)
+
+    /**
+     * @param skuType
+     * @param listener
+     */
     fun queryPurchaseHistory(skuType: String, listener: PurchaseHistoryResponseListener)
 
-    fun getOwnedSubscriptions() : MutableList<Purchase>
-    fun getOwnedInAppProducts() : MutableList<Purchase>
+    /**
+     * @return - mutable list of active subscriptions
+     */
+    fun getOwnedSubscriptions(): MutableList<Purchase>
+
+    /**
+     * @return - mutable list of active in-app purchases
+     */
+    fun getOwnedInAppProducts(): MutableList<Purchase>
 }

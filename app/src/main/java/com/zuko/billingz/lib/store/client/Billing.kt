@@ -1,13 +1,13 @@
-package com.zuko.billingz.lib.client
+package com.zuko.billingz.lib.store.client
 
 import android.content.Context
 import androidx.annotation.UiThread
 import androidx.lifecycle.MutableLiveData
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.PurchasesUpdatedListener
-import com.zuko.billingz.lib.extra.CleanUp
+import com.zuko.billingz.lib.misc.CleanUp
 
-interface Billing: CleanUp {
+interface Billing : CleanUp {
 
     fun getBillingClient(): BillingClient?
     var isBillingClientReady: MutableLiveData<Boolean>
@@ -35,9 +35,11 @@ interface Billing: CleanUp {
      * @param googlePlayConnectListener
      */
     @UiThread
-    fun initClient(context: Context?,
-                   purchasesUpdatedListener: PurchasesUpdatedListener,
-                   googlePlayConnectListener: GooglePlayConnectListener)
+    fun initClient(
+        context: Context?,
+        purchasesUpdatedListener: PurchasesUpdatedListener,
+        googlePlayConnectListener: GooglePlayConnectListener
+    )
 
     /**
      * Starts connection to GooglePlay

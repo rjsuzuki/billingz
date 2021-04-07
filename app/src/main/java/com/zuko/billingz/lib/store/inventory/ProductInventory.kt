@@ -1,4 +1,4 @@
-package com.zuko.billingz.lib.inventory
+package com.zuko.billingz.lib.store.inventory
 
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
@@ -7,8 +7,8 @@ import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.SkuDetails
 import com.android.billingclient.api.SkuDetailsParams
 import com.zuko.billingz.lib.LogUtil
-import com.zuko.billingz.lib.client.Billing
-import com.zuko.billingz.lib.products.*
+import com.zuko.billingz.lib.store.client.Billing
+import com.zuko.billingz.lib.store.products.Product
 
 class ProductInventory(val billing: Billing) : Inventory {
 
@@ -21,14 +21,14 @@ class ProductInventory(val billing: Billing) : Inventory {
 
     override var requestedProducts: MutableLiveData<Map<String, SkuDetails>> = MutableLiveData()
 
-    override fun getProductDetails(productId: String?) : SkuDetails? {
+    override fun getProductDetails(productId: String?): SkuDetails? {
         productId?.let {
             return allProducts[productId]
         } ?: return null
     }
 
     override fun loadInAppProducts(skuList: MutableList<String>, isConsumables: Boolean) {
-        val type = if(isConsumables) Product.ProductType.CONSUMABLE else Product.ProductType.NON_CONSUMABLE
+        val type = if (isConsumables) Product.ProductType.CONSUMABLE else Product.ProductType.NON_CONSUMABLE
         querySkuDetails(skuList, type)
     }
 
@@ -46,7 +46,7 @@ class ProductInventory(val billing: Billing) : Inventory {
 
     override fun querySkuDetails(skuList: MutableList<String>, productType: Product.ProductType) {
         Log.v(TAG, "Sku details: product type : $productType, list: ${skuList.size}")
-        val type = when(productType) {
+        val type = when (productType) {
             Product.ProductType.SUBSCRIPTION -> BillingClient.SkuType.SUBS
             Product.ProductType.CONSUMABLE -> BillingClient.SkuType.INAPP
             Product.ProductType.NON_CONSUMABLE -> BillingClient.SkuType.INAPP
@@ -75,15 +75,15 @@ class ProductInventory(val billing: Billing) : Inventory {
         }
     }
 
-    //update list
-    //TODO - free, promotion products
+    // update list
+    // TODO - free, promotion products
     @Synchronized
     override fun updateSkuDetails(skuDetailsList: List<SkuDetails>?, productType: Product.ProductType) {
         Log.d(TAG, "updateSkuDetails : ${skuDetailsList?.size ?: 0}")
         if (!skuDetailsList.isNullOrEmpty()) {
             allProducts = allProducts + skuDetailsList.associateBy { it.sku }
 
-            when(productType) {
+            when (productType) {
                 Product.ProductType.CONSUMABLE -> {
                     consumables = consumables + skuDetailsList.associateBy { it.sku }
                     requestedProducts.postValue(consumables)
@@ -109,7 +109,7 @@ class ProductInventory(val billing: Billing) : Inventory {
     }
 
     override fun destroy() {
-        //todo
+        // todo
     }
 
     companion object {

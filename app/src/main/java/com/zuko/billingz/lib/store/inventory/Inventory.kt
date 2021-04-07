@@ -1,17 +1,16 @@
-package com.zuko.billingz.lib.inventory
+package com.zuko.billingz.lib.store.inventory
 
 import androidx.lifecycle.MutableLiveData
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.SkuDetails
-import com.zuko.billingz.lib.extra.CleanUp
-import com.zuko.billingz.lib.products.Product
-
+import com.zuko.billingz.lib.misc.CleanUp
+import com.zuko.billingz.lib.store.products.Product
 
 interface Inventory : CleanUp {
     var requestedProducts: MutableLiveData<Map<String, SkuDetails>>
-    fun isConsumable(purchase: Purchase) : Boolean
+    fun isConsumable(purchase: Purchase): Boolean
 
-    fun getProductDetails(productId: String?) : SkuDetails?
+    fun getProductDetails(productId: String?): SkuDetails?
     var allProducts: Map<String, SkuDetails>
 
     /**
@@ -35,5 +34,4 @@ interface Inventory : CleanUp {
     fun querySkuDetails(skuList: MutableList<String>, productType: Product.ProductType)
 
     fun updateSkuDetails(skuDetailsList: List<SkuDetails>?, productType: Product.ProductType)
-
 }

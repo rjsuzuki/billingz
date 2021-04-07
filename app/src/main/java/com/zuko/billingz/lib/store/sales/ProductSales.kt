@@ -1,16 +1,21 @@
-package com.zuko.billingz.lib.sales
+package com.zuko.billingz.lib.store.sales
 
 import android.app.Activity
 import android.util.Log
 import androidx.annotation.UiThread
 import androidx.collection.ArrayMap
 import androidx.lifecycle.MutableLiveData
-import com.android.billingclient.api.*
+import com.android.billingclient.api.BillingClient
+import com.android.billingclient.api.BillingFlowParams
+import com.android.billingclient.api.BillingResult
+import com.android.billingclient.api.Purchase
+import com.android.billingclient.api.PurchasesUpdatedListener
+import com.android.billingclient.api.SkuDetails
 import com.zuko.billingz.lib.LogUtil
-import com.zuko.billingz.lib.inventory.Inventory
-import com.zuko.billingz.lib.products.Product
+import com.zuko.billingz.lib.store.inventory.Inventory
+import com.zuko.billingz.lib.store.products.Product
 
-class ProductSales(private val inventory: Inventory): Sales {
+class ProductSales(private val inventory: Inventory) : Sales {
 
     private var isQueriedOrders = false
     override var order = MutableLiveData<Order>()
@@ -20,10 +25,9 @@ class ProductSales(private val inventory: Inventory): Sales {
     override var purchasesUpdatedListener: PurchasesUpdatedListener =
         PurchasesUpdatedListener { billingResult, purchases -> processUpdatedPurchases(billingResult, purchases) }
 
-
     override var pendingPurchases = ArrayMap<String, Purchase>()
 
-    private val validation: Sales.ValidatorCallback = object: Sales.ValidatorCallback {
+    private val validation: Sales.ValidatorCallback = object : Sales.ValidatorCallback {
         override fun onSuccess(purchase: Purchase) {
             processPurchase(purchase)
         }
@@ -34,13 +38,15 @@ class ProductSales(private val inventory: Inventory): Sales {
     }
 
     override fun getOrderOrQueried(): MutableLiveData<Order> {
-        return if(isQueriedOrders) queriedOrder else order
+        return if (isQueriedOrders) queriedOrder else order
     }
 
     @UiThread
-    override fun startPurchaseRequest(activity: Activity,
-                                      skuDetails: SkuDetails,
-                                      billingClient: BillingClient): BillingResult {
+    override fun startPurchaseRequest(
+        activity: Activity,
+        skuDetails: SkuDetails,
+        billingClient: BillingClient
+    ): BillingResult {
         LogUtil.log.v(TAG, "startPurchaseRequest")
         // Retrieve a value for "skuDetails" by calling querySkuDetailsAsync().
         val flowParams = BillingFlowParams.newBuilder()
@@ -56,14 +62,14 @@ class ProductSales(private val inventory: Inventory): Sales {
 
     override fun processUpdatedPurchases(billingResult: BillingResult?, purchases: MutableList<Purchase>?) {
         LogUtil.log.v(TAG, "processUpdatedPurchases")
-        if(purchases.isNullOrEmpty()) {
+        if (purchases.isNullOrEmpty()) {
             val order = Order(
                 billingResult = billingResult,
                 msg = "Null/Empty list of purchases"
             )
-            if(billingResult == null) {
+            if (billingResult == null) {
                 isQueriedOrders = true
-                //only queried orders start with a null billingResult
+                // only queried orders start with a null billingResult
                 this.queriedOrder.postValue(order)
             } else {
                 isQueriedOrders = false
@@ -71,8 +77,8 @@ class ProductSales(private val inventory: Inventory): Sales {
             }
             Log.d(TAG, "No purchases available")
         } else {
-            for(p in purchases) {
-                when(p.purchaseState) {
+            for (p in purchases) {
+                when (p.purchaseState) {
                     Purchase.PurchaseState.PURCHASED -> processValidation(p)
                     Purchase.PurchaseState.PENDING -> processPendingTransaction(p)
                     Purchase.PurchaseState.UNSPECIFIED_STATE -> processPurchasingError(billingResult)
@@ -84,7 +90,7 @@ class ProductSales(private val inventory: Inventory): Sales {
     override fun processValidation(purchase: Purchase) {
         LogUtil.log.v(TAG, "processValidation")
 
-        if(isNewPurchase(purchase)) {
+        if (isNewPurchase(purchase)) {
             orderValidatorListener?.validate(purchase, validation) ?: LogUtil.log.e(TAG, "Null validator object. Cannot complete order.")
         } else {
             LogUtil.log.e(TAG, "Purchase failed verification. Cannot complete order.")
@@ -94,30 +100,30 @@ class ProductSales(private val inventory: Inventory): Sales {
     private fun processPurchase(purchase: Purchase) {
         val type = inventory.allProducts[purchase.sku]?.type
 
-        if(type?.equals(BillingClient.SkuType.INAPP, ignoreCase = true) == true) {
+        if (type?.equals(BillingClient.SkuType.INAPP, ignoreCase = true) == true) {
             processInAppPurchase(purchase)
         }
 
-        if(type?.equals(BillingClient.SkuType.SUBS, ignoreCase = true) == true) {
+        if (type?.equals(BillingClient.SkuType.SUBS, ignoreCase = true) == true) {
             processSubscription(purchase)
         }
     }
 
     override fun isNewPurchase(purchase: Purchase): Boolean {
         LogUtil.log.v(TAG, "isPurchaseValid")
-        if(purchase.isAcknowledged) {
-            //Note: If you do not acknowledge a purchase within three days,
+        if (purchase.isAcknowledged) {
+            // Note: If you do not acknowledge a purchase within three days,
             // the user automatically receives a refund, and Google Play revokes the purchase.
             LogUtil.log.w(TAG, "Purchase item: $purchase, is already Acknowledged. Cannot complete order.")
             return false
         }
-        //todo - can provide more validation checks here for checking for new purchases
+        // todo - can provide more validation checks here for checking for new purchases
         return true
     }
 
     override fun processInAppPurchase(purchase: Purchase) {
         LogUtil.log.v(TAG, "processInAppPurchase")
-        if(!inventory.isConsumable(purchase)) {
+        if (!inventory.isConsumable(purchase)) {
             processConsumable(purchase)
         } else {
             processNonConsumable(purchase)
@@ -126,7 +132,7 @@ class ProductSales(private val inventory: Inventory): Sales {
 
     override fun processPendingTransaction(purchase: Purchase) {
         LogUtil.log.v(TAG, "processInAppPurchase")
-        if(pendingPurchases.containsValue(purchase)) {
+        if (pendingPurchases.containsValue(purchase)) {
             LogUtil.log.v(TAG, "Pending transaction already in process.")
         } else {
             pendingPurchases[purchase.orderId] = purchase
