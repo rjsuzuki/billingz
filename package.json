@@ -1,8 +1,10 @@
 {
   "name": "@rjsuzuki/billingz",
   "version": "1.0.0",
-  "description": "Billingz library package on Github",
+  "description": "An android library package for Google Play Billing on Github",
   "main": "index.js",
+  "author": "rjsuzuki",
+  "license": "MIT",
   "scripts": {
     "test": "exit 0"
   },
@@ -10,8 +12,6 @@
     "type": "git",
     "url": "git+https://github.com/rjsuzuki/billingz.git"
   },
-  "author": "",
-  "license": "ISC",
   "bugs": {
     "url": "https://github.com/rjsuzuki/billingz/issues"
   },

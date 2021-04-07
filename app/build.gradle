@@ -1,4 +1,3 @@
-
 plugins {
     id "com.android.library"
     id "kotlin-android"
@@ -8,7 +7,7 @@ plugins {
 
 android {
     def versionProperties = new Properties()
-    versionProperties.load(new FileInputStream(rootProject.file("version.properties")))
+    rootProject.file("version.properties").withInputStream { versionProperties.load(it) }
 
     def getDynamicVersionCode =  { ->
         String major = versionProperties['v.major']
@@ -64,7 +63,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
-        versionName "1.0"
+        versionName getVersionName()
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -102,7 +101,7 @@ dependencies {
     implementation "com.google.android.material:material:1.3.0"
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 
-    implementation 'com.airbnb.android:lottie:3.6.1'
+    implementation 'com.airbnb.android:lottie:3.7.0'
 
     testImplementation "junit:junit:4.13.2"
     androidTestImplementation "androidx.test.ext:junit:1.1.2"
