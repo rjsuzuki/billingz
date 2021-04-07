@@ -10,7 +10,7 @@ import com.zuko.billingz.lib.LogUtil
 import com.zuko.billingz.lib.client.Billing
 import com.zuko.billingz.lib.products.*
 
-class StoreInventory(val billing: Billing) : Inventory {
+class ProductInventory(val billing: Billing) : Inventory {
 
     var promotions: Map<String, SkuDetails> = HashMap()
     var freeProducts: Map<String, SkuDetails> = HashMap()

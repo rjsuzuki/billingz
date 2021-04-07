@@ -58,8 +58,11 @@ class OrderHistory(private val client: Billing): History {
         if(subsResult?.responseCode == BillingClient.BillingResponseCode.OK) { //todo verify
             subsResult.purchasesList?.let { subscriptions ->
                 activeSubscriptions = subscriptions
-                if(activeSubscriptions.isNotEmpty())
+                if(activeSubscriptions.isNotEmpty()) {
                     sales.processUpdatedPurchases(null, activeSubscriptions)
+                    //queryPurchaseHistory(BillingClient.SkuType.SUBS)
+                }
+
                 LogUtil.log.i(TAG, "Subscription order history received: $subscriptions")
             } ?: LogUtil.log.d(TAG, "No subscription history available.")
         }

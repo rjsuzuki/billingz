@@ -12,7 +12,7 @@ import com.zuko.billingz.lib.agent.Agent
 import com.zuko.billingz.lib.client.Billing
 import com.zuko.billingz.lib.client.Client
 import com.zuko.billingz.lib.inventory.Inventory
-import com.zuko.billingz.lib.inventory.StoreInventory
+import com.zuko.billingz.lib.inventory.ProductInventory
 import com.zuko.billingz.lib.products.Consumable
 import com.zuko.billingz.lib.products.NonConsumable
 import com.zuko.billingz.lib.products.Product
@@ -26,12 +26,12 @@ import kotlinx.coroutines.cancel
  * //TODO handle pending purchases?
  * //TODO retry connection
  */
-class Manager: LifecycleObserver, ManagerLifecycle {
+class Store: LifecycleObserver, ManagerLifecycle {
 
     private val mainScope = MainScope()
 
     private val billing: Billing = Client()
-    private val inventory: Inventory = StoreInventory(billing)
+    private val inventory: Inventory = ProductInventory(billing)
     private val sales: Sales = ProductSales(inventory)
     private val history: History = OrderHistory(billing)
     private var isInitialized = false
