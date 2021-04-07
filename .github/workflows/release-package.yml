@@ -1,5 +1,6 @@
-name: Node.js Package
+name: build_and_publish
 
+# trigger with tag
 on:
   release:
     types: [created]
@@ -9,22 +10,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - name: Set up Java
+        uses: actions/setup-java@v1
         with:
-          node-version: 12
-      - run: npm ci
-      - run: npm test
-
-  publish-gpr:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 12
-          registry-url: https://npm.pkg.github.com/
-      - run: npm ci
-      - run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          java-version: 1.8
+      - name: Run a one-line script
+        run: echo 'Hello, friend.'
+      - name: Clean, Build, Lint, and Publish AAR
+        shell: bash
+          env:
+            GPR_USER: ${{ secrets.GPR_USER }}
+            GPR_API_KEY: ${{ secrets.GPR_API_KEY }}
+          run: |
+            ./gradlew -PciBuild=true clean build
+            ./gradlew lint
+            ./gradlew publish
