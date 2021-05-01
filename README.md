@@ -88,7 +88,7 @@ To run Spotless's gradle tasks, navigate to the root directory of the project fi
 This project defers to many of the default configurations of Spotless for linting and styling, but also adheres to Google's Android coding standards as well.
 - [Google's Android Kotlin Style Guide](https://developer.android.com/kotlin/style-guide)
 
-## Common KDoc annotations 
+## KDoc Annotations 
 
 kdoc annotations are very similar to javadoc annotations.
 
