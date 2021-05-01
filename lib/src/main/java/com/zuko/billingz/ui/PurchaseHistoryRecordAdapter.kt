@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class ReceiptsAdapter(private val list: MutableList<PurchaseHistoryRecord>) : RecyclerView.Adapter<ReceiptsAdapter.HistoryRecordViewHolder>() {
+class PurchaseHistoryRecordAdapter(private val list: MutableList<PurchaseHistoryRecord>) : RecyclerView.Adapter<PurchaseHistoryRecordAdapter.HistoryRecordViewHolder>() {
 
     inner class HistoryRecordViewHolder(val binding: ListItemHistoryRecordBinding) : RecyclerView.ViewHolder(binding.root)
 
