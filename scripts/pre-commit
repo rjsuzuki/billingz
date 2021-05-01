@@ -7,13 +7,13 @@ echo "--------------------------------------------------------------------------
 projectDir=$(git rev-parse --show-toplevel)
 
 echo "Project directory => $projectDir"
-lintReportPath="${projectDir}/app/build/reports/lint-report.html"
+lintReportPath="${projectDir}/lib/build/reports/lint-report.html"
 
 echo "--------------------------------------------------------------------------------------------------------------------"
 echo "| Running pre-commit linting on only recent files..."
 echo "--------------------------------------------------------------------------------------------------------------------"
 
-./gradlew spotlessApply
+./gradlew lint spotlessApply
 
 # Success or failure (0 or 1)
 lintStatus=$?

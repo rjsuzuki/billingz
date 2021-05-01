@@ -20,6 +20,3 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
--keep class com.android.billingclient.** {*; }
-
--keep class com.android.vending.billing.**

@@ -70,6 +70,7 @@ class ProductAdapter(private val list: MutableList<Product>, private var listene
     /**
      * Remove [Product] from list
      */
+    @Suppress("unused")
     fun removeProduct(product: Product) {
         val position = list.indexOf(product)
         if (position > -1) {
@@ -82,6 +83,7 @@ class ProductAdapter(private val list: MutableList<Product>, private var listene
     /**
      * Update Product list with diffUtil.
      */
+    @Suppress("unused")
     fun updateList(newList: MutableList<Product>) {
         val oldList = mutableListOf<Product>()
         oldList.addAll(list)
