@@ -4,19 +4,18 @@ A simple/convenience library for implementing Android's Billing Library.
 
 Currently supports up to : `com.android.billingclient:billing-ktx:3.0.2`
 
-### Version History
+## Version History
+
 `v1.0.0`
 
-## Architecture
+## Documentation
 
 [Click here to view full documentation](https://rjsuzuki.github.io/billingz-dokka/)
 
-Android Billing Lib --> Manager --> Agent 
-
 ## How to add module to your project
 
- 1. Clone or download project
- 2. Open Android Studio > open project you want to install the library into.
+1. Clone or download project
+2. Open Android Studio > open project you want to install the library into.
 
 Next, choose one of the available methods:
 
@@ -63,34 +62,53 @@ override fun onCreate(savedInstanceState: Bundle?) {
 
 ## Permissions
 
-- android.permission.ACCESS_NETWORK_STATE
+Declared permissions in the AndroidManifest file.
 
+- com.android.vending.BILLING
+- android.permission.ACCESS_NETWORK_STATE
 
 ## Changelog
 
-[Keep a changelog](https://keepachangelog.com/en/1.0.0/)
+- [Keep a changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## Bug Reporting
 
 - Create an Issue through the repository's github Issues page.
 
-## Linting
+## Linting & Style Guide
 
-- [dokka](https://github.com/Kotlin/dokka/blob/master/README.md)
-- [kdoc syntax](https://kotlinlang.org/docs/kotlin-doc.html#block-tags)
-- `./gradlew dokkaHtml`
+- [Spotless Linting](https://github.com/diffplug/spotless)
 
-## Common kdoc annotations 
+To run Spotless's gradle tasks, navigate to the root directory of the project first:
+  (Note: the syntax may be slightly different depending on your environment)
+
+1. To run/validate the project: `./gradlew spotlessCheck`
+2. To automatically apply all non-error linting: `./gradlew spotlessApply`
+
+This project defers to many of the default configurations of Spotless for linting and styling, but also adheres to Google's Android coding standards as well.
+- [Google's Android Kotlin Style Guide](https://developer.android.com/kotlin/style-guide)
+
+## Common KDoc annotations 
 
 kdoc annotations are very similar to javadoc annotations.
 
-- `@param` provides any useful description about a method's parameter or input it should expect
+- `@param name` Documents a value parameter of a function or a type parameter of a class, property or function. Two acceptable syntaxes are: `@param name description` or `@param[name] description`
 - `@return` provides a description of what a method will or can return
-- `@see` will generate a link similar to the {@link} tag, but more in the context of a reference and not inline
+- `@constructor` primary constructor of a class
+- `@receiver` the receiver of an extension function
+- `@property name` Documents the property of a class which has the specified name. This tag can be used for documenting properties declared in the primary constructor, where putting a doc comment directly before the property definition would be awkward.
+- `@throws class, @exception class` Documents an exception which can be thrown by a method. Since Kotlin does not have checked exceptions, there is also no expectation that all possible exceptions are documented, but you can still use this tag when it provides useful information for users of the class.
+- `@sample identifier` Embeds the body of the function with the specified qualified name into the documentation for the current element, in order to show an example of how the element could be used.
+- `@see identifier` will generate a link similar to the {@link} tag, but more in the context of a reference and not inline
+- `@author` author of the relevant document
 - `@since` specifies which version the class, field, or method was added to the project
-- `@version` specifies the version of the software, commonly used with %I% and %G% macros
-- `@throws` is used to further explain the cases the software would expect an exception
-- `@deprecated` gives an explanation of why code was deprecated, when it may have been deprecated, and what the alternatives are
+- `@Deprecated` gives an explanation of why code was deprecated, when it may have been deprecated, and what the alternatives are
+- `@suppress` Excludes the element from the generated documentation. Can be used for elements which are not part of the official API of a module but still have to be visible externally.
+
+- [dokka](https://github.com/Kotlin/dokka/blob/master/README.md)
+- [kdoc syntax](https://kotlinlang.org/docs/kotlin-doc.html#block-tags)
+
+To manually generate a new version of the library's documentation, simply navigate to the root directory of the project and run: `./gradlew dokkaHtml`
 
 ## References
 
@@ -127,24 +145,8 @@ Expired: User has cancelled and lost access to the subscription. The user is con
 
 ## Licensing
 
-MIT License
+Apache License 2.0
+The complete license can be found in the `LICENSE.md` file in the root directory of this project.
 
 Copyright (c) 2021 rjsuzuki
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+ 
