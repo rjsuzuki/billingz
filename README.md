@@ -70,7 +70,7 @@ override fun onCreate(savedInstanceState: Bundle?) {
 
 [Keep a changelog](https://keepachangelog.com/en/1.0.0/)
 
-### Bug Reporting
+## Bug Reporting
 
 - Create an Issue through the repository's github Issues page.
 
@@ -80,12 +80,19 @@ override fun onCreate(savedInstanceState: Bundle?) {
 - [kdoc syntax](https://kotlinlang.org/docs/kotlin-doc.html#block-tags)
 - `./gradlew dokkaHtml`
 
-### Common kdoc annotations
-`@param name description`
-`@Deprecated` not `@deprecated`
-`Use the method [foo] for this purpose.`
+## Common kdoc annotations 
 
-### References
+kdoc annotations are very similar to javadoc annotations.
+
+- `@param` provides any useful description about a method's parameter or input it should expect
+- `@return` provides a description of what a method will or can return
+- `@see` will generate a link similar to the {@link} tag, but more in the context of a reference and not inline
+- `@since` specifies which version the class, field, or method was added to the project
+- `@version` specifies the version of the software, commonly used with %I% and %G% macros
+- `@throws` is used to further explain the cases the software would expect an exception
+- `@deprecated` gives an explanation of why code was deprecated, when it may have been deprecated, and what the alternatives are
+
+## References
 
 - [security](https://developer.android.com/google/play/billing/security)
 A special case of sensitive data and logic that should be handled in the backend is purchase verification. After a user has made a purchase, you should do the following:
@@ -118,11 +125,11 @@ On hold: User experienced a payment issue, and no longer has access while Google
 Paused: User paused their access, and does not have access until they resume.
 Expired: User has cancelled and lost access to the subscription. The user is considered churned at expiration.
 
-### Licensing
+## Licensing
 
 MIT License
 
-Copyright (c) [2021] [ryanjsuzuki.com]
+Copyright (c) 2021 rjsuzuki
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
