@@ -12,11 +12,9 @@ import com.zuko.billingz.lib.store.products.Product
 
 class ProductInventory(val billing: Billing) : Inventory {
 
-    var promotions: Map<String, SkuDetails> = HashMap()
-    var freeProducts: Map<String, SkuDetails> = HashMap()
-    var consumables: Map<String, SkuDetails> = HashMap()
-    var nonConsumables: Map<String, SkuDetails> = HashMap()
-    var subscriptions: Map<String, SkuDetails> = HashMap()
+    override var consumables: Map<String, SkuDetails> = HashMap()
+    override var nonConsumables: Map<String, SkuDetails> = HashMap()
+    override var subscriptions: Map<String, SkuDetails> = HashMap()
     override var allProducts: Map<String, SkuDetails> = HashMap()
 
     override var requestedProducts: MutableLiveData<Map<String, SkuDetails>> = MutableLiveData()
@@ -109,6 +107,7 @@ class ProductInventory(val billing: Billing) : Inventory {
     }
 
     override fun destroy() {
+        Log.v(TAG,"destroy()")
         // todo
     }
 

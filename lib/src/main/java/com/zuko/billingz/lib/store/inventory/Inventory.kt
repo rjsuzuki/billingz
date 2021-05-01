@@ -7,6 +7,9 @@ import com.zuko.billingz.lib.misc.CleanUp
 import com.zuko.billingz.lib.store.products.Product
 
 interface Inventory : CleanUp {
+    var consumables: Map<String, SkuDetails>
+    var nonConsumables: Map<String, SkuDetails>
+    var subscriptions: Map<String, SkuDetails>
     var requestedProducts: MutableLiveData<Map<String, SkuDetails>>
     fun isConsumable(purchase: Purchase): Boolean
 

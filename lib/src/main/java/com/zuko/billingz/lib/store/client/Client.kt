@@ -8,6 +8,7 @@ import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.zuko.billingz.lib.LogUtil
+import com.zuko.billingz.lib.misc.BillingResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
@@ -76,6 +77,7 @@ class Client : Billing, Billing.GooglePlayReconnectListener {
     override fun connect() {
         billingClient?.startConnection(object : BillingClientStateListener {
             override fun onBillingSetupFinished(billingResult: BillingResult) {
+                BillingResponse.logResult(billingResult)
                 when (billingResult.responseCode) {
                     BillingClient.BillingResponseCode.OK -> {
                         // The BillingClient is ready. You can query purchases here.

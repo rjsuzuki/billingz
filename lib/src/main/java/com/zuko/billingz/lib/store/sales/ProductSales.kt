@@ -12,6 +12,7 @@ import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.SkuDetails
 import com.zuko.billingz.lib.LogUtil
+import com.zuko.billingz.lib.misc.BillingResponse
 import com.zuko.billingz.lib.store.inventory.Inventory
 import com.zuko.billingz.lib.store.products.Product
 
@@ -62,6 +63,7 @@ class ProductSales(private val inventory: Inventory) : Sales {
 
     override fun processUpdatedPurchases(billingResult: BillingResult?, purchases: MutableList<Purchase>?) {
         LogUtil.log.v(TAG, "processUpdatedPurchases")
+        BillingResponse.logResult(billingResult)
         if (purchases.isNullOrEmpty()) {
             val order = Order(
                 billingResult = billingResult,
@@ -141,6 +143,7 @@ class ProductSales(private val inventory: Inventory) : Sales {
 
     override fun processPurchasingError(billingResult: BillingResult?) {
         LogUtil.log.e(TAG, "processPurchasingError: $billingResult")
+        BillingResponse.logResult(billingResult)
         val order = Order(
             billingResult = billingResult,
             msg = "Error"
