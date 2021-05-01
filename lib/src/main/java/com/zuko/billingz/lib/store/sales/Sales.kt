@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 rjsuzuki
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.zuko.billingz.lib.store.sales
 
 import android.app.Activity
@@ -8,13 +24,13 @@ import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.SkuDetails
-import com.zuko.billingz.lib.misc.CleanUp
+import com.zuko.billingz.lib.misc.CleanUpListener
 import com.zuko.billingz.lib.store.products.Product
 
 /**
- *
+ * Blueprint of the primary behavior for selling products and the handling of orders
  */
-interface Sales : CleanUp {
+interface Sales : CleanUpListener {
 
     /**
      * @see [OrderUpdateListener]
@@ -113,12 +129,16 @@ interface Sales : CleanUp {
      * Purchases can be made outside of app, or finish while app is in background.
      * show in-app popup, or deliver msg to an inbox, or use an OS notification
      */
-    // fun notifyPurchase()
 
     /**
      * Set by Manager class
      */
     interface OrderUpdateListener {
+
+        /**
+         * @param purchase
+         * @param productType
+         */
         fun resumeOrder(purchase: Purchase, productType: Product.ProductType)
     }
 
@@ -129,14 +149,32 @@ interface Sales : CleanUp {
      * and grant entitlement to the user.
      */
     interface OrderValidatorListener {
+
+        /**
+         * @param purchase
+         * @param callback
+         */
         fun validate(purchase: Purchase, callback: ValidatorCallback)
     }
 
     /**
-     * Respond to the events triggered by the developer's validator
+     * Respond to the events triggered by the developer's validator.
+     * Developers will need to implement this interface if custom validation checks
+     * need to be provided before finalizing an order.
+     * If the purchase is properly verified, call onSuccess,
+     * otherwise call onFailure so the library can appropriately continue the
+     * lifecycle of a customer's order.
      */
     interface ValidatorCallback {
+
+        /**
+         * @param purchase
+         */
         fun onSuccess(purchase: Purchase)
+
+        /**
+         * @param purchases
+         */
         fun onFailure(purchase: Purchase)
     }
 }

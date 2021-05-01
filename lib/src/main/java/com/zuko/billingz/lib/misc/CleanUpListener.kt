@@ -16,24 +16,16 @@
  */
 package com.zuko.billingz.lib.misc
 
-class Result<T> private constructor(val status: Status, val data: T?, val msg: String?) {
+import androidx.annotation.UiThread
 
-    enum class Status { SUCCESS, ERROR, LOADING }
+/**
+ * Listener for destruction-based events on the main thread
+ */
+interface CleanUpListener {
 
-    companion object {
-        @JvmStatic
-        fun <T> success(data: T): Result<T> {
-            return Result(Status.SUCCESS, data, null)
-        }
-
-        @JvmStatic
-        fun <T> error(data: T, msg: String?): Result<T> {
-            return Result(Status.ERROR, data, msg)
-        }
-
-        @JvmStatic
-        fun <T> loading(data: T, msg: String?): Result<T> {
-            return Result(Status.LOADING, data, msg)
-        }
-    }
+    /**
+     * Apply to UI(main thread) dependent classes that require clean-up logic.
+     */
+    @UiThread
+    fun destroy()
 }
