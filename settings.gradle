@@ -1,2 +1,4 @@
 include ':lib'
 rootProject.name = "Billingz"
+include ':amazon'
+include ':google'

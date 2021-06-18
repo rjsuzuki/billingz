@@ -17,145 +17,102 @@
 package com.zuko.billingz.lib.store.client
 
 import android.content.Context
-import android.util.Log
+import androidx.annotation.UiThread
 import androidx.lifecycle.MutableLiveData
-import com.android.billingclient.api.BillingClient
-import com.android.billingclient.api.BillingClientStateListener
-import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.PurchasesUpdatedListener
-import com.zuko.billingz.lib.LogUtil
-import com.zuko.billingz.lib.misc.BillingResponse
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import java.lang.Exception
+import com.zuko.billingz.lib.misc.CleanUpListener
 
 /**
- * This class manages the core functionality of Google's Billing Library and primarily will focus on
- * the creation and connection logic to and from the billing library.
+ * Blueprint of the core logic of the library.
  */
-class Client : Billing, Billing.GooglePlayReconnectListener {
+interface Client : CleanUpListener {
 
-    private val mainScope = MainScope()
+    // fun getBillingClient(): BillingClient?
+    var isClientReady: MutableLiveData<Boolean>
 
-    private var billingClient: BillingClient? = null
-    private var isInitialized = false
-    private var isConnected = false
-    private var retryAttempts = 0
-    private var maxAttempts = 3
-    private var googlePlayConnectListener: Billing.GooglePlayConnectListener? = null
+    /**
+     * @return Boolean
+     * Checks if the client has been initialized yet
+     */
+    @UiThread
+    fun initialized(): Boolean
 
-    override var isBillingClientReady = MutableLiveData<Boolean>()
+    /**
+     * @return Boolean
+     * Checks if the client properly connected to the android billing api,
+     * so that requests to other methods will succeed.
+     */
+    @UiThread
+    fun isReady(): Boolean
 
-    override fun getBillingClient(): BillingClient? {
-        return billingClient
-    }
-
-    override fun initialized(): Boolean {
-        return isInitialized
-    }
-
-    override fun isReady(): Boolean {
-        return initialized() && isConnected && billingClient?.isReady == true
-    }
-
-    /*****************************************************************************************************
-     * Initialization
-     *****************************************************************************************************/
-
-    override fun initClient(
+    /**
+     * Initialize the Android Billing Library
+     * INTERNAL USE ONLY
+     * @param context
+     * @param purchasesUpdatedListener
+     * @param googlePlayConnectListener
+     */
+    @UiThread
+    fun initClient(
         context: Context?,
         purchasesUpdatedListener: PurchasesUpdatedListener,
-        googlePlayConnectListener: Billing.GooglePlayConnectListener
-    ) {
+        googlePlayConnectListener: ConnectionListener
+    )
 
-        this.googlePlayConnectListener = googlePlayConnectListener
+    /**
+     * Starts connection to GooglePlay
+     * INTERNAL USE ONLY
+     */
+    @UiThread
+    fun connect()
 
-        try {
-            if (billingClient != null) {
-                billingClient?.endConnection()
-                billingClient = null
-                isInitialized = false
-            }
-            context?.let {
-                billingClient = BillingClient.newBuilder(context)
-                    .setListener(purchasesUpdatedListener)
-                    .enablePendingPurchases() // switch
-                    .build()
-                isInitialized = true
-            }
-        } catch (e: Exception) {
-            LogUtil.log.wtf(TAG, "Failed to instantiate Android BillingClient. ${e.localizedMessage}")
-        }
+    /**
+     * Stops connection to GooglePlay
+     * INTERNAL USE ONLY
+     */
+    @UiThread
+    fun disconnect()
+
+    /**
+     * Verifies connection to the billing service
+     */
+    fun checkConnection()
+
+    /**
+     * Callback used to respond to a successful connection.
+     * INTERNAL USE ONLY
+     */
+    interface ConnectionListener {
+
+        fun connected()
+
+        /**
+         *
+         */
+        @UiThread
+        fun retry()
+
+        /**
+         *
+         */
+        fun cancel()
     }
 
-    override fun connect() {
-        billingClient?.startConnection(object : BillingClientStateListener {
-            override fun onBillingSetupFinished(billingResult: BillingResult) {
-                BillingResponse.logResult(billingResult)
-                when (billingResult.responseCode) {
-                    BillingClient.BillingResponseCode.OK -> {
-                        // The BillingClient is ready. You can query purchases here.
-                        isConnected = true
-                        googlePlayConnectListener?.connected()
-                        isBillingClientReady.postValue(true)
-                    }
-                    else -> {
-                        Log.w(TAG, "Unhandled response code: ${billingResult.responseCode}")
-                        isConnected = false
-                    }
-                }
-            }
+    /**
+     * Interface for reconnection logic to the billing service
+     * INTERNAL USE ONLY
+     */
+    interface ReconnectListener {
 
-            override fun onBillingServiceDisconnected() {
-                isConnected = false
-                retry()
-                // Note: It's strongly recommended that you implement your own connection retry logic
-                // and override the onBillingServiceDisconnected() method.
-                // Make sure you maintain the BillingClient connection when executing any methods.
-            }
-        })
-    }
+        /**
+         *
+         */
+        @UiThread
+        fun retry()
 
-    override fun disconnect() {
-        billingClient?.endConnection()
-    }
-
-    override fun checkConnection() {
-        if (isInitialized && !isConnected) {
-            connect()
-        }
-    }
-
-    @Synchronized
-    override fun retry() {
-        if (isInitialized && !isConnected) {
-            retryAttempts++
-            if (retryAttempts <= maxAttempts) {
-                val seconds = 5 * 1000L
-                LogUtil.log.wtf(TAG, "Connection failed - Next conection attempt #$retryAttempts in $seconds seconds.")
-                mainScope.launch(Dispatchers.IO) {
-                    delay(seconds) // wait 5 seconds
-                    connect()
-                }
-            }
-        }
-    }
-
-    override fun cancel() {
-        mainScope.cancel()
-        retryAttempts = 0
-    }
-
-    override fun destroy() {
-        isInitialized = false
-        disconnect()
-        cancel()
-    }
-
-    companion object {
-        private const val TAG = "Client"
+        /**
+         *
+         */
+        fun cancel()
     }
 }

@@ -19,12 +19,9 @@ package com.zuko.billingz.lib.store.sales
 import android.app.Activity
 import androidx.collection.ArrayMap
 import androidx.lifecycle.MutableLiveData
-import com.android.billingclient.api.BillingClient
-import com.android.billingclient.api.BillingResult
-import com.android.billingclient.api.Purchase
-import com.android.billingclient.api.PurchasesUpdatedListener
-import com.android.billingclient.api.SkuDetails
 import com.zuko.billingz.lib.misc.CleanUpListener
+import com.zuko.billingz.lib.misc.OrderResult
+import com.zuko.billingz.lib.store.client.Client
 import com.zuko.billingz.lib.store.products.Product
 
 /**
@@ -43,11 +40,6 @@ interface Sales : CleanUpListener {
     var orderValidatorListener: OrderValidatorListener?
 
     /**
-     * @see [PurchasesUpdatedListener]
-     */
-    var purchasesUpdatedListener: PurchasesUpdatedListener
-
-    /**
      * Provides a liveData [Order] object for
      * developers to observe and react to on
      * the UI/Main thread.
@@ -57,7 +49,7 @@ interface Sales : CleanUpListener {
     var order: MutableLiveData<Order>
 
     /**
-     * mutable live data object of an [Order]
+     * mutable live data object of a queried [Order]
      */
     var queriedOrder: MutableLiveData<Order>
 
@@ -68,62 +60,87 @@ interface Sales : CleanUpListener {
 
     /**
      *
-     * ArrayMap<OrderId, Purchase>
+     * ArrayMap<OrderId, Order>
      */
-    var pendingPurchases: ArrayMap<String, Purchase>
+    var pendingOrders: ArrayMap<String, Order>
 
     /**
      * @param activity
-     * @param skuDetails
-     * @param billingClient
-     * @return [BillingResult]
+     * @param product
+     * @param client
+     * @return [OrderResult]
      */
-    fun startPurchaseRequest(
+    fun startOrderRequest(
         activity: Activity,
-        skuDetails: SkuDetails,
-        billingClient: BillingClient
-    ): BillingResult
+        product: Product,
+        client: Client
+    ): OrderResult
 
     /**
      * Handler method for responding to updates from Android's PurchaseUpdatedListener class
      * or when checking results from queryPurchases()
-     * @param billingResult
-     * @param purchases
+     * @param orderResult
+     * @param orders
      * Should run on background thread.
      */
-    fun processUpdatedPurchases(billingResult: BillingResult?, purchases: MutableList<Purchase>?)
+    fun processUpdatedOrders(orderResult: OrderResult?, orders: MutableList<Order>?)
 
     /**
-     * @param purchase
+     * @param order
      */
-    fun processValidation(purchase: Purchase)
+    fun processValidation(order: Order)
 
     /**
      * Simple validation checks before
      * allowing developer to implement their
      * validator
      */
-    fun isNewPurchase(purchase: Purchase): Boolean
+    fun isNewPurchase(order: Order): Boolean
 
     /**
-     * @param purchase
+     * @param order
      */
-    fun processInAppPurchase(purchase: Purchase)
+    fun processInAppPurchase(order: Order)
 
     /**
-     * @param purchase
+     * @param order
      */
-    fun processSubscription(purchase: Purchase)
+    fun processSubscription(order: Order)
 
     /**
-     * @param purchase
+     * @param order
      */
-    fun processPendingTransaction(purchase: Purchase)
+    fun processPendingTransaction(order: Order)
 
     /**
-     * @param billingResult
+     * @param orderResult
      */
-    fun processPurchasingError(billingResult: BillingResult?)
+    fun processPurchasingError(orderResult: OrderResult?)
+
+    /**
+     *
+     * Fetch all purchases to keep history up-to-date.
+     * Network issues, multiple devices, and external purchases
+     * could create untracked purchases - call this method in the
+     * onCreate and onResume lifecycle events.
+     */
+    fun refreshOrderHistory(sales: Sales)
+
+    /**
+     * @param sales
+     */
+    fun queryOrders(sales: Sales)
+
+    /**
+     * @param skuType
+     * @param listener
+     */
+    fun queryOrderHistory(skuType: String, listener: GetReceiptsListener)
+
+    /**
+     * @return - mutable list of [Receipt]'s for a particular user.
+     */
+    fun getReceipts(): MutableList<Receipt>
 
     /**
      * Purchases can be made outside of app, or finish while app is in background.
@@ -136,10 +153,10 @@ interface Sales : CleanUpListener {
     interface OrderUpdateListener {
 
         /**
-         * @param purchase
+         * @param order
          * @param productType
          */
-        fun resumeOrder(purchase: Purchase, productType: Product.ProductType)
+        fun resumeOrder(order: Order, productType: Product.Type)
     }
 
     /**
@@ -151,10 +168,10 @@ interface Sales : CleanUpListener {
     interface OrderValidatorListener {
 
         /**
-         * @param purchase
+         * @param order
          * @param callback
          */
-        fun validate(purchase: Purchase, callback: ValidatorCallback)
+        fun validate(order: Order, callback: ValidatorCallback)
     }
 
     /**
@@ -168,13 +185,13 @@ interface Sales : CleanUpListener {
     interface ValidatorCallback {
 
         /**
-         * @param purchase
+         * @param order
          */
-        fun onSuccess(purchase: Purchase)
+        fun onSuccess(order: Order)
 
         /**
-         * @param purchases
+         * @param order
          */
-        fun onFailure(purchase: Purchase)
+        fun onFailure(order: Order)
     }
 }

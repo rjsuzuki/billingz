@@ -16,9 +16,8 @@
  */
 package com.zuko.billingz.lib.store.inventory
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.android.billingclient.api.Purchase
-import com.android.billingclient.api.SkuDetails
 import com.zuko.billingz.lib.misc.CleanUpListener
 import com.zuko.billingz.lib.store.products.Product
 
@@ -30,73 +29,68 @@ interface Inventory : CleanUpListener {
     /**
      *
      */
-    var consumables: Map<String, SkuDetails>
+    var allProducts: Map<String, Product>
 
     /**
      *
      */
-    var nonConsumables: Map<String, SkuDetails>
+    var consumables: Map<String, Product>
 
     /**
      *
      */
-    var subscriptions: Map<String, SkuDetails>
+    var nonConsumables: Map<String, Product>
 
     /**
      *
      */
-    var requestedProducts: MutableLiveData<Map<String, SkuDetails>>
+    var subscriptions: Map<String, Product>
 
     /**
      *
      */
-    fun isConsumable(purchase: Purchase): Boolean
-
-    /**
-     *
-     */
-    fun getProductDetails(productId: String?): SkuDetails?
-
-    /**
-     *
-     */
-    var allProducts: Map<String, SkuDetails>
-
-    /**
-     * @param isConsumables - indicate whether the skuList is for consumables or not. (Do not mix consumables
-     * and non-consumables in same list if possible)
-     * @param skuList, a list of string productIds that will try to match
-     * against Google Play's list of available subscriptions
-     */
-    fun loadInAppProducts(skuList: MutableList<String>, isConsumables: Boolean)
+    var requestedProducts: MutableLiveData<Map<String, Product>>
 
     /**
      * @param skuList, a list of string productIds that will try to match
      * against Google Play's list of available subscriptions
      */
-    fun loadSubscriptions(skuList: MutableList<String>)
+    fun loadProducts(skuList: MutableList<String>, productType: Product.Type)
+
+    /**
+     * @param skuList
+     * @param promo
+     */
+    fun loadPromotions(skuList: MutableList<String>, promo: Product.Promotion)
 
     /**
      * @param skuList
      * @param productType
      */
-    fun loadFreeProducts(skuList: MutableList<String>, productType: Product.ProductType)
+    fun queryInventory(skuList: MutableList<String>, productType: Product.Type)
 
     /**
-     * @param skuList
+     * @param products
      * @param productType
      */
-    fun loadPromotions(skuList: MutableList<String>, productType: Product.ProductType)
+    fun updateInventory(products: MutableList<Product>?, productType: Product.Type)
 
     /**
-     * @param skuList
-     * @param productType
+     * Get the details for a specified product.
+     * @return [Product] - Android Billing Library object
+     * @param sku - the product id that can be found on the GooglePlayConsole
      */
-    fun querySkuDetails(skuList: MutableList<String>, productType: Product.ProductType)
+    fun getProduct(sku: String): Product?
 
     /**
-     * @param skuList
-     * @param productType
+     * Get all available products,
+     * set productType to ALL to query all products.
+     * @param skuList: MutableList<String>
+     * @param productType: Product.ProductType
+     * @return [LiveData<Map<String, Product>]
      */
-    fun updateSkuDetails(skuDetailsList: List<SkuDetails>?, productType: Product.ProductType)
+    fun getAvailableProducts(
+        skuList: MutableList<String>,
+        productType: Product.Type
+    ): LiveData<Map<String, Product>>
 }

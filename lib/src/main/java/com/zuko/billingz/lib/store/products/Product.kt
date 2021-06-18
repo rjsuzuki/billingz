@@ -16,9 +16,6 @@
  */
 package com.zuko.billingz.lib.store.products
 
-import com.android.billingclient.api.BillingClient
-import com.android.billingclient.api.SkuDetails
-
 /**
  * @author rjsuzuki
  *
@@ -26,7 +23,6 @@ import com.android.billingclient.api.SkuDetails
  * as not all purchases are guaranteed to generate an orderId.
  * In particular, purchases made with promo codes do not generate an orderId.
  *
- * Blueprint for GooglePlay's products for inapp-purchases
  */
 interface Product {
 
@@ -37,12 +33,12 @@ interface Product {
     var id: Int?
 
     /**
-     * The sku product id that is referenced by your Google Play account
+     * The sku product id that is referenced by your account
      */
     var sku: String?
 
     /**
-     * A convenience variable to provide the name of your product
+     * A convenience variable to provide the name/title of your product
      */
     var name: String?
 
@@ -57,30 +53,46 @@ interface Product {
     var description: String?
 
     /**
-     * @see [SkuDetails]
+     * The remote path of the products image
      */
-    var details: SkuDetails?
+    var iconUrl: String?
 
-    enum class ProductType {
-        FREE_CONSUMABLE,
-        FREE_SUBSCRIPTION,
-        FREE_NON_CONSUMABLE,
+    /**
+     * The product type can be one of the following:
+     * CONSUMABLE,
+     * NON_CONSUMABLE (aka Entitlement),
+     * SUBSCRIPTION
+     */
+    val type: Type
+
+    /**
+     * The promotion type of the product.
+     * NONE is the default.
+     */
+    val promotion: Promotion
+
+    enum class Type {
         CONSUMABLE,
         NON_CONSUMABLE,
         SUBSCRIPTION,
-        PROMO_CONSUMABLE,
-        PROMO_NON_CONSUMABLE,
-        PROMO_SUBSCRIPTION,
-        ALL
     }
 
-    /**
-     * @see [BillingClient.SkuType]
-     */
-    val skuType: String
+    enum class Promotion {
 
-    /**
-     *
-     */
-    val type: ProductType
+        /**
+         * No promotion is attached to the product.
+         * Default value.
+         */
+        NONE,
+
+        /**
+         * A product that is free of charge to purchase.
+         */
+        FREE,
+
+        /**
+         * A product on sale or a special release of some sort.
+         */
+        PROMO
+    }
 }

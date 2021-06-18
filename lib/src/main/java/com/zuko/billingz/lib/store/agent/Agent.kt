@@ -21,9 +21,9 @@ import androidx.annotation.UiThread
 import androidx.collection.ArrayMap
 import androidx.lifecycle.LiveData
 import com.android.billingclient.api.Purchase
-import com.android.billingclient.api.PurchaseHistoryResponseListener
-import com.android.billingclient.api.SkuDetails
+import com.zuko.billingz.lib.store.inventory.Inventory
 import com.zuko.billingz.lib.store.products.Product
+import com.zuko.billingz.lib.store.sales.GetReceiptsListener
 import com.zuko.billingz.lib.store.sales.Order
 import com.zuko.billingz.lib.store.sales.Sales
 
@@ -56,43 +56,28 @@ interface Agent {
     fun startOrder(activity: Activity?, productId: String?, listener: Sales.OrderValidatorListener?): LiveData<Order>
 
     /**
+     *
+     */
+    fun getInventory(): Inventory
+
+    /**
+     * Get all Orders with a pending/incomplete state.
+     * @return
+     */
+    fun getPendingOrders(): ArrayMap<String, Purchase>
+
+    /**
      * Handle purchases still remaining from recent history. Observe the liveData object
      * that will emit [Order] objects that require your attention. These orders/purchases
      * could be purchases made on another device, or when the app is resuming, etc.
      * @return [LiveData<Order>]
      * @param listener - @see [Sales.OrderValidatorListener]
      */
-    fun queriedOrders(listener: Sales.OrderValidatorListener): LiveData<Order>
-
-    /**
-     * Get all available products,
-     * set productType to ALL to query all products.
-     * @param skuList: MutableList<String>
-     * @param productType: Product.ProductType
-     * @return [LiveData<Map<String, SkuDetails>]
-     */
-    fun getAvailableProducts(
-        skuList: MutableList<String>,
-        productType: Product.ProductType
-    ): LiveData<Map<String, SkuDetails>>
-
-    /**
-     * Get the details for a specified product.
-     * @return [SkuDetails] - Android Billing Library object
-     * @param productId - the product id that can be found on the GooglePlayConsole
-     */
-    fun getProductDetails(productId: String): SkuDetails?
+    fun getIncompleteOrder(listener: Sales.OrderValidatorListener): LiveData<Order>
 
     /**
      * Returns the most recent purchase made
      * by the user for each SKU, even if that purchase is expired, canceled, or consumed.
-     * @param skuType - INAPP or SUB
-     * @param listener - @see [PurchaseHistoryResponseListener]
      */
-    fun getReceipts(skuType: String, listener: PurchaseHistoryResponseListener)
-
-    /**
-     * @return
-     */
-    fun getPendingOrders(): ArrayMap<String, Purchase>
+    fun getReceipts(type: Product.Type, listener: GetReceiptsListener)
 }
