@@ -82,6 +82,10 @@ class GoogleInventory(private val client: GoogleClient): Inventory {
         return allProducts[sku]
     }
 
+    override fun getProducts(type: Product.Type?, promo: Product.Promotion?): List<Product> {
+        TODO("Not yet implemented")
+    }
+
     fun isConsumable(purchase: Purchase): Boolean {
         return !consumables.isNullOrEmpty() && consumables.contains(purchase.sku)
     }

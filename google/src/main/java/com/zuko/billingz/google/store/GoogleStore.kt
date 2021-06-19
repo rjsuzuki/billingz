@@ -153,7 +153,7 @@ class GoogleStore private constructor(): Store {
         override fun getReceipts(type: Product.Type?): LiveData<List<Receipt>> {
             if(client is GoogleClient) {
                 val skuType = if(type == Product.Type.SUBSCRIPTION) BillingClient.SkuType.SUBS else BillingClient.SkuType.INAPP
-                client.getBillingClient()?.queryPurchaseHistoryAsync(skuType, sales)
+                //todo client.getBillingClient()?.queryPurchaseHistoryAsync(skuType, sales)
                 sales.queryReceipts(type)
             }
             return sales.orderHistory
@@ -164,7 +164,7 @@ class GoogleStore private constructor(): Store {
         }
 
         override fun getProducts(type: Product.Type?, promo: Product.Promotion?): List<Product> {
-            return inventory.getAvailableProducts(type, promo)
+            return inventory.getProducts(type, promo)
         }
 
         override fun getProduct(sku: String): Product? {

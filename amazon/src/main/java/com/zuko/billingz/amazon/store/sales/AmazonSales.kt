@@ -1,8 +1,11 @@
 package com.zuko.billingz.amazon.store.sales
 
+import android.app.Activity
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.amazon.device.iap.PurchasingService
+import com.zuko.billingz.lib.LogUtil
+import com.zuko.billingz.lib.store.client.Client
 import com.zuko.billingz.lib.store.model.Product
 import com.zuko.billingz.lib.store.model.Order
 import com.zuko.billingz.lib.store.model.Receipt
@@ -11,23 +14,54 @@ import com.zuko.billingz.lib.store.sales.Sales
 class AmazonSales: Sales {
 
     override var currentOrder: MutableLiveData<Order> = MutableLiveData()
-    override var currentReceipt: MutableLiveData<Receipt> = MutableLiveData()
-    override var orderHistory: MutableLiveData<List<Receipt>> = MutableLiveData()
+    override var currentReceipt: Receipt?
+        get() = TODO("Not yet implemented")
+        set(value) {}
 
-    override fun startOrder(sku: String) {
-        PurchasingService.purchase(sku)
+    override var orderHistory: MutableLiveData<List<Receipt>> = MutableLiveData()
+    override var orderUpdaterListener: Sales.OrderUpdaterListener?
+        get() = TODO("Not yet implemented")
+        set(value) {}
+    override var orderValidatorListener: Sales.OrderValidatorListener?
+        get() = TODO("Not yet implemented")
+        set(value) {}
+
+    private val validatorCallback: Sales.ValidatorCallback = object : Sales.ValidatorCallback {
+        override fun onSuccess(order: Order) {
+            processOrder(order)
+        }
+
+        override fun onFailure(order: Order) {
+            // todo handle gracefully
+        }
     }
 
-    override fun processOrder(order: Order) {
-        validateOrder(order)
+    private val updaterCallback: Sales.UpdaterCallback = object : Sales.UpdaterCallback {
+        override fun complete(order: Order) {
+            completeOrder(order)
+        }
+
+        override fun cancel(order: Order) {
+            TODO("Not yet implemented")
+        }
+    }
+
+    override fun startOrder(activity: Activity?, product: Product, client: Client) {
+        PurchasingService.purchase(product.sku)
     }
 
     override fun validateOrder(order: Order) {
+        orderValidatorListener?.validate(order, validatorCallback) ?: LogUtil.log.e(TAG, "Null validator object. Cannot complete order.")
         //validator listener
         //if valid - completeOrder(order)
         //if invalid - handle gracefully
         // Verify the receipts from the purchase by having your back-end server
         // verify the receiptId with Amazon's Receipt Verification Service (RVS) before fulfilling the item
+    }
+
+
+    override fun processOrder(order: Order) {
+
     }
 
     override fun completeOrder(order: Order) {
@@ -37,13 +71,18 @@ class AmazonSales: Sales {
         refreshReceipts()
     }
 
-    override fun handleError(order: Order) {
+    override fun refreshQueries() {
+        val purchaseUpdatesRequestId = PurchasingService.getPurchaseUpdates(false)
+        Log.d(TAG, "Refresh receipts: $purchaseUpdatesRequestId")
+    }
+
+    override fun queryOrders() {
         TODO("Not yet implemented")
     }
 
-    override fun refreshReceipts() {
-        val purchaseUpdatesRequestId = PurchasingService.getPurchaseUpdates(false)
-        Log.d(TAG, "Refresh receipts: $purchaseUpdatesRequestId")
+
+    fun refreshReceipts() {
+
     }
 
     override fun queryReceipts(type: Product.Type?) {

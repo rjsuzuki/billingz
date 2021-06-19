@@ -168,7 +168,15 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
 
     }
 
-    override fun refreshReceipts() {
+    override fun refreshQueries() {
+        TODO("Not yet implemented")
+    }
+
+    override fun queryOrders() {
+        TODO("Not yet implemented")
+    }
+
+    fun refreshReceipts() {
         LogUtil.log.v(TAG, "queryPurchases")
         if (isAlreadyQueried) {
             LogUtil.log.d(TAG, "Skipping purchase history refresh.")

@@ -73,6 +73,8 @@ interface Inventory : CleanUpListener {
      */
     fun getProduct(sku: String): Product?
 
+    fun getProducts(type: Product.Type?, promo: Product.Promotion?): List<Product>
+
     /**
      * Get all available products,
      * set productType to null to query all products.

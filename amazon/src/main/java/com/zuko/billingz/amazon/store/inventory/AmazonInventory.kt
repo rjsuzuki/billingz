@@ -72,6 +72,10 @@ class AmazonInventory: Inventory {
         return allProducts[sku]
     }
 
+    override fun getProducts(type: Product.Type?, promo: Product.Promotion?): List<Product> {
+        TODO("Not yet implemented")
+    }
+
     override fun destroy() {
         TODO("Not yet implemented")
     }
