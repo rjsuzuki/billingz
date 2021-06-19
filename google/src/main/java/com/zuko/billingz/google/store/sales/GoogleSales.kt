@@ -73,17 +73,16 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
     private var activeSubscriptions: MutableList<Purchase> = mutableListOf()
     private var activeInAppProducts: MutableList<Purchase> = mutableListOf()
 
+    var purchaseHistoryResponseListener =
+        PurchaseHistoryResponseListener { billingResult, records -> // handle billingResult
+            // todo - purchase history records
+            if(records.isNullOrEmpty()) {
 
-
-    var purchaseHistoryResponseListener = object: PurchaseHistoryResponseListener {
-        override fun onPurchaseHistoryResponse(
-            p0: BillingResult,
-            p1: MutableList<PurchaseHistoryRecord>?
-        ) {
-            TODO("Not yet implemented")
+            } else {
+                // convert records into receipts
+            }
         }
 
-    }
 
     private val validatorCallback: Sales.ValidatorCallback = object : Sales.ValidatorCallback {
         override fun onSuccess(order: Order) {
@@ -169,11 +168,12 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
     }
 
     override fun refreshQueries() {
-        TODO("Not yet implemented")
+        refreshReceipts()
+        client.getBillingClient()?.queryPurchaseHistoryAsync(BillingClient.SkuType.INAPP, purchaseHistoryResponseListener)
     }
 
     override fun queryOrders() {
-        TODO("Not yet implemented")
+        client.getBillingClient()?.queryPurchases(BillingClient.SkuType.INAPP)
     }
 
     fun refreshReceipts() {
