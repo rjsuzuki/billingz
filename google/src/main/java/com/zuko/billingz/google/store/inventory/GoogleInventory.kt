@@ -7,9 +7,10 @@ import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.SkuDetailsParams
 import com.zuko.billingz.google.store.client.GoogleClient
+import com.zuko.billingz.google.store.model.GoogleProduct
 import com.zuko.billingz.lib.LogUtil
 import com.zuko.billingz.lib.store.inventory.Inventory
-import com.zuko.billingz.lib.store.products.Product
+import com.zuko.billingz.lib.store.model.Product
 
 class GoogleInventory(private val client: GoogleClient): Inventory {
 
@@ -19,29 +20,14 @@ class GoogleInventory(private val client: GoogleClient): Inventory {
     override var subscriptions: Map<String, Product> = HashMap()
     override var requestedProducts: MutableLiveData<Map<String, Product>> = MutableLiveData()
 
-    override fun loadProducts(skuList: MutableList<String>, productType: Product.Type) {
-        when(productType) {
-            Product.Type.CONSUMABLE -> {
-
-            }
-            Product.Type.NON_CONSUMABLE -> {
-
-            }
-            Product.Type.SUBSCRIPTION -> {
-
-            }
-        }
-    }
-
-    override fun loadPromotions(skuList: MutableList<String>, promo: Product.Promotion) {
-        TODO("Not yet implemented")
-    }
-
-    override fun queryInventory(skuList: MutableList<String>, productType: Product.Type) {
+    override fun queryInventory(skuList: List<String>, productType: Product.Type) {
         val type = when(productType) {
             Product.Type.CONSUMABLE -> BillingClient.SkuType.INAPP
             Product.Type.NON_CONSUMABLE -> BillingClient.SkuType.INAPP
             Product.Type.SUBSCRIPTION -> BillingClient.SkuType.SUBS
+            else -> {
+                BillingClient.SkuType.INAPP
+            }
         }
         val builder = SkuDetailsParams.newBuilder()
         val params = builder
@@ -50,26 +36,34 @@ class GoogleInventory(private val client: GoogleClient): Inventory {
             .build()
         client.getBillingClient()?.querySkuDetailsAsync(params) { result, skuDetailsList ->
             Log.i(TAG, "Processing query result : ${result.responseCode}, ${result.debugMessage}")
-            updateInventory(skuDetailsList, productType)
+
+            val list = mutableListOf<Product>()
+            skuDetailsList?.let { skus ->
+                for(s in skus) {
+                    val product = GoogleProduct(s)
+                    list.add(product)
+                }
+            }
+            updateInventory(list, productType)
         }
     }
 
-    override fun updateInventory(products: MutableList<Product>?, productType: Product.Type) {
-        Log.d(TAG, "updateSkuDetails : ${products?.size ?: 0}")
+    override fun updateInventory(products: List<Product>?, productType: Product.Type) {
+        Log.d(TAG, "updateInventory : ${products?.size ?: 0}")
         if (!products.isNullOrEmpty()) {
-            allProducts = allProducts + products.associateBy { it.sku }
+            allProducts = allProducts + products.associateBy { it.sku.toString() }
 
             when (productType) {
                 Product.Type.CONSUMABLE -> {
-                    consumables = consumables + products.associateBy { it.sku }
+                    consumables = consumables + products.associateBy { it.sku.toString() }
                     requestedProducts.postValue(consumables)
                 }
                 Product.Type.NON_CONSUMABLE -> {
-                    nonConsumables = nonConsumables + products.associateBy { it.sku }
+                    nonConsumables = nonConsumables + products.associateBy { it.sku.toString() }
                     requestedProducts.postValue(nonConsumables)
                 }
                 Product.Type.SUBSCRIPTION -> {
-                    subscriptions = subscriptions + products.associateBy { it.sku }
+                    subscriptions = subscriptions + products.associateBy { it.sku.toString() }
                     requestedProducts.postValue(subscriptions)
                 }
                 else -> LogUtil.log.w(TAG, "Unhandled product type: $productType")
@@ -77,15 +71,15 @@ class GoogleInventory(private val client: GoogleClient): Inventory {
         }
     }
 
-    override fun getProduct(sku: String): Product? {
-        TODO("Not yet implemented")
-    }
-
     override fun getAvailableProducts(
         skuList: MutableList<String>,
-        productType: Product.Type
+        productType: Product.Type?
     ): LiveData<Map<String, Product>> {
-        TODO("Not yet implemented")
+        return requestedProducts
+    }
+
+    override fun getProduct(sku: String): Product? {
+        return allProducts[sku]
     }
 
     fun isConsumable(purchase: Purchase): Boolean {
@@ -97,6 +91,6 @@ class GoogleInventory(private val client: GoogleClient): Inventory {
     }
 
     companion object {
-        private const val TAG = "BillingzInventory"
+        private const val TAG = "GoogleInventory"
     }
 }

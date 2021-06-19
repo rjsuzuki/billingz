@@ -19,8 +19,8 @@ package com.zuko.billingz.lib.store.client
 import android.content.Context
 import androidx.annotation.UiThread
 import androidx.lifecycle.MutableLiveData
-import com.android.billingclient.api.PurchasesUpdatedListener
 import com.zuko.billingz.lib.misc.CleanUpListener
+import com.zuko.billingz.lib.store.sales.Sales
 
 /**
  * Blueprint of the core logic of the library.
@@ -49,14 +49,13 @@ interface Client : CleanUpListener {
      * Initialize the Android Billing Library
      * INTERNAL USE ONLY
      * @param context
-     * @param purchasesUpdatedListener
-     * @param googlePlayConnectListener
+     * @param orderUpdatedListener
+     * @param connectionListener
      */
     @UiThread
-    fun initClient(
+    fun init(
         context: Context?,
-        purchasesUpdatedListener: PurchasesUpdatedListener,
-        googlePlayConnectListener: ConnectionListener
+        connectionListener: ConnectionListener
     )
 
     /**
@@ -83,19 +82,7 @@ interface Client : CleanUpListener {
      * INTERNAL USE ONLY
      */
     interface ConnectionListener {
-
         fun connected()
-
-        /**
-         *
-         */
-        @UiThread
-        fun retry()
-
-        /**
-         *
-         */
-        fun cancel()
     }
 
     /**

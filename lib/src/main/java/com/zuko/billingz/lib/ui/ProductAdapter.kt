@@ -27,7 +27,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.lottie.LottieAnimationView
 import com.zuko.billingz.R
 import com.zuko.billingz.databinding.ListItemProductBinding
-import com.zuko.billingz.lib.store.products.Product
+import com.zuko.billingz.lib.store.model.Product
 
 /**
  * RecyclerView Adapter for a mutable list of [Product] objects.

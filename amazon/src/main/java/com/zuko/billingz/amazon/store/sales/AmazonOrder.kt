@@ -1,11 +1,20 @@
 package com.zuko.billingz.amazon.store.sales
 
-import com.zuko.billingz.lib.store.sales.Order
+import com.amazon.device.iap.model.PurchaseResponse
+
+import com.zuko.billingz.lib.store.model.Order
 
 data class AmazonOrder(
-    override var orderId: String?,
-    override var packageName: String?,
-    override var orderTime: Long?,
-    override var orderToken: String?
+val response: PurchaseResponse
 ) : Order {
+    override var orderId: String? = null
+    override var packageName: String? = null
+    override var orderTime: Long = 0L
+    override var orderToken: String? = null
+
+    //var status/result
+
+    init {
+
+    }
 }

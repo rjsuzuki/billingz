@@ -16,7 +16,7 @@
  */
 package com.zuko.billingz.lib.ui
 
-import com.zuko.billingz.lib.store.products.Product
+import com.zuko.billingz.lib.store.model.Product
 
 /**
  * Listen to different events related to a selected product

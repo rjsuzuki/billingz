@@ -19,7 +19,7 @@ package com.zuko.billingz.lib.store.inventory
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.zuko.billingz.lib.misc.CleanUpListener
-import com.zuko.billingz.lib.store.products.Product
+import com.zuko.billingz.lib.store.model.Product
 
 /**
  * Blueprint for managing a store's (your applications) entire collection of available products (inventory)
@@ -51,29 +51,20 @@ interface Inventory : CleanUpListener {
      */
     var requestedProducts: MutableLiveData<Map<String, Product>>
 
+
     /**
+     *
      * @param skuList, a list of string productIds that will try to match
-     * against Google Play's list of available subscriptions
-     */
-    fun loadProducts(skuList: MutableList<String>, productType: Product.Type)
-
-    /**
-     * @param skuList
-     * @param promo
-     */
-    fun loadPromotions(skuList: MutableList<String>, promo: Product.Promotion)
-
-    /**
-     * @param skuList
+     * against (validate) the billing client's server for list of available products.
      * @param productType
      */
-    fun queryInventory(skuList: MutableList<String>, productType: Product.Type)
+    fun queryInventory(skuList: List<String>, productType: Product.Type)
 
     /**
      * @param products
      * @param productType
      */
-    fun updateInventory(products: MutableList<Product>?, productType: Product.Type)
+    fun updateInventory(products: List<Product>?, productType: Product.Type)
 
     /**
      * Get the details for a specified product.
@@ -84,13 +75,14 @@ interface Inventory : CleanUpListener {
 
     /**
      * Get all available products,
-     * set productType to ALL to query all products.
+     * set productType to null to query all products.
+     * Available products have been validated.
      * @param skuList: MutableList<String>
      * @param productType: Product.ProductType
      * @return [LiveData<Map<String, Product>]
      */
     fun getAvailableProducts(
         skuList: MutableList<String>,
-        productType: Product.Type
+        productType: Product.Type?
     ): LiveData<Map<String, Product>>
 }

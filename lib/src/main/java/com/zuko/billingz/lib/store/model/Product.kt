@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
-package com.zuko.billingz.lib.store.products
+package com.zuko.billingz.lib.store.model
 
 /**
  * @author rjsuzuki

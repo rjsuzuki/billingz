@@ -3,40 +3,85 @@ package com.zuko.billingz.amazon.store
 import android.app.Activity
 import android.content.Context
 import androidx.collection.ArrayMap
-import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LiveData
-import com.amazon.device.iap.PurchasingListener
-import com.amazon.device.iap.PurchasingService
-import com.amazon.device.iap.model.ProductDataResponse
-import com.amazon.device.iap.model.PurchaseResponse
-import com.amazon.device.iap.model.PurchaseUpdatesResponse
-import com.amazon.device.iap.model.UserDataResponse
-import com.android.billingclient.api.Purchase
 import com.zuko.billingz.amazon.store.client.AmazonClient
 import com.zuko.billingz.amazon.store.inventory.AmazonInventory
+import com.zuko.billingz.amazon.store.sales.AmazonSales
 import com.zuko.billingz.lib.LogUtil
 import com.zuko.billingz.lib.store.Store
-import com.zuko.billingz.lib.store.StoreLifecycle
 import com.zuko.billingz.lib.store.agent.Agent
-import com.zuko.billingz.lib.store.inventory.Inventory
-import com.zuko.billingz.lib.store.products.Product
-import com.zuko.billingz.lib.store.sales.GetReceiptsListener
-import com.zuko.billingz.lib.store.sales.Order
+import com.zuko.billingz.lib.store.client.Client
+import com.zuko.billingz.lib.store.model.Product
+import com.zuko.billingz.lib.store.model.Order
+import com.zuko.billingz.lib.store.model.Receipt
 import com.zuko.billingz.lib.store.sales.Sales
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 
 class AmazonStore: Store {
 
-    private val client = AmazonClient()
-    private val inventory = AmazonInventory()
-    // todo sales/history
-
     private val mainScope = MainScope()
 
-    private var context: Context? = null
+    private val inventory = AmazonInventory()
+    private val sales = AmazonSales()
+    private val client = AmazonClient(inventory, sales)
+
+    private val connectionListener = object : Client.ConnectionListener {
+        override fun connected() {
+            //todo sales.refreshReceipts()
+        }
+    }
+
+    /*****************************************************************************************************
+     * Lifecycle events - developer must either add this class to a lifecycleOwner or manually add the events
+     * to their respective parent view
+     *****************************************************************************************************/
+
+    init {
+        LogUtil.log.v(TAG, "instantiating...")
+    }
+
+    override fun init(context: Context?) {
+        LogUtil.log.v(TAG, "initializing...")
+        client.init(context, connectionListener)
+    }
+
+    override fun create() {
+        LogUtil.log.v(TAG, "creating...")
+        client.connect()
+    }
+
+    override fun start() {
+        LogUtil.log.v(TAG, "starting...")
+    }
+
+    override fun resume() {
+        LogUtil.log.v(TAG, "resuming...")
+        client.checkConnection()
+        if(client.isReady()) {
+            sales.refreshReceipts()
+            inventory.queryInventory()
+        }
+    }
+
+    override fun pause() {
+        LogUtil.log.v(TAG, "pausing...")
+    }
+
+    override fun stop() {
+        LogUtil.log.v(TAG, "stopping...")
+        mainScope.cancel()
+    }
+
+    override fun destroy() {
+        LogUtil.log.v(TAG, "destroying...")
+        mainScope.cancel()
+        inventory.destroy()
+        client.destroy()
+    }
 
     private val agent = object: Agent {
+
         override fun isBillingClientReady(): LiveData<Boolean> {
             return client.isClientReady
         }
@@ -49,71 +94,29 @@ class AmazonStore: Store {
             TODO("Not yet implemented")
         }
 
-        override fun getInventory(): Inventory {
-            return inventory
-        }
-
-        override fun getPendingOrders(): ArrayMap<String, Purchase> {
+        override fun getReceipts(type: Product.Type?): LiveData<List<Receipt>> {
             TODO("Not yet implemented")
         }
 
-        override fun getIncompleteOrder(listener: Sales.OrderValidatorListener): LiveData<Order> {
+        override fun queryOrders() {
             TODO("Not yet implemented")
         }
 
-        override fun getReceipts(type: Product.Type, listener: GetReceiptsListener) {
+        override fun updateInventory(skuList: List<String>, type: Product.Type) {
             TODO("Not yet implemented")
         }
 
+        override fun getProducts(type: Product.Type?, promo: Product.Promotion?): List<Product> {
+            TODO("Not yet implemented")
+        }
+
+        override fun getProduct(sku: String): Product? {
+            TODO("Not yet implemented")
+        }
     }
 
     override fun getAgent(): Agent {
         return agent
-    }
-
-    override fun init(context: Context?) {
-         this.context = context
-    }
-
-    override fun create() {
-        client.initClient(context)
-    }
-
-    override fun start() {
-        TODO("Not yet implemented")
-    }
-
-    override fun resume() {
-        // Call this method to retrieve the app-specific ID and marketplace for the user who is
-        // currently logged on. For example, if a user switched accounts or if multiple users
-        // accessed your app on the same device, this call will help you make sure that the receipts
-        // that you retrieve are for the current user account.
-        val userRequestId = PurchasingService.getUserData()
-
-        // retrieves all Subscription and Entitlement purchases across all devices. A consumable
-        // purchase can be retrieved only from the device where it was purchased. getPurchaseUpdates
-        // retrieves only unfulfilled and cancelled consumable purchases. Amazon recommends that you
-        // persist the returned PurchaseUpdatesResponse data and query the system only for updates.
-        // The response is paginated.
-        val purchaseUpdatesRequestId = PurchasingService.getPurchaseUpdates(true)
-
-        // Call this method to retrieve item data for a set of SKUs to display in your app.
-        // Call getProductData in the OnResume method.
-        val productDataRequestId = PurchasingService.getProductData()
-    }
-
-    override fun pause() {
-        TODO("Not yet implemented")
-    }
-
-    override fun stop() {
-        mainScope.cancel()
-    }
-
-    override fun destroy() {
-        mainScope.cancel()
-        inventory.destroy()
-        client.destroy()
     }
 
     companion object {

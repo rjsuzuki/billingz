@@ -18,19 +18,21 @@ package com.zuko.billingz.google.store
 
 import android.app.Activity
 import android.content.Context
-import androidx.collection.ArrayMap
 import androidx.lifecycle.LiveData
-import com.android.billingclient.api.Purchase
-import com.android.billingclient.api.PurchaseHistoryResponseListener
-import com.android.billingclient.api.SkuDetails
+import com.android.billingclient.api.BillingClient
+import com.android.billingclient.api.PurchasesUpdatedListener
+import com.zuko.billingz.google.store.client.GoogleClient
+import com.zuko.billingz.google.store.inventory.GoogleInventory
+import com.zuko.billingz.google.store.model.GoogleOrder
 import com.zuko.billingz.lib.LogUtil
-import com.zuko.billingz.lib.store.StoreLifecycle
 import com.zuko.billingz.lib.store.agent.Agent
 import com.zuko.billingz.lib.store.inventory.Inventory
-import com.zuko.billingz.google.store.products.Consumable
-import com.zuko.billingz.google.store.products.NonConsumable
-import com.zuko.billingz.lib.store.products.Product
-import com.zuko.billingz.google.store.products.Subscription
+import com.zuko.billingz.lib.store.model.Product
+import com.zuko.billingz.google.store.sales.GoogleSales
+import com.zuko.billingz.lib.store.Store
+import com.zuko.billingz.lib.store.client.Client
+import com.zuko.billingz.lib.store.model.Order
+import com.zuko.billingz.lib.store.model.Receipt
 import com.zuko.billingz.lib.store.sales.Sales
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
@@ -40,21 +42,24 @@ import kotlinx.coroutines.cancel
  * //TODO handle pending purchases?
  * //TODO retry connection
  */
-class GoogleStore : StoreLifecycle {
+class GoogleStore private constructor(): Store {
 
     private val mainScope = MainScope()
-
-    private val billing: com.zuko.billingz.lib.store.client.Client = Client()
-    private val inventory: Inventory = ProductInventory(billing)
-    private val sales: Sales = ProductSales(inventory)
-    private val history: History = OrderHistory(billing)
-    private var isInitialized = false
-
-    private val googlePlayConnectListener = object : com.zuko.billingz.lib.store.client.Billing.Client.GooglePlayConnectListener {
+    private val purchasesUpdatedListener: PurchasesUpdatedListener =
+        PurchasesUpdatedListener { billingResult, purchases -> (sales as GoogleSales).processUpdatedPurchases(billingResult, purchases) }
+    private val connectionListener = object : Client.ConnectionListener {
         override fun connected() {
-            history.refreshOrderHistory(sales)
+            sales.refreshQueries()
         }
     }
+
+    private val client: Client = GoogleClient(purchasesUpdatedListener)
+    private val inventory: Inventory = GoogleInventory(client as GoogleClient)
+    private val sales: Sales = GoogleSales(inventory as GoogleInventory, client as GoogleClient)
+
+    private var isInitialized = false
+
+
     /*****************************************************************************************************
      * Lifecycle events - developer must either add this class to a lifecycleOwner or manually add the events
      * to their respective parent view
@@ -65,17 +70,17 @@ class GoogleStore : StoreLifecycle {
 
     override fun init(context: Context?) {
         LogUtil.log.v(TAG, "initializing...")
-        billing.initClient(context, sales.purchasesUpdatedListener, googlePlayConnectListener)
+        client.init(context, connectionListener)
         isInitialized = true
     }
 
     override fun create() {
         LogUtil.log.v(TAG, "creating...")
-        setOrderUpdateListener()
-        if (isInitialized && billing.initialized()) {
-            billing.connect()
-        }
-        history.refreshOrderHistory(sales) // might need to react to connection
+        if (isInitialized && client.initialized())
+            client.connect()
+
+        if(client.isReady())
+            sales.refreshQueries() // might need to react to connection
     }
 
     override fun start() {
@@ -84,8 +89,9 @@ class GoogleStore : StoreLifecycle {
 
     override fun resume() {
         LogUtil.log.v(TAG, "resuming...")
-        billing.checkConnection()
-        history.refreshOrderHistory(sales)
+        client.checkConnection()
+        if(client.isReady())
+            sales.refreshQueries()
     }
 
     override fun pause() {
@@ -94,13 +100,12 @@ class GoogleStore : StoreLifecycle {
 
     override fun stop() {
         LogUtil.log.v(TAG, "stopping...")
-        billing.disconnect()
+        client.disconnect()
     }
 
     override fun destroy() {
         LogUtil.log.v(TAG, "destroying...")
-        billing.destroy()
-        history.destroy()
+        client.destroy()
         sales.destroy()
         inventory.destroy()
         mainScope.cancel()
@@ -109,37 +114,11 @@ class GoogleStore : StoreLifecycle {
     /*****************************************************************************************************
      * Private methods
      *****************************************************************************************************/
-    private fun setOrderUpdateListener() {
-        sales.orderUpdateListener = object : Sales.OrderUpdateListener {
-            override fun resumeOrder(purchase: Purchase, productType: Product.Type) {
-                LogUtil.log.i(TAG, "Attempting to complete purchase order : $purchase, type: $productType")
-                when (productType) {
-                    Product.Type.SUBSCRIPTION -> {
-                        Subscription.completeOrder(billing.getBillingClient(), purchase, sales.getOrderOrQueried(), mainScope = mainScope)
-                    }
 
-                    Product.Type.NON_CONSUMABLE -> {
-                        NonConsumable.completeOrder(billing.getBillingClient(), purchase, sales.getOrderOrQueried(), mainScope = mainScope)
-                    }
-
-                    Product.Type.CONSUMABLE -> {
-                        Consumable.completeOrder(billing.getBillingClient(), purchase, sales.getOrderOrQueried(), null)
-                    }
-                    else -> LogUtil.log.v(TAG, "Unhandled product type: $productType")
-                }
-            }
-        }
-    }
-
-    private val billingAgent = object : Agent {
+    private val storeAgent = object : Agent {
 
         override fun isBillingClientReady(): LiveData<Boolean> {
-            return billing.isClientReady
-        }
-
-        override fun queriedOrders(listener: Sales.OrderValidatorListener): LiveData<Order> {
-            sales.orderValidatorListener = listener
-            return sales.queriedOrder
+            return client.isClientReady
         }
 
         override fun startOrder(
@@ -148,55 +127,48 @@ class GoogleStore : StoreLifecycle {
             listener: Sales.OrderValidatorListener?
         ): LiveData<Order> {
             LogUtil.log.v(TAG, "Starting purchase flow")
+
             sales.orderValidatorListener = listener
 
-            val skuDetails = inventory.allProducts[productId]
+            val product = inventory.allProducts[productId]
 
-            activity?.let { a ->
-                skuDetails?.let {
-                    billing.getBillingClient()?.let { client ->
-                        val result = sales.startPurchaseRequest(a, skuDetails, client)
-                        val order = Order(
-                            billingResult = result,
-                            msg = "Processing..."
-                        )
-                        sales.order.postValue(order)
-                    }
-                }
+            product?.let {
+                sales.startOrder(activity, product, client)
+                val order = GoogleOrder(
+                    billingResult = null,
+                    msg = "Processing..."
+                )
+                sales.currentOrder.postValue(order)
+            } ?: sales.currentOrder.postValue(GoogleOrder(
+                billingResult = null,
+                msg = "Product: $productId not found."
+            ))
+            return sales.currentOrder
+        }
+
+        override fun queryOrders() {
+            sales.queryOrders()
+        }
+
+        override fun getReceipts(type: Product.Type?): LiveData<List<Receipt>> {
+            if(client is GoogleClient) {
+                val skuType = if(type == Product.Type.SUBSCRIPTION) BillingClient.SkuType.SUBS else BillingClient.SkuType.INAPP
+                client.getBillingClient()?.queryPurchaseHistoryAsync(skuType, sales)
+                sales.queryReceipts(type)
             }
-            return sales.order
+            return sales.orderHistory
         }
 
-        override fun getAvailableProducts(
-            skuList: MutableList<String>,
-            productType: Product.Type
-        ): LiveData<Map<String, SkuDetails>> {
-            LogUtil.log.v(TAG, "addProductsToInventory")
-            when (productType) {
-                Product.Type.NON_CONSUMABLE -> inventory.loadInAppProducts(skuList, false)
-                Product.Type.CONSUMABLE -> inventory.loadInAppProducts(skuList, true)
-                Product.Type.SUBSCRIPTION -> inventory.loadSubscriptions(skuList)
-                Product.Type.FREE_CONSUMABLE -> inventory.loadFreeProducts(skuList, productType)
-                Product.Type.FREE_NON_CONSUMABLE -> inventory.loadFreeProducts(skuList, productType)
-                Product.Type.FREE_SUBSCRIPTION -> inventory.loadFreeProducts(skuList, productType)
-                Product.Type.PROMO_CONSUMABLE -> inventory.loadPromotions(skuList, productType)
-                Product.Type.PROMO_NON_CONSUMABLE -> inventory.loadPromotions(skuList, productType)
-                Product.Type.PROMO_SUBSCRIPTION -> inventory.loadPromotions(skuList, productType)
-                else -> LogUtil.log.w(TAG, "Unhandled product type: $productType")
-            }
-            return inventory.requestedProducts
+        override fun updateInventory(skuList: List<String>, type: Product.Type) {
+            inventory.queryInventory(skuList = skuList, type)
         }
 
-        override fun getProductDetails(productId: String): SkuDetails? {
-            return inventory.getProductDetails(productId)
+        override fun getProducts(type: Product.Type?, promo: Product.Promotion?): List<Product> {
+            return inventory.getAvailableProducts(type, promo)
         }
 
-        override fun getReceipts(skuType: String, listener: PurchaseHistoryResponseListener) {
-            billing.getBillingClient()?.queryPurchaseHistoryAsync(skuType, listener)
-        }
-
-        override fun getPendingOrders(): ArrayMap<String, Purchase> {
-            return sales.pendingPurchases
+        override fun getProduct(sku: String): Product? {
+            return inventory.getProduct(sku)
         }
     }
 
@@ -209,12 +181,34 @@ class GoogleStore : StoreLifecycle {
      * interact with Android's Billing Library (Facade pattern).
      * @return [Agent]
      */
-    @Suppress("unused")
-    fun getAgent(): Agent {
-        return billingAgent
+    override fun getAgent(): Agent {
+        return storeAgent
     }
 
     companion object {
         private const val TAG = "GoogleStore"
+    }
+
+    class Builder {
+
+        private val store = GoogleStore()
+
+        fun create(context: Context?): Builder {
+            return this
+        }
+
+        fun setOrderUpdateListener(listener: Sales.OrderUpdaterListener): Builder {
+            store.sales.orderUpdaterListener = listener
+            return this
+        }
+
+        fun setOrderResumeListener(listener: Sales.OrderValidatorListener): Builder {
+            store.sales.orderValidatorListener = listener
+            return this
+        }
+
+        fun build(): GoogleStore {
+            return GoogleStore()
+        }
     }
 }

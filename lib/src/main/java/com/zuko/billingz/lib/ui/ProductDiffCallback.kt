@@ -17,7 +17,7 @@
 package com.zuko.billingz.lib.ui
 
 import androidx.recyclerview.widget.DiffUtil
-import com.zuko.billingz.lib.store.products.Product
+import com.zuko.billingz.lib.store.model.Product
 
 /**
  * Implementation of [DiffUtil.Callback] for a mutable list of [Product] objects.

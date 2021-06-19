@@ -14,11 +14,11 @@
  * limitations under the License.
  *
  */
-package com.zuko.billingz.google.store.sales
+package com.zuko.billingz.google.store.model
 
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.Purchase
-import com.zuko.billingz.lib.store.sales.Order
+import com.zuko.billingz.lib.store.model.Order
 
 /**
  * Represents an Order.
@@ -26,11 +26,25 @@ import com.zuko.billingz.lib.store.sales.Order
  * @property purchase
  * @property msg - shorthand for message.
  */
-interface GoogleOrder: Order {
+data class GoogleOrder(val purchase: Purchase? = null,
+                       val billingResult: BillingResult?,
+                       val msg: String): Order {
 
-    val billingResult: BillingResult?
-    val purchase: Purchase?
-    val msg: String
+    override var orderId: String?
+        get() = TODO("Not yet implemented")
+        set(value) {}
+    override var packageName: String?
+        get() = TODO("Not yet implemented")
+        set(value) {}
+    override var orderTime: Long
+        get() = TODO("Not yet implemented")
+        set(value) {}
+    override var orderToken: String?
+        get() = TODO("Not yet implemented")
+        set(value) {}
+    override var status: Order.Status
+        get() = TODO("Not yet implemented")
+        set(value) {}
 
 }
 
