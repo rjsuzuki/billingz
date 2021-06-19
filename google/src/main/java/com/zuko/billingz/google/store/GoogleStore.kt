@@ -194,6 +194,25 @@ class GoogleStore private constructor(): Store {
         private val store = GoogleStore()
 
         fun create(context: Context?): Builder {
+            store.init(context)
+            return this
+        }
+
+        fun setConsumables(skuList: List<String>): Builder {
+            store.inventory.consumableSkus.clear()
+            store.inventory.consumableSkus.addAll(skuList)
+            return this
+        }
+
+        fun setNonConsumables(skuList: List<String>): Builder {
+            store.inventory.nonConsumableSkus.clear()
+            store.inventory.nonConsumableSkus.addAll(skuList)
+            return this
+        }
+
+        fun setSubscriptions(skuList: List<String>): Builder {
+            store.inventory.subscriptionSkus.clear()
+            store.inventory.subscriptionSkus.addAll(skuList)
             return this
         }
 
@@ -208,7 +227,7 @@ class GoogleStore private constructor(): Store {
         }
 
         fun build(): GoogleStore {
-            return GoogleStore()
+            return store
         }
     }
 }

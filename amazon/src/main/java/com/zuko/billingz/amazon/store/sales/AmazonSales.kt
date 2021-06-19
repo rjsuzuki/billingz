@@ -38,11 +38,18 @@ class AmazonSales: Sales {
 
     private val updaterCallback: Sales.UpdaterCallback = object : Sales.UpdaterCallback {
         override fun complete(order: Order) {
-            completeOrder(order)
+            if(order is AmazonOrder) {
+                if(order.response?.receipt?.isCanceled == true) {
+                    // todo handle gracefully
+                } else {
+                    completeOrder(order)
+                }
+            }
         }
 
         override fun cancel(order: Order) {
-            TODO("Not yet implemented")
+
+            // todo handle gracefully
         }
     }
 
@@ -59,16 +66,16 @@ class AmazonSales: Sales {
         // verify the receiptId with Amazon's Receipt Verification Service (RVS) before fulfilling the item
     }
 
-
     override fun processOrder(order: Order) {
-
+        orderUpdaterListener?.onResume(order, updaterCallback)
     }
 
     override fun completeOrder(order: Order) {
 
+        //todo PurchasingService.notifyFulfillment()
 
         // update history
-        refreshReceipts()
+        refreshQueries()
     }
 
     override fun refreshQueries() {
@@ -77,23 +84,22 @@ class AmazonSales: Sales {
     }
 
     override fun queryOrders() {
-        TODO("Not yet implemented")
-    }
+        val purchaseUpdatesRequestId = PurchasingService.getPurchaseUpdates(true)
+        Log.d(TAG, "Refresh receipts: $purchaseUpdatesRequestId")
+        //todo - if order is pending still
+        //orderUpdaterListener?.onResume(order, updaterCallback)
 
-
-    fun refreshReceipts() {
-
-    }
-
-    override fun queryReceipts(type: Product.Type?) {
         // retrieves all Subscription and Entitlement purchases across all devices.
         // A consumable purchase can be retrieved only from the device where it was purchased.
         // getPurchaseUpdates
         // retrieves only unfulfilled and cancelled consumable purchases. Amazon recommends that you
         // persist the returned PurchaseUpdatesResponse data and query the system only for updates.
         // The response is paginated.
-        val purchaseUpdatesRequestId = PurchasingService.getPurchaseUpdates(false) // sales
-        Log.d(TAG, "Query receipts: $purchaseUpdatesRequestId")
+         Log.d(TAG, "Query receipts: $purchaseUpdatesRequestId")
+    }
+
+    override fun queryReceipts(type: Product.Type?) {
+
     }
 
     fun queryRecentHistory() {

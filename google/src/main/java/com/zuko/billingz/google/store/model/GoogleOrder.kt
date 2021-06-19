@@ -19,6 +19,7 @@ package com.zuko.billingz.google.store.model
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.Purchase
 import com.zuko.billingz.lib.store.model.Order
+import com.zuko.billingz.lib.store.model.Product
 
 /**
  * Represents an Order.
@@ -42,7 +43,13 @@ data class GoogleOrder(val purchase: Purchase? = null,
     override var orderToken: String?
         get() = TODO("Not yet implemented")
         set(value) {}
+    override var product: Product?
+        get() = TODO("Not yet implemented")
+        set(value) {}
     override var status: Order.Status
+        get() = TODO("Not yet implemented")
+        set(value) {}
+    override var isCancelled: Boolean
         get() = TODO("Not yet implemented")
         set(value) {}
 

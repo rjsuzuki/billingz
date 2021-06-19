@@ -26,6 +26,10 @@ import com.zuko.billingz.lib.store.model.Product
  */
 interface Inventory : CleanUpListener {
 
+    var consumableSkus: MutableList<String>
+    var nonConsumableSkus: MutableList<String>
+    var subscriptionSkus: MutableList<String>
+
     /**
      *
      */

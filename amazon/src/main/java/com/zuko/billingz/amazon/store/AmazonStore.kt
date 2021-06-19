@@ -18,7 +18,7 @@ import com.zuko.billingz.lib.store.sales.Sales
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 
-class AmazonStore: Store {
+class AmazonStore private constructor(): Store {
 
     private val mainScope = MainScope()
 
@@ -59,8 +59,8 @@ class AmazonStore: Store {
         LogUtil.log.v(TAG, "resuming...")
         client.checkConnection()
         if(client.isReady()) {
-            sales.refreshReceipts()
-            inventory.queryInventory()
+            sales.refreshQueries()
+            //todo - inventory.queryInventory(null, Product.Type.NON_CONSUMABLE)
         }
     }
 
@@ -121,5 +121,47 @@ class AmazonStore: Store {
 
     companion object {
         private const val TAG = "AmazonStore"
+    }
+
+    class Builder {
+
+        private val store = AmazonStore()
+
+        fun create(context: Context?): Builder {
+            store.init(context)
+            return this
+        }
+
+        fun setConsumables(skuList: List<String>): Builder {
+            store.inventory.consumableSkus.clear()
+            store.inventory.consumableSkus.addAll(skuList)
+            return this
+        }
+
+        fun setNonConsumables(skuList: List<String>): Builder {
+            store.inventory.nonConsumableSkus.clear()
+            store.inventory.nonConsumableSkus.addAll(skuList)
+            return this
+        }
+
+        fun setSubscriptions(skuList: List<String>): Builder {
+            store.inventory.subscriptionSkus.clear()
+            store.inventory.subscriptionSkus.addAll(skuList)
+            return this
+        }
+
+        fun setOrderUpdateListener(listener: Sales.OrderUpdaterListener): Builder {
+            store.sales.orderUpdaterListener = listener
+            return this
+        }
+
+        fun setOrderResumeListener(listener: Sales.OrderValidatorListener): Builder {
+            store.sales.orderValidatorListener = listener
+            return this
+        }
+
+        fun build(): AmazonStore {
+            return store
+        }
     }
 }
