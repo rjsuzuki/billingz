@@ -1,4 +1,4 @@
-package com.zuko.billingz.amazon.store.product
+package com.zuko.billingz.amazon.store.model
 
 import com.zuko.billingz.lib.store.model.Product
 

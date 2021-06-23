@@ -59,8 +59,8 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
 
     private val mainScope = MainScope()
 
-    override var currentOrder = MutableLiveData<Order>()
-    override var currentReceipt: Receipt? = null
+    override var currentOrder = MutableLiveData<Order>() //todo change to receipt?
+    override var currentReceipt = MutableLiveData<Receipt>()
     override var orderHistory: MutableLiveData<List<Receipt>> = MutableLiveData()
 
     override var orderUpdaterListener: Sales.OrderUpdaterListener? = null
@@ -73,7 +73,7 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
     private var activeSubscriptions: MutableList<Purchase> = mutableListOf()
     private var activeInAppProducts: MutableList<Purchase> = mutableListOf()
 
-    var purchaseHistoryResponseListener =
+    private var purchaseHistoryResponseListener =
         PurchaseHistoryResponseListener { billingResult, records -> // handle billingResult
             // todo - purchase history records
             if(records.isNullOrEmpty()) {
@@ -85,12 +85,12 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
 
 
     private val validatorCallback: Sales.ValidatorCallback = object : Sales.ValidatorCallback {
-        override fun onSuccess(order: Order) {
+        override fun validated(order: Order) {
             processOrder(order)
         }
 
-        override fun onFailure(order: Order) {
-            // todo handle gracefully
+        override fun invalidate(order: Order) {
+            cancelOrder(order)
         }
     }
 
@@ -100,7 +100,7 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
         }
 
         override fun cancel(order: Order) {
-            TODO("Not yet implemented")
+            cancelOrder(order)
         }
     }
 
@@ -163,8 +163,14 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
                 }
             }
         }
+    }
 
+    override fun cancelOrder(order: Order) {
+        TODO("Not yet implemented")
+    }
 
+    override fun failedOrder(order: Order) {
+        TODO("Not yet implemented")
     }
 
     override fun refreshQueries() {
@@ -321,8 +327,8 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 msg = "Consumable successfully purchased: $p"
                 Log.d(TAG, "Product successfully purchased: ${purchase.sku}")
-                //todo create receipt
                 val receipt = GoogleReceipt(purchase)
+                currentReceipt.postValue(receipt)
                 orderUpdaterListener?.onComplete(receipt)
             } else {
                 msg = billingResult.debugMessage
@@ -340,7 +346,7 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
     private fun completeNonConsumable(
         billingClient: BillingClient?,
         purchase: Purchase?,
-        order: MutableLiveData<Order>,
+        order: MutableLiveData<Order>, //todo - remove
         mainScope: CoroutineScope?
     ) {
 
@@ -355,8 +361,8 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
                     msg = "Non-Consumable successfully purchased"
                 )
                 order.postValue(data)
-                //todo create receipt
                 val receipt = GoogleReceipt(purchase)
+                currentReceipt.postValue(receipt)
                 orderUpdaterListener?.onComplete(receipt)
             }
         }
@@ -387,15 +393,15 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
                 msg = "Subscription successfully purchased"
             )
             order.postValue(data)
-            //todo create receipt
             val receipt = GoogleReceipt(purchase)
+            currentReceipt.postValue(receipt)
             orderUpdaterListener?.onComplete(receipt)
         }
 
         if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
             if (!purchase.isAcknowledged) {
-                val acknowledgePurchaseParams =
-                    AcknowledgePurchaseParams.newBuilder().setPurchaseToken(purchase.purchaseToken)
+                val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
+                    .setPurchaseToken(purchase.purchaseToken)
 
                 mainScope?.launch(Dispatchers.IO) {
                     billingClient
@@ -442,6 +448,7 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
     }
 
     override fun destroy() {
+        LogUtil.log.v(TAG, "destroy")
         mainScope.cancel()
         isQueriedOrders = false
     }

@@ -16,22 +16,71 @@ interface Sales: CleanUpListener {
      * Objects can be passed from the normal purchase flow
      * or when the app is verifying a list of queried purchases.
      */
-    var currentOrder: MutableLiveData<Order>
-    var currentReceipt: Receipt?
+    var currentOrder: MutableLiveData<Order> // todo - remove?
 
+    /**
+     *
+     */
+    var currentReceipt: MutableLiveData<Receipt>
+
+    /**
+     *
+     */
     var orderHistory: MutableLiveData<List<Receipt>>
 
+    /**
+     *
+     */
     var orderUpdaterListener: OrderUpdaterListener?
 
+    /**
+     *
+     */
     var orderValidatorListener: OrderValidatorListener?
 
+    /**
+     *
+     */
     fun startOrder(activity: Activity?, product: Product, client: Client)
+
+    /**
+     *
+     */
     fun validateOrder(order: Order)
+
+    /**
+     *
+     */
     fun processOrder(order: Order)
+
+    /**
+     *
+     */
     fun completeOrder(order: Order)
 
+    /**
+     *
+     */
+    fun cancelOrder(order: Order)
+
+    /**
+     *
+     */
+    fun failedOrder(order: Order)
+
+    /**
+     *
+     */
     fun refreshQueries()
+
+    /**
+     *
+     */
     fun queryOrders()
+
+    /**
+     *
+     */
     fun queryReceipts(type: Product.Type? = null)
 
     /**
@@ -50,11 +99,26 @@ interface Sales: CleanUpListener {
          */
         fun onResume(order: Order, callback: UpdaterCallback)
 
+        /**
+         *
+         */
         fun onComplete(receipt: Receipt)
     }
 
+    /**
+     *
+     */
     interface UpdaterCallback {
+
+        /**
+         * Final step in completing an order. Developers should implement a way to persist their
+         * Receipts prior to calling this method.
+         */
         fun complete(order: Order)
+
+        /**
+         *
+         */
         fun cancel(order: Order)
     }
 
@@ -84,13 +148,17 @@ interface Sales: CleanUpListener {
     interface ValidatorCallback {
 
         /**
+         * Developers should verify the order with their own backend records of a users purchase
+         * history prior to calling this method.
          * @param order
          */
-        fun onSuccess(order: Order)
+        fun validated(order: Order)
 
         /**
+         * Call if order is deemed invalid due to the nature of the purchase. i.e. the order was
+         * fulfilled already or the sku is no longer available, etc.
          * @param order
          */
-        fun onFailure(order: Order)
+        fun invalidate(order: Order)
     }
 }

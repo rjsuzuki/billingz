@@ -19,6 +19,7 @@ interface Order {
     enum class Status {
         UNKNOWN,
         STARTING,
+        VALIDATING,
         PROCESSING,
         COMPLETE,
         FAILED,

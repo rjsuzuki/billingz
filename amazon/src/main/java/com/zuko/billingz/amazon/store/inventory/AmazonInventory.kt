@@ -9,6 +9,15 @@ import com.zuko.billingz.lib.store.inventory.Inventory
 import com.zuko.billingz.lib.store.model.Product
 
 class AmazonInventory: Inventory {
+    override var consumableSkus: MutableList<String>
+        get() = TODO("Not yet implemented")
+        set(value) {}
+    override var nonConsumableSkus: MutableList<String>
+        get() = TODO("Not yet implemented")
+        set(value) {}
+    override var subscriptionSkus: MutableList<String>
+        get() = TODO("Not yet implemented")
+        set(value) {}
 
     override var allProducts: Map<String, Product> = HashMap()
     override var consumables: Map<String, Product> = HashMap()

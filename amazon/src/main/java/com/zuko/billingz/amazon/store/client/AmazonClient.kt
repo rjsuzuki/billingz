@@ -11,9 +11,9 @@ import com.amazon.device.iap.model.PurchaseResponse
 import com.amazon.device.iap.model.PurchaseUpdatesResponse
 import com.amazon.device.iap.model.UserDataResponse
 
-import com.zuko.billingz.amazon.store.product.AmazonProduct
-import com.zuko.billingz.amazon.store.sales.AmazonOrder
-import com.zuko.billingz.amazon.store.sales.AmazonReceipt
+import com.zuko.billingz.amazon.store.model.AmazonProduct
+import com.zuko.billingz.amazon.store.model.AmazonOrder
+import com.zuko.billingz.amazon.store.model.AmazonReceipt
 import com.zuko.billingz.lib.store.client.Client
 import com.zuko.billingz.lib.store.inventory.Inventory
 import com.zuko.billingz.lib.store.model.Product
@@ -103,22 +103,22 @@ class AmazonClient(val inventory: Inventory, val sales: Sales): Client {
                     PurchaseResponse.RequestStatus.FAILED -> {
                         Log.e(TAG, "Failed purchase request: ${response.requestId}")
                         val order = AmazonOrder(response)
-                        sales.validateOrder(order)
+                        sales.failedOrder(order)
                     }
                     PurchaseResponse.RequestStatus.ALREADY_PURCHASED -> {
                         Log.w(TAG, "Already purchased product for purchase request: ${response.requestId}")
                         val order = AmazonOrder(response)
-                        sales.validateOrder(order)
+                        sales.failedOrder(order)
                     }
                     PurchaseResponse.RequestStatus.INVALID_SKU -> {
                         Log.w(TAG, "Invalid sku id for purchase request: ${response.requestId}")
                         val order = AmazonOrder(response)
-                        sales.validateOrder(order)
+                        sales.failedOrder(order)
                     }
                     PurchaseResponse.RequestStatus.NOT_SUPPORTED -> {
                         Log.wtf(TAG, "Unsupported purchase request: ${response.requestId}")
                         val order = AmazonOrder(response)
-                        sales.validateOrder(order)
+                        sales.failedOrder(order)
                     }
                 }
             }

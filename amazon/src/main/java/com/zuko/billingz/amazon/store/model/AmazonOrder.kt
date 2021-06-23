@@ -1,4 +1,4 @@
-package com.zuko.billingz.amazon.store.sales
+package com.zuko.billingz.amazon.store.model
 
 import com.amazon.device.iap.model.PurchaseResponse
 
