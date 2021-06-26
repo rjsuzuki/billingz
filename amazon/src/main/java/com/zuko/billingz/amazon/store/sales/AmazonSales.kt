@@ -5,14 +5,13 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.amazon.device.iap.PurchasingService
 import com.amazon.device.iap.model.FulfillmentResult
-import com.amazon.device.iap.model.ProductType
 import com.amazon.device.iap.model.PurchaseResponse
 import com.zuko.billingz.amazon.store.model.AmazonOrder
 import com.zuko.billingz.amazon.store.model.AmazonReceipt
 import com.zuko.billingz.lib.LogUtil
 import com.zuko.billingz.lib.store.client.Client
-import com.zuko.billingz.lib.store.model.Product
 import com.zuko.billingz.lib.store.model.Order
+import com.zuko.billingz.lib.store.model.Product
 import com.zuko.billingz.lib.store.model.Receipt
 import com.zuko.billingz.lib.store.sales.Sales
 import kotlinx.coroutines.MainScope
@@ -23,7 +22,6 @@ class AmazonSales: Sales {
 
     private val mainScope = MainScope()
 
-    override var currentOrder: MutableLiveData<Order> = MutableLiveData()
     override var currentReceipt = MutableLiveData<Receipt>()
 
     override var orderHistory: MutableLiveData<List<Receipt>> = MutableLiveData()

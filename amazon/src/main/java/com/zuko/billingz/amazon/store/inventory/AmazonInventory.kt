@@ -9,15 +9,9 @@ import com.zuko.billingz.lib.store.inventory.Inventory
 import com.zuko.billingz.lib.store.model.Product
 
 class AmazonInventory: Inventory {
-    override var consumableSkus: MutableList<String>
-        get() = TODO("Not yet implemented")
-        set(value) {}
-    override var nonConsumableSkus: MutableList<String>
-        get() = TODO("Not yet implemented")
-        set(value) {}
-    override var subscriptionSkus: MutableList<String>
-        get() = TODO("Not yet implemented")
-        set(value) {}
+    override var consumableSkus: MutableList<String> = mutableListOf()
+    override var nonConsumableSkus: MutableList<String> = mutableListOf()
+    override var subscriptionSkus: MutableList<String> = mutableListOf()
 
     override var allProducts: Map<String, Product> = HashMap()
     override var consumables: Map<String, Product> = HashMap()
@@ -82,11 +76,49 @@ class AmazonInventory: Inventory {
     }
 
     override fun getProducts(type: Product.Type?, promo: Product.Promotion?): List<Product> {
-        TODO("Not yet implemented")
+        when (type) {
+            Product.Type.CONSUMABLE -> {
+                if(promo != null) {
+                    consumables.values.iterator().forEach { product ->
+                        val promos = mutableListOf<Product>()
+                        if(product.promotion == promo) {
+                            promos.add(product)
+                        }
+                        return promos
+                    }
+                }
+                return consumables.values.toList()
+            }
+            Product.Type.NON_CONSUMABLE -> {
+                if(promo != null) {
+                    nonConsumables.values.iterator().forEach { product ->
+                        val promos = mutableListOf<Product>()
+                        if(product.promotion == promo) {
+                            promos.add(product)
+                        }
+                        return promos
+                    }
+                }
+                return nonConsumables.values.toList()
+            }
+            Product.Type.SUBSCRIPTION -> {
+                if(promo != null) {
+                    subscriptions.values.iterator().forEach { product ->
+                        val promos = mutableListOf<Product>()
+                        if(product.promotion == promo) {
+                            promos.add(product)
+                        }
+                        return promos
+                    }
+                }
+                return subscriptions.values.toList()
+            }
+            else -> return allProducts.values.toList()
+        }
     }
 
     override fun destroy() {
-        TODO("Not yet implemented")
+        LogUtil.log.v(TAG, "destroy")
     }
 
     companion object {

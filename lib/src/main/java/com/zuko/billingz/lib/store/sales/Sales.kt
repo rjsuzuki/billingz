@@ -16,11 +16,6 @@ interface Sales: CleanUpListener {
      * Objects can be passed from the normal purchase flow
      * or when the app is verifying a list of queried purchases.
      */
-    var currentOrder: MutableLiveData<Order> // todo - remove?
-
-    /**
-     *
-     */
     var currentReceipt: MutableLiveData<Receipt>
 
     /**
@@ -103,6 +98,8 @@ interface Sales: CleanUpListener {
          *
          */
         fun onComplete(receipt: Receipt)
+
+        fun onError(order: Order)
     }
 
     /**

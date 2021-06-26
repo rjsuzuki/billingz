@@ -28,9 +28,7 @@ import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.ConsumeParams
 import com.android.billingclient.api.Purchase
-import com.android.billingclient.api.PurchaseHistoryRecord
 import com.android.billingclient.api.PurchaseHistoryResponseListener
-import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.SkuDetails
 import com.zuko.billingz.google.store.client.GoogleClient
 import com.zuko.billingz.google.store.inventory.GoogleInventory
@@ -40,8 +38,8 @@ import com.zuko.billingz.google.store.model.GoogleReceipt
 import com.zuko.billingz.lib.LogUtil
 import com.zuko.billingz.lib.misc.BillingResponse
 import com.zuko.billingz.lib.store.client.Client
-import com.zuko.billingz.lib.store.model.Product
 import com.zuko.billingz.lib.store.model.Order
+import com.zuko.billingz.lib.store.model.Product
 import com.zuko.billingz.lib.store.model.Receipt
 import com.zuko.billingz.lib.store.sales.Sales
 import kotlinx.coroutines.CoroutineScope
@@ -59,7 +57,6 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
 
     private val mainScope = MainScope()
 
-    override var currentOrder = MutableLiveData<Order>() //todo change to receipt?
     override var currentReceipt = MutableLiveData<Receipt>()
     override var orderHistory: MutableLiveData<List<Receipt>> = MutableLiveData()
 
@@ -104,11 +101,6 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
         }
     }
 
-    // TODO
-    fun getOrderOrQueried(): MutableLiveData<Order> {
-        return if (isQueriedOrders) queriedOrder else currentOrder
-    }
-
     // step 1
     override fun startOrder(activity: Activity?, product: Product, client: Client) {
         if(product is GoogleProduct && client is GoogleClient) {
@@ -141,22 +133,18 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
                     completeSubscription(
                         client.getBillingClient(),
                         order.purchase,
-                        this.currentOrder,
                         mainScope = mainScope)
                 }
                 Product.Type.NON_CONSUMABLE -> {
                     completeNonConsumable(
                         client.getBillingClient(),
                         order.purchase,
-                        this.currentOrder,
                         mainScope = mainScope)
                 }
                 Product.Type.CONSUMABLE -> {
                     completeConsumable(
                         client.getBillingClient(),
-                        order.purchase,
-                        this.currentOrder,
-                        mainScope = mainScope)
+                        order.purchase)
                 }
                 else -> {
                     LogUtil.log.e(TAG, "error completing order")
@@ -175,14 +163,14 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
 
     override fun refreshQueries() {
         refreshReceipts()
-        client.getBillingClient()?.queryPurchaseHistoryAsync(BillingClient.SkuType.INAPP, purchaseHistoryResponseListener)
     }
 
     override fun queryOrders() {
-        client.getBillingClient()?.queryPurchases(BillingClient.SkuType.INAPP)
+        querySubscriptions()
+        queryInAppProducts()
     }
 
-    fun refreshReceipts() {
+    private fun refreshReceipts() {
         LogUtil.log.v(TAG, "queryPurchases")
         if (isAlreadyQueried) {
             LogUtil.log.d(TAG, "Skipping purchase history refresh.")
@@ -197,11 +185,9 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
 
     override fun queryReceipts(type: Product.Type?) {
         if (client.isReady()) {
-            LogUtil.log.i(TAG, "Fetching all purchases made by user.")
-
+            LogUtil.log.i(TAG, "Fetching all $type purchases made by user.")
             mainScope.launch(Dispatchers.IO) {
-                querySubscriptions()
-                queryInAppProducts()
+                queryPurchaseHistory(type)
             }
         } else {
             LogUtil.log.e(TAG, "Android BillingClient was not ready yet to continue queryPurchases()")
@@ -247,7 +233,6 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
                 this.queriedOrder.postValue(order)
             } else {
                 isQueriedOrders = false
-                this.currentOrder.postValue(order)
             }
             Log.d(TAG, "No purchases available")
         } else {
@@ -305,15 +290,12 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
             billingResult = billingResult,
             msg = "Error"
         )
-        this.currentOrder.postValue(order)
+        orderUpdaterListener?.onError(order)
     }
 
     private fun completeConsumable(
         billingClient: BillingClient?,
-        purchase: Purchase?,
-        order: MutableLiveData<Order>,
-        mainScope: CoroutineScope?
-    ) {
+        purchase: Purchase?) {
 
         //todo - handle null object gracefully
         purchase ?: return
@@ -334,19 +316,12 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
                 msg = billingResult.debugMessage
                 LogUtil.log.e(TAG, "Error purchasing consumable. $msg")
             }
-            val data = GoogleOrder(
-                purchase = purchase,
-                billingResult = billingResult,
-                msg = msg
-            )
-            order.postValue(data)
         }
     }
 
     private fun completeNonConsumable(
         billingClient: BillingClient?,
         purchase: Purchase?,
-        order: MutableLiveData<Order>, //todo - remove
         mainScope: CoroutineScope?
     ) {
 
@@ -360,7 +335,6 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
                     billingResult = billingResult,
                     msg = "Non-Consumable successfully purchased"
                 )
-                order.postValue(data)
                 val receipt = GoogleReceipt(purchase)
                 currentReceipt.postValue(receipt)
                 orderUpdaterListener?.onComplete(receipt)
@@ -380,7 +354,6 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
     private fun completeSubscription(
         billingClient: BillingClient?,
         purchase: Purchase?,
-        order: MutableLiveData<Order>,
         mainScope: CoroutineScope?
     ) {
         //todo - handle null object gracefully
@@ -392,7 +365,6 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
                 billingResult = billingResult,
                 msg = "Subscription successfully purchased"
             )
-            order.postValue(data)
             val receipt = GoogleReceipt(purchase)
             currentReceipt.postValue(receipt)
             orderUpdaterListener?.onComplete(receipt)
@@ -420,7 +392,6 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
                 activeSubscriptions = subscriptions
                 if (activeSubscriptions.isNotEmpty()) {
                     processUpdatedPurchases(null, activeSubscriptions)
-                    // todo - queryPurchaseHistory(BillingClient.SkuType.SUBS)
                 }
 
                 LogUtil.log.i(TAG, "Subscription order history received: $subscriptions")
@@ -437,13 +408,17 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
                 activeInAppProducts = purchases
                 if (activeInAppProducts.isNotEmpty())
                     processUpdatedPurchases(null, activeSubscriptions)
+
                 LogUtil.log.i(TAG, "In-app order history received: $purchases")
             } ?: LogUtil.log.d(TAG, "No In-app products history available.")
         }
     }
 
     // when to query history?
-    private fun queryPurchaseHistory(skuType: String) {
+    private fun queryPurchaseHistory(type: Product.Type?) {
+
+        val skuType = if(type == Product.Type.SUBSCRIPTION) BillingClient.SkuType.SUBS else BillingClient.SkuType.INAPP
+
         client.getBillingClient()?.queryPurchaseHistoryAsync(skuType, purchaseHistoryResponseListener)
     }
 

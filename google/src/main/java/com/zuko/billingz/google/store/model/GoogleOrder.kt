@@ -31,27 +31,13 @@ data class GoogleOrder(val purchase: Purchase? = null,
                        val billingResult: BillingResult?,
                        val msg: String): Order {
 
-    override var orderId: String?
-        get() = TODO("Not yet implemented")
-        set(value) {}
-    override var packageName: String?
-        get() = TODO("Not yet implemented")
-        set(value) {}
-    override var orderTime: Long
-        get() = TODO("Not yet implemented")
-        set(value) {}
-    override var orderToken: String?
-        get() = TODO("Not yet implemented")
-        set(value) {}
-    override var product: Product?
-        get() = TODO("Not yet implemented")
-        set(value) {}
-    override var status: Order.Status
-        get() = TODO("Not yet implemented")
-        set(value) {}
-    override var isCancelled: Boolean
-        get() = TODO("Not yet implemented")
-        set(value) {}
+    override var orderId: String? = purchase?.orderId
+    override var packageName: String? = purchase?.packageName
+    override var orderTime: Long = -1L
+    override var orderToken: String? = null
+    override var product: Product? = null
+    override var status: Order.Status = Order.Status.UNKNOWN
+    override var isCancelled: Boolean = Purchase.PurchaseState.UNSPECIFIED_STATE == purchase?.purchaseState
 
 }
 

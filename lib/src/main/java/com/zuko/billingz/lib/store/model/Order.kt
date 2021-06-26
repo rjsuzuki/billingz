@@ -7,8 +7,8 @@ interface Order {
     var packageName: String?
 
     var orderTime: Long
-
     var orderToken: String?
+
 
     var product: Product?
 

@@ -19,19 +19,21 @@ package com.zuko.billingz.google.store
 import android.app.Activity
 import android.content.Context
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.android.billingclient.api.BillingClient
+import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.zuko.billingz.google.store.client.GoogleClient
 import com.zuko.billingz.google.store.inventory.GoogleInventory
 import com.zuko.billingz.google.store.model.GoogleOrder
-import com.zuko.billingz.lib.LogUtil
-import com.zuko.billingz.lib.store.agent.Agent
-import com.zuko.billingz.lib.store.inventory.Inventory
-import com.zuko.billingz.lib.store.model.Product
 import com.zuko.billingz.google.store.sales.GoogleSales
+import com.zuko.billingz.lib.LogUtil
 import com.zuko.billingz.lib.store.Store
+import com.zuko.billingz.lib.store.agent.Agent
 import com.zuko.billingz.lib.store.client.Client
+import com.zuko.billingz.lib.store.inventory.Inventory
 import com.zuko.billingz.lib.store.model.Order
+import com.zuko.billingz.lib.store.model.Product
 import com.zuko.billingz.lib.store.model.Receipt
 import com.zuko.billingz.lib.store.sales.Sales
 import kotlinx.coroutines.MainScope
@@ -130,20 +132,23 @@ class GoogleStore private constructor(): Store {
 
             sales.orderValidatorListener = listener
 
+            val data = MutableLiveData<Order>()
             val product = inventory.allProducts[productId]
-
             product?.let {
                 sales.startOrder(activity, product, client)
                 val order = GoogleOrder(
                     billingResult = null,
                     msg = "Processing..."
                 )
-                sales.currentOrder.postValue(order)
-            } ?: sales.currentOrder.postValue(GoogleOrder(
-                billingResult = null,
+                data.postValue(order)
+            } ?: data.postValue(GoogleOrder(
+                billingResult = BillingResult.newBuilder()
+                    .setDebugMessage("Product: $productId not found.")
+                    .setResponseCode(BillingClient.BillingResponseCode.ITEM_UNAVAILABLE)
+                    .build(),
                 msg = "Product: $productId not found."
             ))
-            return sales.currentOrder
+            return data
         }
 
         override fun queryOrders() {
@@ -187,47 +192,5 @@ class GoogleStore private constructor(): Store {
 
     companion object {
         private const val TAG = "GoogleStore"
-    }
-
-    class Builder {
-
-        private val store = GoogleStore()
-
-        fun create(context: Context?): Builder {
-            store.init(context)
-            return this
-        }
-
-        fun setConsumables(skuList: List<String>): Builder {
-            store.inventory.consumableSkus.clear()
-            store.inventory.consumableSkus.addAll(skuList)
-            return this
-        }
-
-        fun setNonConsumables(skuList: List<String>): Builder {
-            store.inventory.nonConsumableSkus.clear()
-            store.inventory.nonConsumableSkus.addAll(skuList)
-            return this
-        }
-
-        fun setSubscriptions(skuList: List<String>): Builder {
-            store.inventory.subscriptionSkus.clear()
-            store.inventory.subscriptionSkus.addAll(skuList)
-            return this
-        }
-
-        fun setOrderUpdateListener(listener: Sales.OrderUpdaterListener): Builder {
-            store.sales.orderUpdaterListener = listener
-            return this
-        }
-
-        fun setOrderResumeListener(listener: Sales.OrderValidatorListener): Builder {
-            store.sales.orderValidatorListener = listener
-            return this
-        }
-
-        fun build(): GoogleStore {
-            return store
-        }
     }
 }

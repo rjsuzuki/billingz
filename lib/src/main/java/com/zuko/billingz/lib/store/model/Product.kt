@@ -72,6 +72,7 @@ interface Product {
     val promotion: Promotion
 
     enum class Type {
+        UNKNOWN,
         CONSUMABLE,
         NON_CONSUMABLE,
         SUBSCRIPTION,
