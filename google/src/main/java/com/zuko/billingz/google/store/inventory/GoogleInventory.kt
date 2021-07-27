@@ -130,7 +130,7 @@ class GoogleInventory(private val client: GoogleClient): Inventory {
     }
 
     fun isConsumable(purchase: Purchase): Boolean {
-        return !consumables.isNullOrEmpty() && consumables.contains(purchase.sku)
+        return !consumables.isNullOrEmpty() && consumables.contains(purchase.orderId)
     }
 
     override fun destroy() {

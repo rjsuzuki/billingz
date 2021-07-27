@@ -308,7 +308,7 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
             val msg: String
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 msg = "Consumable successfully purchased: $p"
-                Log.d(TAG, "Product successfully purchased: ${purchase.sku}")
+                Log.d(TAG, "Product successfully purchased: ${purchase.orderId}")
                 val receipt = GoogleReceipt(purchase)
                 currentReceipt.postValue(receipt)
                 orderUpdaterListener?.onComplete(receipt)
