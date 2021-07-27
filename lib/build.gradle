@@ -8,20 +8,6 @@ plugins {
 
 apply from: "$project.rootDir/spotless.gradle"
 
-
-// Github Packages
-def getUser() {
-    def githubProperties = new Properties()
-    githubProperties.load(new FileInputStream(rootProject.file("github.properties")))
-    return System.getenv("GPR_USER") ?: githubProperties["gpr.usr"]
-}
-
-def getKey() {
-    def githubProperties = new Properties()
-    githubProperties.load(new FileInputStream(rootProject.file("github.properties")))
-    return System.getenv("GPR_API_KEY") ?: githubProperties["gpr.key"]
-}
-
 android {
     def versionProperties = new Properties()
     rootProject.file("version.properties").withInputStream { versionProperties.load(it) }
@@ -46,6 +32,9 @@ android {
         return rootProject.name
     }
 
+    // Github Packages
+    def githubProperties = new Properties()
+    githubProperties.load(new FileInputStream(rootProject.file("github.properties")))
 
     publishing {
         repositories {
@@ -53,8 +42,8 @@ android {
                 name = "GitHubPackages"
                 url = uri("https://maven.pkg.github.com/rjsuzuki/billingz")
                 credentials {
-                    username = ${getUser()} //GPR_USER is a CI Environment Variable
-                    password = ${getKey()} //GPR_API_KEY is a CI Environment Variable
+                    username = System.getenv("GPR_USER")    ?: githubProperties['gpr.usr'] // GPR_USER is a CI Environment Variable
+                    password = System.getenv("GPR_API_KEY") ?: githubProperties['gpr.key'] // GPR_API_KEY is a CI Environment Variable
                 }
             }
         }
