@@ -19,8 +19,8 @@ package com.zuko.billingz.lib.store.agent
 import android.app.Activity
 import androidx.annotation.UiThread
 import androidx.lifecycle.LiveData
-import com.zuko.billingz.lib.store.model.Product
 import com.zuko.billingz.lib.store.model.Order
+import com.zuko.billingz.lib.store.model.Product
 import com.zuko.billingz.lib.store.model.Receipt
 import com.zuko.billingz.lib.store.sales.Sales
 
@@ -50,9 +50,11 @@ interface Agent {
      * a purchase with your backend before completing the purchase flow.
      */
     @UiThread
-    fun startOrder(activity: Activity?,
-                   productId: String?,
-                   listener: Sales.OrderValidatorListener?): LiveData<Order>
+    fun startOrder(
+        activity: Activity?,
+        productId: String?,
+        listener: Sales.OrderValidatorListener?
+    ): LiveData<Order>
 
     /**
      * Returns the most recent purchase(s) made
@@ -87,5 +89,4 @@ interface Agent {
      * Null if no matching product exists.
      */
     fun getProduct(sku: String): Product?
-
 }

@@ -1,7 +1,6 @@
 package com.zuko.billingz.lib.store.model
 
-import java.util.*
-
+import java.util.Date
 
 interface Receipt {
 
@@ -48,9 +47,6 @@ interface Receipt {
      */
     var isCanceled: Boolean
 
-
-
     // todo remove
     var order: Order?
-
 }
