@@ -53,7 +53,7 @@ android {
                 groupId 'com.rjsuzuki.libraries'
                 artifactId getArtifactId()
                 version getVersionName()
-                artifact("$buildDir/outputs/aar/app-release.aar")
+                artifact("$buildDir/outputs/aar/lib-release.aar")
             }
         }
     }
