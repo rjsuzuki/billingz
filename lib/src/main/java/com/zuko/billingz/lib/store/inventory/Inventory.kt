@@ -55,7 +55,6 @@ interface Inventory : CleanUpListener {
      */
     var requestedProducts: MutableLiveData<Map<String, Product>>
 
-
     /**
      *
      * @param skuList, a list of string productIds that will try to match

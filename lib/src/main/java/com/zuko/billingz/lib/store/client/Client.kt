@@ -20,7 +20,6 @@ import android.content.Context
 import androidx.annotation.UiThread
 import androidx.lifecycle.MutableLiveData
 import com.zuko.billingz.lib.misc.CleanUpListener
-import com.zuko.billingz.lib.store.sales.Sales
 
 /**
  * Blueprint of the core logic of the library.

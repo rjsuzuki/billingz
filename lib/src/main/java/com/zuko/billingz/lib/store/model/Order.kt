@@ -9,7 +9,6 @@ interface Order {
     var orderTime: Long
     var orderToken: String?
 
-
     var product: Product?
 
     var status: Status

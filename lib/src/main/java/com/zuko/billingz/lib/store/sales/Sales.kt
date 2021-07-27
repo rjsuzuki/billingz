@@ -8,7 +8,7 @@ import com.zuko.billingz.lib.store.model.Order
 import com.zuko.billingz.lib.store.model.Product
 import com.zuko.billingz.lib.store.model.Receipt
 
-interface Sales: CleanUpListener {
+interface Sales : CleanUpListener {
     /**
      * Provides a liveData [Order] object for
      * developers to observe and react to on
