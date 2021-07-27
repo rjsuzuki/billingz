@@ -18,9 +18,8 @@ jobs:
         run: echo 'Hello, friend.'
       - name: Create a placeholder for github.properties file
         run: touch github.properties
-      - name: Clean, Build, Lint, and Publish AAR
+      - name: Clean, Build, and Publish AAR
         shell: bash
         run: |
           ./gradlew -PciBuild=true clean build
-          ./gradlew lint
           ./gradlew publish
