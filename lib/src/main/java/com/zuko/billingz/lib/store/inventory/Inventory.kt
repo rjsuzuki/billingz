@@ -16,87 +16,78 @@
  */
 package com.zuko.billingz.lib.store.inventory
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.android.billingclient.api.Purchase
-import com.android.billingclient.api.SkuDetails
 import com.zuko.billingz.lib.misc.CleanUpListener
-import com.zuko.billingz.lib.store.products.Product
+import com.zuko.billingz.lib.store.model.Product
 
 /**
  * Blueprint for managing a store's (your applications) entire collection of available products (inventory)
  */
 interface Inventory : CleanUpListener {
 
-    /**
-     *
-     */
-    var consumables: Map<String, SkuDetails>
+    var consumableSkus: MutableList<String>
+    var nonConsumableSkus: MutableList<String>
+    var subscriptionSkus: MutableList<String>
 
     /**
      *
      */
-    var nonConsumables: Map<String, SkuDetails>
+    var allProducts: Map<String, Product>
 
     /**
      *
      */
-    var subscriptions: Map<String, SkuDetails>
+    var consumables: Map<String, Product>
 
     /**
      *
      */
-    var requestedProducts: MutableLiveData<Map<String, SkuDetails>>
+    var nonConsumables: Map<String, Product>
 
     /**
      *
      */
-    fun isConsumable(purchase: Purchase): Boolean
+    var subscriptions: Map<String, Product>
 
     /**
      *
      */
-    fun getProductDetails(productId: String?): SkuDetails?
+    var requestedProducts: MutableLiveData<Map<String, Product>>
 
     /**
      *
-     */
-    var allProducts: Map<String, SkuDetails>
-
-    /**
-     * @param isConsumables - indicate whether the skuList is for consumables or not. (Do not mix consumables
-     * and non-consumables in same list if possible)
      * @param skuList, a list of string productIds that will try to match
-     * against Google Play's list of available subscriptions
-     */
-    fun loadInAppProducts(skuList: MutableList<String>, isConsumables: Boolean)
-
-    /**
-     * @param skuList, a list of string productIds that will try to match
-     * against Google Play's list of available subscriptions
-     */
-    fun loadSubscriptions(skuList: MutableList<String>)
-
-    /**
-     * @param skuList
+     * against (validate) the billing client's server for list of available products.
      * @param productType
      */
-    fun loadFreeProducts(skuList: MutableList<String>, productType: Product.ProductType)
+    fun queryInventory(skuList: List<String>, productType: Product.Type)
 
     /**
-     * @param skuList
+     * @param products
      * @param productType
      */
-    fun loadPromotions(skuList: MutableList<String>, productType: Product.ProductType)
+    fun updateInventory(products: List<Product>?, productType: Product.Type)
 
     /**
-     * @param skuList
-     * @param productType
+     * Get the details for a specified product.
+     * @return [Product] - Android Billing Library object
+     * @param sku - the product id that can be found on the GooglePlayConsole
      */
-    fun querySkuDetails(skuList: MutableList<String>, productType: Product.ProductType)
+    fun getProduct(sku: String): Product?
+
+    fun getProducts(type: Product.Type?, promo: Product.Promotion?): List<Product>
 
     /**
-     * @param skuList
-     * @param productType
+     * Get all available products,
+     * set productType to null to query all products.
+     * Available products have been validated.
+     * @param skuList: MutableList<String>
+     * @param productType: Product.ProductType
+     * @return [LiveData<Map<String, Product>]
      */
-    fun updateSkuDetails(skuDetailsList: List<SkuDetails>?, productType: Product.ProductType)
+    fun getAvailableProducts(
+        skuList: MutableList<String>,
+        productType: Product.Type?
+    ): LiveData<Map<String, Product>>
 }

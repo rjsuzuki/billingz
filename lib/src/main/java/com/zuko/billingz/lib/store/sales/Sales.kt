@@ -1,52 +1,14 @@
-/*
- * Copyright 2021 rjsuzuki
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
 package com.zuko.billingz.lib.store.sales
 
 import android.app.Activity
-import androidx.collection.ArrayMap
 import androidx.lifecycle.MutableLiveData
-import com.android.billingclient.api.BillingClient
-import com.android.billingclient.api.BillingResult
-import com.android.billingclient.api.Purchase
-import com.android.billingclient.api.PurchasesUpdatedListener
-import com.android.billingclient.api.SkuDetails
 import com.zuko.billingz.lib.misc.CleanUpListener
-import com.zuko.billingz.lib.store.products.Product
+import com.zuko.billingz.lib.store.client.Client
+import com.zuko.billingz.lib.store.model.Order
+import com.zuko.billingz.lib.store.model.Product
+import com.zuko.billingz.lib.store.model.Receipt
 
-/**
- * Blueprint of the primary behavior for selling products and the handling of orders
- */
 interface Sales : CleanUpListener {
-
-    /**
-     * @see [OrderUpdateListener]
-     */
-    var orderUpdateListener: OrderUpdateListener?
-
-    /**
-     * @see [OrderValidatorListener]
-     */
-    var orderValidatorListener: OrderValidatorListener?
-
-    /**
-     * @see [PurchasesUpdatedListener]
-     */
-    var purchasesUpdatedListener: PurchasesUpdatedListener
-
     /**
      * Provides a liveData [Order] object for
      * developers to observe and react to on
@@ -54,92 +16,107 @@ interface Sales : CleanUpListener {
      * Objects can be passed from the normal purchase flow
      * or when the app is verifying a list of queried purchases.
      */
-    var order: MutableLiveData<Order>
-
-    /**
-     * mutable live data object of an [Order]
-     */
-    var queriedOrder: MutableLiveData<Order>
-
-    /**
-     * @return - mutable live data observable for an [Order]
-     */
-    fun getOrderOrQueried(): MutableLiveData<Order>
+    var currentReceipt: MutableLiveData<Receipt>
 
     /**
      *
-     * ArrayMap<OrderId, Purchase>
      */
-    var pendingPurchases: ArrayMap<String, Purchase>
+    var orderHistory: MutableLiveData<List<Receipt>>
 
     /**
-     * @param activity
-     * @param skuDetails
-     * @param billingClient
-     * @return [BillingResult]
+     *
      */
-    fun startPurchaseRequest(
-        activity: Activity,
-        skuDetails: SkuDetails,
-        billingClient: BillingClient
-    ): BillingResult
+    var orderUpdaterListener: OrderUpdaterListener?
 
     /**
-     * Handler method for responding to updates from Android's PurchaseUpdatedListener class
-     * or when checking results from queryPurchases()
-     * @param billingResult
-     * @param purchases
-     * Should run on background thread.
+     *
      */
-    fun processUpdatedPurchases(billingResult: BillingResult?, purchases: MutableList<Purchase>?)
+    var orderValidatorListener: OrderValidatorListener?
 
     /**
-     * @param purchase
+     *
      */
-    fun processValidation(purchase: Purchase)
+    fun startOrder(activity: Activity?, product: Product, client: Client)
 
     /**
-     * Simple validation checks before
-     * allowing developer to implement their
-     * validator
+     *
      */
-    fun isNewPurchase(purchase: Purchase): Boolean
+    fun validateOrder(order: Order)
 
     /**
-     * @param purchase
+     *
      */
-    fun processInAppPurchase(purchase: Purchase)
+    fun processOrder(order: Order)
 
     /**
-     * @param purchase
+     *
      */
-    fun processSubscription(purchase: Purchase)
+    fun completeOrder(order: Order)
 
     /**
-     * @param purchase
+     *
      */
-    fun processPendingTransaction(purchase: Purchase)
+    fun cancelOrder(order: Order)
 
     /**
-     * @param billingResult
+     *
      */
-    fun processPurchasingError(billingResult: BillingResult?)
+    fun failedOrder(order: Order)
 
     /**
-     * Purchases can be made outside of app, or finish while app is in background.
-     * show in-app popup, or deliver msg to an inbox, or use an OS notification
+     *
      */
+    fun refreshQueries()
 
     /**
-     * Set by Manager class
+     *
      */
-    interface OrderUpdateListener {
+    fun queryOrders()
+
+    /**
+     *
+     */
+    fun queryReceipts(type: Product.Type? = null)
+
+    /**
+     * For developers to implement.
+     * Enables developer to provide another verification step before finalizing an order. Also,
+     * Purchases can be made outside of app, or finish while app is in background, and may not have
+     * completed in a regular ui-flow and requires attention again.
+     * show in-app popup, or deliver msg to an inbox, or use an OS notification.
+     */
+    interface OrderUpdaterListener {
 
         /**
-         * @param purchase
+         * @param order
          * @param productType
+         * @param callback
          */
-        fun resumeOrder(purchase: Purchase, productType: Product.ProductType)
+        fun onResume(order: Order, callback: UpdaterCallback)
+
+        /**
+         *
+         */
+        fun onComplete(receipt: Receipt)
+
+        fun onError(order: Order)
+    }
+
+    /**
+     *
+     */
+    interface UpdaterCallback {
+
+        /**
+         * Final step in completing an order. Developers should implement a way to persist their
+         * Receipts prior to calling this method.
+         */
+        fun complete(order: Order)
+
+        /**
+         *
+         */
+        fun cancel(order: Order)
     }
 
     /**
@@ -151,10 +128,10 @@ interface Sales : CleanUpListener {
     interface OrderValidatorListener {
 
         /**
-         * @param purchase
+         * @param order
          * @param callback
          */
-        fun validate(purchase: Purchase, callback: ValidatorCallback)
+        fun validate(order: Order, callback: ValidatorCallback)
     }
 
     /**
@@ -168,13 +145,17 @@ interface Sales : CleanUpListener {
     interface ValidatorCallback {
 
         /**
-         * @param purchase
+         * Developers should verify the order with their own backend records of a users purchase
+         * history prior to calling this method.
+         * @param order
          */
-        fun onSuccess(purchase: Purchase)
+        fun validated(order: Order)
 
         /**
-         * @param purchases
+         * Call if order is deemed invalid due to the nature of the purchase. i.e. the order was
+         * fulfilled already or the sku is no longer available, etc.
+         * @param order
          */
-        fun onFailure(purchase: Purchase)
+        fun invalidate(order: Order)
     }
 }

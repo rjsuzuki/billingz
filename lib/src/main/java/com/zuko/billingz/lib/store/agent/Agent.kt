@@ -18,13 +18,10 @@ package com.zuko.billingz.lib.store.agent
 
 import android.app.Activity
 import androidx.annotation.UiThread
-import androidx.collection.ArrayMap
 import androidx.lifecycle.LiveData
-import com.android.billingclient.api.Purchase
-import com.android.billingclient.api.PurchaseHistoryResponseListener
-import com.android.billingclient.api.SkuDetails
-import com.zuko.billingz.lib.store.products.Product
-import com.zuko.billingz.lib.store.sales.Order
+import com.zuko.billingz.lib.store.model.Order
+import com.zuko.billingz.lib.store.model.Product
+import com.zuko.billingz.lib.store.model.Receipt
 import com.zuko.billingz.lib.store.sales.Sales
 
 /**
@@ -48,51 +45,48 @@ interface Agent {
      * @return [LiveData<Order>]
      * @param activity - the currently active android Activity class
      * @param productId - the product id that can be found on the GooglePlayConsole
-     * @param listener - @see [Sales.OrderValidatorListener] a callback function to enable customized
+     * @param listener - @see [Sales2.OrderValidatorListener] a callback function to enable customized
      * validation of a customer's purchase order - this allows you to do such things as verifying
      * a purchase with your backend before completing the purchase flow.
      */
     @UiThread
-    fun startOrder(activity: Activity?, productId: String?, listener: Sales.OrderValidatorListener?): LiveData<Order>
+    fun startOrder(
+        activity: Activity?,
+        productId: String?,
+        listener: Sales.OrderValidatorListener?
+    ): LiveData<Order>
+
+    /**
+     * Returns the most recent purchase(s) made
+     * by the user for each SKU, even if that purchase is expired, canceled, or consumed.
+     * Set parameter to null for all products
+     */
+    fun getReceipts(type: Product.Type?): LiveData<List<Receipt>>
 
     /**
      * Handle purchases still remaining from recent history. Observe the liveData object
      * that will emit [Order] objects that require your attention. These orders/purchases
-     * could be purchases made on another device, or when the app is resuming, etc.
-     * @return [LiveData<Order>]
-     * @param listener - @see [Sales.OrderValidatorListener]
+     * could be purchases made on another device, or when the app is resuming, etc. The
+     * provided listeners will enable you to resume the processing of an Order.
+     * @see [Sales.OrderValidatorListener]
+     * @see [Sales.OrderUpdaterListener]
      */
-    fun queriedOrders(listener: Sales.OrderValidatorListener): LiveData<Order>
+    fun queryOrders()
 
     /**
-     * Get all available products,
-     * set productType to ALL to query all products.
-     * @param skuList: MutableList<String>
-     * @param productType: Product.ProductType
-     * @return [LiveData<Map<String, SkuDetails>]
+     * Queries database for matching product ids and loads them into the inventory.
      */
-    fun getAvailableProducts(
-        skuList: MutableList<String>,
-        productType: Product.ProductType
-    ): LiveData<Map<String, SkuDetails>>
+    fun updateInventory(skuList: List<String>, type: Product.Type)
 
     /**
-     * Get the details for a specified product.
-     * @return [SkuDetails] - Android Billing Library object
-     * @param productId - the product id that can be found on the GooglePlayConsole
+     * Return a list of validated products from the inventory.
+     * Narrow your search results by providing both or either parameters.
      */
-    fun getProductDetails(productId: String): SkuDetails?
+    fun getProducts(type: Product.Type?, promo: Product.Promotion?): List<Product>
 
     /**
-     * Returns the most recent purchase made
-     * by the user for each SKU, even if that purchase is expired, canceled, or consumed.
-     * @param skuType - INAPP or SUB
-     * @param listener - @see [PurchaseHistoryResponseListener]
+     * Return a product that matches the sku (product id).
+     * Null if no matching product exists.
      */
-    fun getReceipts(skuType: String, listener: PurchaseHistoryResponseListener)
-
-    /**
-     * @return
-     */
-    fun getPendingOrders(): ArrayMap<String, Purchase>
+    fun getProduct(sku: String): Product?
 }
