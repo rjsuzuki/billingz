@@ -2,8 +2,9 @@
 
 A simple/convenience library for implementing Android's Billing Library.
 
-Currently supports up to : `com.android.billingclient:billing-ktx:3.0.2`
-
+Currently supports up to: 
+   - `google billing: 3.0.2`
+   - `amazon in-app: 2.0.76`
 ## Version History
 
 `v1.0.0`
