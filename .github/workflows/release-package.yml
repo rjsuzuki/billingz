@@ -18,9 +18,6 @@ jobs:
         run: echo 'Hello, friend.'
       - name: Clean, Build, Lint, and Publish AAR
         shell: bash
-          env:
-            GPR_USER: ${{ secrets.GPR_USER }}
-            GPR_API_KEY: ${{ secrets.GPR_API_KEY }}
           run: |
             ./gradlew -PciBuild=true clean build
             ./gradlew lint
