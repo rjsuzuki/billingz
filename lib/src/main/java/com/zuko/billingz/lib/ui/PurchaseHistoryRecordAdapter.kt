@@ -46,12 +46,12 @@ class PurchaseHistoryRecordAdapter(private val list: MutableList<PurchaseHistory
         holder.binding.recordSku.text = item.toString()
         val time = SimpleDateFormat("MM-dd-yyyy hh:mm", Locale.getDefault()).format(Date(item.purchaseTime))
         holder.binding.recordTime.text = time
-/*        item.sku
-        item.signature
-        item.purchaseTime
-        item.purchaseToken
-        item.developerPayload
-        item.originalJson*/
+        //item.sku
+        //item.signature
+        //item.purchaseTime
+        //item.purchaseToken
+        //item.developerPayload
+        //item.originalJson
 
         holder.binding.root.animation = AnimationUtils.loadAnimation(holder.binding.root.context, R.anim.product_item_anim)
     }
