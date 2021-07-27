@@ -20,7 +20,7 @@ jobs:
         run: touch github.properties
       - name: Clean, Build, Lint, and Publish AAR
         shell: bash
-          run: |
-            ./gradlew -PciBuild=true clean build
-            ./gradlew lint
-            ./gradlew publish
+        run: |
+          ./gradlew -PciBuild=true clean build
+          ./gradlew lint
+          ./gradlew publish
