@@ -42,8 +42,8 @@ android {
                 name = "GitHubPackages"
                 url = uri("https://maven.pkg.github.com/rjsuzuki/billingz")
                 credentials {
-                    username = githubProperties['gpr.usr'] ?: System.getenv("GPR_USER") //GPR_USER is a CI Environment Variable
-                    password = githubProperties['gpr.key'] ?: System.getenv("GPR_API_KEY") //GPR_API_KEY is a CI Environment Variable
+                    username = System.getenv("GPR_USER")    ?: githubProperties['gpr.usr'] // GPR_USER is a CI Environment Variable
+                    password = System.getenv("GPR_API_KEY") ?: githubProperties['gpr.key'] // GPR_API_KEY is a CI Environment Variable
                 }
             }
         }
