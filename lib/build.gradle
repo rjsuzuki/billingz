@@ -50,8 +50,8 @@ android {
 
         publications {
             release(MavenPublication) {
-                groupId 'com.rjsuzuki.libraries'
-                artifactId getArtifactId()
+                groupId 'com.zuko.libs'
+                artifactId 'billingz'
                 version getVersionName()
                 artifact("$buildDir/outputs/aar/lib-release.aar")
             }
