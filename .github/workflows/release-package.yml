@@ -29,9 +29,10 @@ jobs:
         if: env.GPR_USER == 'rjsuzuki'
         run: |
           echo "You sir, are qualified."
-          echo GPR_USER=\"gpr.usr=$GPR_USER\" > ./github.properties
-          echo GPR_API_KEY=\"gpr.key=$GPR_API_KEY\" >> ./github.properties
-
+          touch gradle.properties
+          && echo gpr.usr=GPR_USER > gradle.properties
+          && echo gpr.key=GPR_API_KEY >> gradle.properties
+          
       - name: Create a placeholder for github.properties file
         run: touch github.properties
       - name: Clean, Build, and Publish AAR
