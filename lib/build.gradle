@@ -35,11 +35,6 @@ android {
     // Github Packages
     def githubProperties = new Properties()
     githubProperties.load(new FileInputStream(rootProject.file("github.properties")))
-    println("************************")
-    println("user?")
-    println(System.getenv('GPR_USER'))
-    
-    println("************************")
 
     publishing {
         repositories {
