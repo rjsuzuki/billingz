@@ -16,8 +16,8 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
-      - name: Run a one-line script
-        run: echo 'Hello, friend.'
+      - name: Run line to check for starting directory path
+        run:  pwd
       - name: Seup git config
         run: |
           git config --local user.email "action@github.com"
@@ -30,8 +30,8 @@ jobs:
         run: |
           echo "You sir, are qualified."
           touch gradle.properties
-          echo gpr.usr=GPR_USER > gradle.properties
-          echo gpr.key=GPR_API_KEY >> gradle.properties
+          echo gpr.usr=$GPR_USER > gradle.properties
+          echo gpr.key=$GPR_API_KEY >> gradle.properties
 
       - name: Clean, Build, and Publish AAR
         shell: bash
