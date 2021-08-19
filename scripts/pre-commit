@@ -1,0 +1,32 @@
+#!/bin/sh
+
+echo "--------------------------------------------------------------------------------------------------------------------"
+echo "| Starting pre-commit script..."
+echo "--------------------------------------------------------------------------------------------------------------------"
+
+projectDir=$(git rev-parse --show-toplevel)
+
+echo "Project directory => $projectDir"
+lintReportPath="${projectDir}/lib/build/reports/lint-report.html"
+
+echo "--------------------------------------------------------------------------------------------------------------------"
+echo "| Running pre-commit linting on only recent files..."
+echo "--------------------------------------------------------------------------------------------------------------------"
+
+./gradlew lint spotlessApply
+
+# Success or failure (0 or 1)
+lintStatus=$?
+
+# return 1 exit code if running checks fails
+if [ "$lintStatus" -ne 0 ]
+then
+  echo "--------------------------------------------------------------------------------------------------------------------"
+  echo "| Lint checks failed, git push aborted."
+  echo "| Open ${lintReportPath} in a browser to see Lint Report"
+  echo "--------------------------------------------------------------------------------------------------------------------"
+  exit 1
+fi
+
+echo "EXIT CODE: $lintStatus"
+exit $lintStatus

@@ -1,0 +1,41 @@
+name: build_and_publish
+
+# trigger with tag
+on:
+  release:
+    types: [created]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: Run line to check for starting directory path
+        run:  pwd && ls
+      - name: Setup git config
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+      - name: Setup project secrets
+        env:
+          GPR_USER: ${{ secrets.GPR_USER }}
+          GPR_API_KEY: ${{ secrets.GPR_API_KEY }}
+        if: env.GPR_USER == 'rjsuzuki'
+        run: |
+          echo "You sir, are qualified."
+          touch github.properties
+          echo gpr.usr=$GPR_USER > github.properties
+          echo gpr.key=$GPR_API_KEY >> github.properties
+
+      - name: Clean, Build, and Publish AAR
+        shell: bash
+        run: |
+          ./gradlew -PciBuild=true clean build -x lint
+          ./gradlew publish
+        
