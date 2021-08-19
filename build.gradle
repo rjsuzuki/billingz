@@ -4,16 +4,15 @@ buildscript {
         // ValidateTor Library Info
         libVersionCode = 1
         libVersionName = "1.0.0"
-        kotlin_version = '1.5.10-release-894'
     }
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:4.2.2"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.10"
-        classpath 'com.diffplug.spotless:spotless-plugin-gradle:5.11.0'
+        classpath 'com.android.tools.build:gradle:7.0.1'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.21"
+        classpath 'com.diffplug.spotless:spotless-plugin-gradle:5.14.1'
         classpath "org.jetbrains.dokka:dokka-gradle-plugin:1.4.30"
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -25,6 +24,7 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        maven { url "https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven" }
     }
 }
 

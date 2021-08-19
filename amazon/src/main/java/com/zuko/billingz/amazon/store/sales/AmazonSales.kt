@@ -8,57 +8,57 @@ import com.amazon.device.iap.model.FulfillmentResult
 import com.amazon.device.iap.model.PurchaseResponse
 import com.zuko.billingz.amazon.store.model.AmazonOrder
 import com.zuko.billingz.amazon.store.model.AmazonReceipt
-import com.zuko.billingz.lib.LogUtil
-import com.zuko.billingz.lib.store.client.Client
-import com.zuko.billingz.lib.store.model.Order
-import com.zuko.billingz.lib.store.model.Product
-import com.zuko.billingz.lib.store.model.Receipt
-import com.zuko.billingz.lib.store.sales.Sales
+import com.zuko.billingz.core.LogUtilz
+import com.zuko.billingz.core.store.client.Clientz
+import com.zuko.billingz.core.store.model.Orderz
+import com.zuko.billingz.core.store.model.Productz
+import com.zuko.billingz.core.store.model.Receiptz
+import com.zuko.billingz.core.store.sales.Salez
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 
 //https://developer.amazon.com/docs/in-app-purchasing/iap-implement-iap.html#responsereceiver
-class AmazonSales: Sales {
+class AmazonSales: Salez {
 
     private val mainScope = MainScope()
 
-    override var currentReceipt = MutableLiveData<Receipt>()
+    override var currentReceipt = MutableLiveData<Receiptz>()
 
-    override var orderHistory: MutableLiveData<List<Receipt>> = MutableLiveData()
-    override var orderUpdaterListener: Sales.OrderUpdaterListener? = null
-    override var orderValidatorListener: Sales.OrderValidatorListener? = null
+    override var orderHistory: MutableLiveData<List<Receiptz>> = MutableLiveData()
+    override var orderUpdaterListener: Salez.OrderUpdaterListener? = null
+    override var orderValidatorListener: Salez.OrderValidatorListener? = null
 
-    private val validatorCallback: Sales.ValidatorCallback = object : Sales.ValidatorCallback {
-        override fun validated(order: Order) {
+    private val validatorCallback: Salez.ValidatorCallback = object : Salez.ValidatorCallback {
+        override fun validated(order: Orderz) {
             // verify amazon receipt
             processOrder(order)
         }
 
-        override fun invalidate(order: Order) {
+        override fun invalidate(order: Orderz) {
             Log.d(TAG, "onFailure")
             cancelOrder(order)
         }
     }
 
-    private val updaterCallback: Sales.UpdaterCallback = object : Sales.UpdaterCallback {
+    private val updaterCallback: Salez.UpdaterCallback = object : Salez.UpdaterCallback {
 
-        override fun complete(order: Order) {
+        override fun complete(order: Orderz) {
             // fulfill order
             completeOrder(order)
         }
 
-        override fun cancel(order: Order) {
+        override fun cancel(order: Orderz) {
             cancelOrder(order)
         }
     }
 
     // step 1
-    override fun startOrder(activity: Activity?, product: Product, client: Client) {
+    override fun startOrder(activity: Activity?, product: Productz, client: Clientz) {
         PurchasingService.purchase(product.sku)
     }
 
     // step 2
-    override fun validateOrder(order: Order) {
+    override fun validateOrder(order: Orderz) {
         try {
             if(order is AmazonOrder) {
                 if(order.response.receipt?.isCanceled == true) {
@@ -69,7 +69,7 @@ class AmazonSales: Sales {
                 }
                 // Verify the receipts from the purchase by having your back-end server
                 // verify the receiptId with Amazon's Receipt Verification Service (RVS) before fulfilling the item
-                orderValidatorListener?.validate(order, validatorCallback) ?: LogUtil.log.e(TAG, "Null validator object. Cannot complete order.")
+                orderValidatorListener?.validate(order, validatorCallback) ?: LogUtilz.log.e(TAG, "Null validator object. Cannot complete order.")
             }
         } catch (e: Exception) {
             Log.e(TAG, e.localizedMessage ?: "error")
@@ -77,12 +77,12 @@ class AmazonSales: Sales {
     }
 
     // step 3
-    override fun processOrder(order: Order) {
+    override fun processOrder(order: Orderz) {
         orderUpdaterListener?.onResume(order, updaterCallback)
     }
 
     // step 4
-    override fun completeOrder(order: Order) {
+    override fun completeOrder(order: Orderz) {
         try {
             if(order is AmazonOrder) {
 
@@ -95,9 +95,9 @@ class AmazonSales: Sales {
                 }
 
                 when(order.product?.type) {
-                    Product.Type.CONSUMABLE -> completeConsumable(order.response)
-                    Product.Type.NON_CONSUMABLE -> completeNonConsumable(order.response)
-                    Product.Type.SUBSCRIPTION -> completeSubscription(order.response)
+                    Productz.Type.CONSUMABLE -> completeConsumable(order.response)
+                    Productz.Type.NON_CONSUMABLE -> completeNonConsumable(order.response)
+                    Productz.Type.SUBSCRIPTION -> completeSubscription(order.response)
                 }
                 // successful
                 PurchasingService.notifyFulfillment(order.response.receipt.receiptId, FulfillmentResult.FULFILLED)
@@ -129,12 +129,12 @@ class AmazonSales: Sales {
          Log.d(TAG, "Query receipts: $purchaseUpdatesRequestId")
     }
 
-    override fun queryReceipts(type: Product.Type?) {
+    override fun queryReceipts(type: Productz.Type?) {
         val purchaseUpdatesRequestId = PurchasingService.getPurchaseUpdates(true) // sales
     }
 
     private fun completeConsumable(response: PurchaseResponse) {
-        LogUtil.log.v(TAG, "completeConsumable")
+        LogUtilz.log.v(TAG, "completeConsumable")
         // convert receipt to AmazonReceipt
         val amazonReceipt = AmazonReceipt(response.receipt)
         currentReceipt.postValue(amazonReceipt)
@@ -142,35 +142,35 @@ class AmazonSales: Sales {
     }
 
     private fun completeNonConsumable(response: PurchaseResponse) {
-        LogUtil.log.v(TAG, "completeNonConsumable")
+        LogUtilz.log.v(TAG, "completeNonConsumable")
         val amazonReceipt = AmazonReceipt(response.receipt)
         currentReceipt.postValue(amazonReceipt)
         orderUpdaterListener?.onComplete(amazonReceipt)
     }
 
     private fun completeSubscription(response: PurchaseResponse) {
-        LogUtil.log.v(TAG, "completeSubscription")
+        LogUtilz.log.v(TAG, "completeSubscription")
         val amazonReceipt = AmazonReceipt(response.receipt)
         currentReceipt.postValue(amazonReceipt)
         orderUpdaterListener?.onComplete(amazonReceipt)
     }
 
-    override fun cancelOrder(order: Order) {
-        LogUtil.log.v(TAG, "cancelOrder")
+    override fun cancelOrder(order: Orderz) {
+        LogUtilz.log.v(TAG, "cancelOrder")
         if(order is AmazonOrder) {
             PurchasingService.notifyFulfillment(order.response.receipt.receiptId, FulfillmentResult.UNAVAILABLE)
         }
     }
 
-    override fun failedOrder(order: Order) {
-        LogUtil.log.v(TAG, "failedOrder")
+    override fun failedOrder(order: Orderz) {
+        LogUtilz.log.v(TAG, "failedOrder")
         if(order is AmazonOrder) {
             PurchasingService.notifyFulfillment(order.response.receipt.receiptId, FulfillmentResult.UNAVAILABLE)
         }
     }
 
     override fun destroy() {
-        LogUtil.log.v(TAG, "destroy")
+        LogUtilz.log.v(TAG, "destroy")
         mainScope.cancel()
     }
 

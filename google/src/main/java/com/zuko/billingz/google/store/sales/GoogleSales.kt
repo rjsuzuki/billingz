@@ -35,13 +35,13 @@ import com.zuko.billingz.google.store.inventory.GoogleInventory
 import com.zuko.billingz.google.store.model.GoogleOrder
 import com.zuko.billingz.google.store.model.GoogleProduct
 import com.zuko.billingz.google.store.model.GoogleReceipt
-import com.zuko.billingz.lib.LogUtil
-import com.zuko.billingz.lib.misc.BillingResponse
-import com.zuko.billingz.lib.store.client.Client
-import com.zuko.billingz.lib.store.model.Order
-import com.zuko.billingz.lib.store.model.Product
-import com.zuko.billingz.lib.store.model.Receipt
-import com.zuko.billingz.lib.store.sales.Sales
+import com.zuko.billingz.core.LogUtilz
+import com.zuko.billingz.core.misc.BillingResponsez
+import com.zuko.billingz.core.store.client.Clientz
+import com.zuko.billingz.core.store.model.Orderz
+import com.zuko.billingz.core.store.model.Productz
+import com.zuko.billingz.core.store.model.Receiptz
+import com.zuko.billingz.core.store.sales.Salez
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -53,19 +53,19 @@ import kotlinx.coroutines.launch
  * @constructor
  * @param inventory
  */
-class GoogleSales(private val inventory: GoogleInventory, private val client: GoogleClient) : Sales {
+class GoogleSales(private val inventory: GoogleInventory, private val client: GoogleClient) : Salez {
 
     private val mainScope = MainScope()
 
-    override var currentReceipt = MutableLiveData<Receipt>()
-    override var orderHistory: MutableLiveData<List<Receipt>> = MutableLiveData()
+    override var currentReceipt = MutableLiveData<Receiptz>()
+    override var orderHistory: MutableLiveData<List<Receiptz>> = MutableLiveData()
 
-    override var orderUpdaterListener: Sales.OrderUpdaterListener? = null
-    override var orderValidatorListener: Sales.OrderValidatorListener? = null
+    override var orderUpdaterListener: Salez.OrderUpdaterListener? = null
+    override var orderValidatorListener: Salez.OrderValidatorListener? = null
 
     private var isAlreadyQueried = false
     private var isQueriedOrders = false
-    private var queriedOrder = MutableLiveData<Order>()
+    private var queriedOrder = MutableLiveData<Orderz>()
     private var pendingPurchases = ArrayMap<String, Purchase>()
     private var activeSubscriptions: MutableList<Purchase> = mutableListOf()
     private var activeInAppProducts: MutableList<Purchase> = mutableListOf()
@@ -81,41 +81,41 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
         }
 
 
-    private val validatorCallback: Sales.ValidatorCallback = object : Sales.ValidatorCallback {
-        override fun validated(order: Order) {
+    private val validatorCallback: Salez.ValidatorCallback = object : Salez.ValidatorCallback {
+        override fun validated(order: Orderz) {
             processOrder(order)
         }
 
-        override fun invalidate(order: Order) {
+        override fun invalidate(order: Orderz) {
             cancelOrder(order)
         }
     }
 
-    private val updaterCallback: Sales.UpdaterCallback = object : Sales.UpdaterCallback {
-        override fun complete(order: Order) {
+    private val updaterCallback: Salez.UpdaterCallback = object : Salez.UpdaterCallback {
+        override fun complete(order: Orderz) {
             completeOrder(order)
         }
 
-        override fun cancel(order: Order) {
+        override fun cancel(order: Orderz) {
             cancelOrder(order)
         }
     }
 
     // step 1
-    override fun startOrder(activity: Activity?, product: Product, client: Client) {
+    override fun startOrder(activity: Activity?, product: Productz, client: Clientz) {
         if(product is GoogleProduct && client is GoogleClient) {
             startPurchaseRequest(activity, product.skuDetails, client.getBillingClient())
         }
     }
 
     // step 2
-    override fun validateOrder(order: Order) {
-        orderValidatorListener?.validate(order, validatorCallback) ?: LogUtil.log.e(TAG, "Null validator object. Cannot complete order.")
+    override fun validateOrder(order: Orderz) {
+        orderValidatorListener?.validate(order, validatorCallback) ?: LogUtilz.log.e(TAG, "Null validator object. Cannot complete order.")
     }
 
     // step 3
-    override fun processOrder(order: Order) {
-        LogUtil.log.v(TAG, "processOrder")
+    override fun processOrder(order: Orderz) {
+        LogUtilz.log.v(TAG, "processOrder")
         if(order is GoogleOrder) {
             order.purchase?.let { p ->
                 orderUpdaterListener?.onResume(order, updaterCallback)
@@ -124,40 +124,40 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
     }
 
     // step 4
-    override fun completeOrder(order: Order) {
-        LogUtil.log.v(TAG, "completeOrder")
+    override fun completeOrder(order: Orderz) {
+        LogUtilz.log.v(TAG, "completeOrder")
 
         if(order is GoogleOrder) {
             when(order.product?.type) {
-                Product.Type.SUBSCRIPTION -> {
+                Productz.Type.SUBSCRIPTION -> {
                     completeSubscription(
                         client.getBillingClient(),
                         order.purchase,
                         mainScope = mainScope)
                 }
-                Product.Type.NON_CONSUMABLE -> {
+                Productz.Type.NON_CONSUMABLE -> {
                     completeNonConsumable(
                         client.getBillingClient(),
                         order.purchase,
                         mainScope = mainScope)
                 }
-                Product.Type.CONSUMABLE -> {
+                Productz.Type.CONSUMABLE -> {
                     completeConsumable(
                         client.getBillingClient(),
                         order.purchase)
                 }
                 else -> {
-                    LogUtil.log.e(TAG, "error completing order")
+                    LogUtilz.log.e(TAG, "error completing order")
                 }
             }
         }
     }
 
-    override fun cancelOrder(order: Order) {
+    override fun cancelOrder(order: Orderz) {
         TODO("Not yet implemented")
     }
 
-    override fun failedOrder(order: Order) {
+    override fun failedOrder(order: Orderz) {
         TODO("Not yet implemented")
     }
 
@@ -171,26 +171,26 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
     }
 
     private fun refreshReceipts() {
-        LogUtil.log.v(TAG, "queryPurchases")
+        LogUtilz.log.v(TAG, "queryPurchases")
         if (isAlreadyQueried) {
-            LogUtil.log.d(TAG, "Skipping purchase history refresh.")
+            LogUtilz.log.d(TAG, "Skipping purchase history refresh.")
             // skip - prevents double queries on initialization
             isAlreadyQueried = false
         } else {
-            LogUtil.log.d(TAG, "Refreshing purchase history.")
+            LogUtilz.log.d(TAG, "Refreshing purchase history.")
             queryReceipts()
             isAlreadyQueried = true
         }
     }
 
-    override fun queryReceipts(type: Product.Type?) {
+    override fun queryReceipts(type: Productz.Type?) {
         if (client.isReady()) {
-            LogUtil.log.i(TAG, "Fetching all $type purchases made by user.")
+            LogUtilz.log.i(TAG, "Fetching all $type purchases made by user.")
             mainScope.launch(Dispatchers.IO) {
                 queryPurchaseHistory(type)
             }
         } else {
-            LogUtil.log.e(TAG, "Android BillingClient was not ready yet to continue queryPurchases()")
+            LogUtilz.log.e(TAG, "Android BillingClient was not ready yet to continue queryPurchases()")
         }
     }
 
@@ -200,7 +200,7 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
         skuDetails: SkuDetails?,
         billingClient: BillingClient?
     ): BillingResult {
-        LogUtil.log.v(TAG, "startPurchaseRequest")
+        LogUtilz.log.v(TAG, "startPurchaseRequest")
         if(activity == null || skuDetails == null || billingClient == null)
             return BillingResult.newBuilder()
                 .setResponseCode(BillingClient.BillingResponseCode.ERROR)
@@ -220,8 +220,8 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
     }
 
     fun processUpdatedPurchases(billingResult: BillingResult?, purchases: MutableList<Purchase>?) {
-        LogUtil.log.v(TAG, "processUpdatedPurchases")
-        BillingResponse.logResult(billingResult)
+        LogUtilz.log.v(TAG, "processUpdatedPurchases")
+        BillingResponsez.logResult(billingResult)
         if (purchases.isNullOrEmpty()) {
             val order = GoogleOrder(
                 billingResult = billingResult,
@@ -247,7 +247,7 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
     }
 
     private fun processValidation(purchase: Purchase, billingResult: BillingResult?) {
-        LogUtil.log.v(TAG, "processValidation")
+        LogUtilz.log.v(TAG, "processValidation")
 
         if (isNewPurchase(purchase)) {
             val order = GoogleOrder(
@@ -257,16 +257,16 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
             )
             validateOrder(order)
         } else {
-            LogUtil.log.e(TAG, "Purchase failed verification. Cannot complete order.")
+            LogUtilz.log.e(TAG, "Purchase failed verification. Cannot complete order.")
         }
     }
 
     private fun isNewPurchase(purchase: Purchase): Boolean {
-        LogUtil.log.v(TAG, "isPurchaseValid")
+        LogUtilz.log.v(TAG, "isPurchaseValid")
         if (purchase.isAcknowledged) {
             // Note: If you do not acknowledge a purchase within three days,
             // the user automatically receives a refund, and Google Play revokes the purchase.
-            LogUtil.log.w(TAG, "Purchase item: $purchase, is already Acknowledged. Cannot complete order.")
+            LogUtilz.log.w(TAG, "Purchase item: $purchase, is already Acknowledged. Cannot complete order.")
             return false
         }
         // todo - can provide more validation checks here for checking for new purchases
@@ -274,17 +274,17 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
     }
 
     private fun processPendingTransaction(purchase: Purchase, billingResult: BillingResult?) {
-        LogUtil.log.v(TAG, "processInAppPurchase")
+        LogUtilz.log.v(TAG, "processInAppPurchase")
         if (pendingPurchases.containsValue(purchase)) {
-            LogUtil.log.v(TAG, "Pending transaction already in process.")
+            LogUtilz.log.v(TAG, "Pending transaction already in process.")
         } else {
             pendingPurchases[purchase.orderId] = purchase
         }
     }
 
     private fun processPurchasingError(purchase: Purchase, billingResult: BillingResult?) {
-        LogUtil.log.e(TAG, "processPurchasingError: $billingResult")
-        BillingResponse.logResult(billingResult)
+        LogUtilz.log.e(TAG, "processPurchasingError: $billingResult")
+        BillingResponsez.logResult(billingResult)
         val order = GoogleOrder(
             purchase = purchase,
             billingResult = billingResult,
@@ -314,7 +314,7 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
                 orderUpdaterListener?.onComplete(receipt)
             } else {
                 msg = billingResult.debugMessage
-                LogUtil.log.e(TAG, "Error purchasing consumable. $msg")
+                LogUtilz.log.e(TAG, "Error purchasing consumable. $msg")
             }
         }
     }
@@ -385,7 +385,7 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
 
     // todo - run async
     private fun querySubscriptions() {
-        LogUtil.log.v(TAG, "querySubscriptions")
+        LogUtilz.log.v(TAG, "querySubscriptions")
         val subsResult = client.getBillingClient()?.queryPurchases(BillingClient.SkuType.SUBS)
         if (subsResult?.responseCode == BillingClient.BillingResponseCode.OK) { // todo verify
             subsResult.purchasesList?.let { subscriptions ->
@@ -394,14 +394,14 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
                     processUpdatedPurchases(null, activeSubscriptions)
                 }
 
-                LogUtil.log.i(TAG, "Subscription order history received: $subscriptions")
-            } ?: LogUtil.log.d(TAG, "No subscription history available.")
+                LogUtilz.log.i(TAG, "Subscription order history received: $subscriptions")
+            } ?: LogUtilz.log.d(TAG, "No subscription history available.")
         }
     }
 
     // todo - run async
     private fun queryInAppProducts() {
-        LogUtil.log.v(TAG, "queryInAppProducts")
+        LogUtilz.log.v(TAG, "queryInAppProducts")
         val inAppResult = client.getBillingClient()?.queryPurchases(BillingClient.SkuType.INAPP)
         if (inAppResult?.responseCode == BillingClient.BillingResponseCode.OK) { // todo verify
             inAppResult.purchasesList?.let { purchases ->
@@ -409,21 +409,21 @@ class GoogleSales(private val inventory: GoogleInventory, private val client: Go
                 if (activeInAppProducts.isNotEmpty())
                     processUpdatedPurchases(null, activeSubscriptions)
 
-                LogUtil.log.i(TAG, "In-app order history received: $purchases")
-            } ?: LogUtil.log.d(TAG, "No In-app products history available.")
+                LogUtilz.log.i(TAG, "In-app order history received: $purchases")
+            } ?: LogUtilz.log.d(TAG, "No In-app products history available.")
         }
     }
 
     // when to query history?
-    private fun queryPurchaseHistory(type: Product.Type?) {
+    private fun queryPurchaseHistory(type: Productz.Type?) {
 
-        val skuType = if(type == Product.Type.SUBSCRIPTION) BillingClient.SkuType.SUBS else BillingClient.SkuType.INAPP
+        val skuType = if(type == Productz.Type.SUBSCRIPTION) BillingClient.SkuType.SUBS else BillingClient.SkuType.INAPP
 
         client.getBillingClient()?.queryPurchaseHistoryAsync(skuType, purchaseHistoryResponseListener)
     }
 
     override fun destroy() {
-        LogUtil.log.v(TAG, "destroy")
+        LogUtilz.log.v(TAG, "destroy")
         mainScope.cancel()
         isQueriedOrders = false
     }
