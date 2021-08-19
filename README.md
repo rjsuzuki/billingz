@@ -1,6 +1,6 @@
 # Billingz
 
-A simple/convenience library for implementing Android's Billing Library.
+A simple/convenience library for implementing Android's Billing Library. [![build_and_publish](https://github.com/rjsuzuki/billingz/actions/workflows/release-package.yml/badge.svg)](https://github.com/rjsuzuki/billingz/actions/workflows/release-package.yml)
 
 Currently supports up to: 
    - `google billing: 3.0.2`
