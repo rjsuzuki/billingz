@@ -3,7 +3,7 @@ buildscript {
     ext {
         // ValidateTor Library Info
         libVersionCode = 1
-        libVersionName = "1.0.0"
+        libVersionName = "1.0.1"
     }
     repositories {
         google()
