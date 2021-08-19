@@ -7,18 +7,18 @@ import androidx.lifecycle.MutableLiveData
 import com.zuko.billingz.amazon.store.client.AmazonClient
 import com.zuko.billingz.amazon.store.inventory.AmazonInventory
 import com.zuko.billingz.amazon.store.sales.AmazonSales
-import com.zuko.billingz.lib.LogUtil
-import com.zuko.billingz.lib.store.Store
-import com.zuko.billingz.lib.store.agent.Agent
-import com.zuko.billingz.lib.store.client.Client
-import com.zuko.billingz.lib.store.model.Order
-import com.zuko.billingz.lib.store.model.Product
-import com.zuko.billingz.lib.store.model.Receipt
-import com.zuko.billingz.lib.store.sales.Sales
+import com.zuko.billingz.core.LogUtilz
+import com.zuko.billingz.core.store.Storez
+import com.zuko.billingz.core.store.agent.Agentz
+import com.zuko.billingz.core.store.client.Clientz
+import com.zuko.billingz.core.store.model.Orderz
+import com.zuko.billingz.core.store.model.Productz
+import com.zuko.billingz.core.store.model.Receiptz
+import com.zuko.billingz.core.store.sales.Salez
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 
-class AmazonStore: Store {
+class AmazonStore: Storez {
 
     private val mainScope = MainScope()
 
@@ -26,7 +26,7 @@ class AmazonStore: Store {
     private val sales = AmazonSales()
     private val client = AmazonClient(inventory, sales)
 
-    private val connectionListener = object : Client.ConnectionListener {
+    private val connectionListener = object : Clientz.ConnectionListener {
         override fun connected() {
             sales.refreshQueries()
         }
@@ -38,25 +38,25 @@ class AmazonStore: Store {
      *****************************************************************************************************/
 
     init {
-        LogUtil.log.v(TAG, "instantiating...")
+        LogUtilz.log.v(TAG, "instantiating...")
     }
 
     override fun init(context: Context?) {
-        LogUtil.log.v(TAG, "initializing...")
+        LogUtilz.log.v(TAG, "initializing...")
         client.init(context, connectionListener)
     }
 
     override fun create() {
-        LogUtil.log.v(TAG, "creating...")
+        LogUtilz.log.v(TAG, "creating...")
         client.connect()
     }
 
     override fun start() {
-        LogUtil.log.v(TAG, "starting...")
+        LogUtilz.log.v(TAG, "starting...")
     }
 
     override fun resume() {
-        LogUtil.log.v(TAG, "resuming...")
+        LogUtilz.log.v(TAG, "resuming...")
         client.checkConnection()
         if(client.isReady()) {
             sales.refreshQueries()
@@ -64,22 +64,22 @@ class AmazonStore: Store {
     }
 
     override fun pause() {
-        LogUtil.log.v(TAG, "pausing...")
+        LogUtilz.log.v(TAG, "pausing...")
     }
 
     override fun stop() {
-        LogUtil.log.v(TAG, "stopping...")
+        LogUtilz.log.v(TAG, "stopping...")
         mainScope.cancel()
     }
 
     override fun destroy() {
-        LogUtil.log.v(TAG, "destroying...")
+        LogUtilz.log.v(TAG, "destroying...")
         mainScope.cancel()
         inventory.destroy()
         client.destroy()
     }
 
-    private val agent = object: Agent {
+    private val agent = object: Agentz {
 
         override fun isBillingClientReady(): LiveData<Boolean> {
             return client.isClientReady
@@ -88,10 +88,10 @@ class AmazonStore: Store {
         override fun startOrder(
             activity: Activity?,
             productId: String?,
-            listener: Sales.OrderValidatorListener?
-        ): LiveData<Order> {
+            listener: Salez.OrderValidatorListener?
+        ): LiveData<Orderz> {
 
-            val data = MutableLiveData<Order>()
+            val data = MutableLiveData<Orderz>()
             val product = inventory.allProducts[productId]
             product?.let {
                 sales.startOrder(activity, product, client)
@@ -99,7 +99,7 @@ class AmazonStore: Store {
             return data
         }
 
-        override fun getReceipts(type: Product.Type?): LiveData<List<Receipt>> {
+        override fun getReceipts(type: Productz.Type?): LiveData<List<Receiptz>> {
             return sales.orderHistory
         }
 
@@ -107,23 +107,23 @@ class AmazonStore: Store {
             sales.queryOrders()
         }
 
-        override fun updateInventory(skuList: List<String>, type: Product.Type) {
+        override fun updateInventory(skuList: List<String>, type: Productz.Type) {
             inventory.queryInventory(skuList, type)
         }
 
-        override fun getProducts(type: Product.Type?, promo: Product.Promotion?): List<Product> {
+        override fun getProducts(type: Productz.Type?, promo: Productz.Promotion?): List<Productz> {
             return inventory.getProducts(
                 type = type,
                 promo = promo
             )
         }
 
-        override fun getProduct(sku: String): Product? {
+        override fun getProduct(sku: String): Productz? {
             return inventory.getProduct(sku)
         }
     }
 
-    override fun getAgent(): Agent {
+    override fun getAgent(): Agentz {
         return agent
     }
 

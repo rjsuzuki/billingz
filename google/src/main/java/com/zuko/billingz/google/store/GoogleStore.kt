@@ -27,15 +27,15 @@ import com.zuko.billingz.google.store.client.GoogleClient
 import com.zuko.billingz.google.store.inventory.GoogleInventory
 import com.zuko.billingz.google.store.model.GoogleOrder
 import com.zuko.billingz.google.store.sales.GoogleSales
-import com.zuko.billingz.lib.LogUtil
-import com.zuko.billingz.lib.store.Store
-import com.zuko.billingz.lib.store.agent.Agent
-import com.zuko.billingz.lib.store.client.Client
-import com.zuko.billingz.lib.store.inventory.Inventory
-import com.zuko.billingz.lib.store.model.Order
-import com.zuko.billingz.lib.store.model.Product
-import com.zuko.billingz.lib.store.model.Receipt
-import com.zuko.billingz.lib.store.sales.Sales
+import com.zuko.billingz.core.LogUtilz
+import com.zuko.billingz.core.store.Storez
+import com.zuko.billingz.core.store.agent.Agentz
+import com.zuko.billingz.core.store.client.Clientz
+import com.zuko.billingz.core.store.inventory.Inventoryz
+import com.zuko.billingz.core.store.model.Orderz
+import com.zuko.billingz.core.store.model.Productz
+import com.zuko.billingz.core.store.model.Receiptz
+import com.zuko.billingz.core.store.sales.Salez
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 
@@ -44,20 +44,20 @@ import kotlinx.coroutines.cancel
  * //TODO handle pending purchases?
  * //TODO retry connection
  */
-class GoogleStore private constructor(): Store {
+class GoogleStore: Storez {
 
     private val mainScope = MainScope()
     private val purchasesUpdatedListener: PurchasesUpdatedListener =
         PurchasesUpdatedListener { billingResult, purchases -> (sales as GoogleSales).processUpdatedPurchases(billingResult, purchases) }
-    private val connectionListener = object : Client.ConnectionListener {
+    private val connectionListener = object : Clientz.ConnectionListener {
         override fun connected() {
             sales.refreshQueries()
         }
     }
 
-    private val client: Client = GoogleClient(purchasesUpdatedListener)
-    private val inventory: Inventory = GoogleInventory(client as GoogleClient)
-    private val sales: Sales = GoogleSales(inventory as GoogleInventory, client as GoogleClient)
+    private val client: Clientz = GoogleClient(purchasesUpdatedListener)
+    private val inventory: Inventoryz = GoogleInventory(client as GoogleClient)
+    private val sales: Salez = GoogleSales(inventory as GoogleInventory, client as GoogleClient)
 
     private var isInitialized = false
 
@@ -67,17 +67,17 @@ class GoogleStore private constructor(): Store {
      * to their respective parent view
      *****************************************************************************************************/
     init {
-        LogUtil.log.v(TAG, "instantiating...")
+        LogUtilz.log.v(TAG, "instantiating...")
     }
 
     override fun init(context: Context?) {
-        LogUtil.log.v(TAG, "initializing...")
+        LogUtilz.log.v(TAG, "initializing...")
         client.init(context, connectionListener)
         isInitialized = true
     }
 
     override fun create() {
-        LogUtil.log.v(TAG, "creating...")
+        LogUtilz.log.v(TAG, "creating...")
         if (isInitialized && client.initialized())
             client.connect()
 
@@ -86,27 +86,27 @@ class GoogleStore private constructor(): Store {
     }
 
     override fun start() {
-        LogUtil.log.v(TAG, "starting...")
+        LogUtilz.log.v(TAG, "starting...")
     }
 
     override fun resume() {
-        LogUtil.log.v(TAG, "resuming...")
+        LogUtilz.log.v(TAG, "resuming...")
         client.checkConnection()
         if(client.isReady())
             sales.refreshQueries()
     }
 
     override fun pause() {
-        LogUtil.log.v(TAG, "pausing...")
+        LogUtilz.log.v(TAG, "pausing...")
     }
 
     override fun stop() {
-        LogUtil.log.v(TAG, "stopping...")
+        LogUtilz.log.v(TAG, "stopping...")
         client.disconnect()
     }
 
     override fun destroy() {
-        LogUtil.log.v(TAG, "destroying...")
+        LogUtilz.log.v(TAG, "destroying...")
         client.destroy()
         sales.destroy()
         inventory.destroy()
@@ -117,7 +117,7 @@ class GoogleStore private constructor(): Store {
      * Private methods
      *****************************************************************************************************/
 
-    private val storeAgent = object : Agent {
+    private val storeAgent = object : Agentz {
 
         override fun isBillingClientReady(): LiveData<Boolean> {
             return client.isClientReady
@@ -126,13 +126,13 @@ class GoogleStore private constructor(): Store {
         override fun startOrder(
             activity: Activity?,
             productId: String?,
-            listener: Sales.OrderValidatorListener?
-        ): LiveData<Order> {
-            LogUtil.log.v(TAG, "Starting purchase flow")
+            listener: Salez.OrderValidatorListener?
+        ): LiveData<Orderz> {
+            LogUtilz.log.v(TAG, "Starting purchase flow")
 
             sales.orderValidatorListener = listener
 
-            val data = MutableLiveData<Order>()
+            val data = MutableLiveData<Orderz>()
             val product = inventory.allProducts[productId]
             product?.let {
                 sales.startOrder(activity, product, client)
@@ -155,24 +155,24 @@ class GoogleStore private constructor(): Store {
             sales.queryOrders()
         }
 
-        override fun getReceipts(type: Product.Type?): LiveData<List<Receipt>> {
+        override fun getReceipts(type: Productz.Type?): LiveData<List<Receiptz>> {
             if(client is GoogleClient) {
-                val skuType = if(type == Product.Type.SUBSCRIPTION) BillingClient.SkuType.SUBS else BillingClient.SkuType.INAPP
+                val skuType = if(type == Productz.Type.SUBSCRIPTION) BillingClient.SkuType.SUBS else BillingClient.SkuType.INAPP
                 //todo client.getBillingClient()?.queryPurchaseHistoryAsync(skuType, sales)
                 sales.queryReceipts(type)
             }
             return sales.orderHistory
         }
 
-        override fun updateInventory(skuList: List<String>, type: Product.Type) {
+        override fun updateInventory(skuList: List<String>, type: Productz.Type) {
             inventory.queryInventory(skuList = skuList, type)
         }
 
-        override fun getProducts(type: Product.Type?, promo: Product.Promotion?): List<Product> {
+        override fun getProducts(type: Productz.Type?, promo: Productz.Promotion?): List<Productz> {
             return inventory.getProducts(type, promo)
         }
 
-        override fun getProduct(sku: String): Product? {
+        override fun getProduct(sku: String): Productz? {
             return inventory.getProduct(sku)
         }
     }
@@ -184,9 +184,9 @@ class GoogleStore private constructor(): Store {
     /**
      * Returns the primary class for developers to conveniently
      * interact with Android's Billing Library (Facade pattern).
-     * @return [Agent]
+     * @return [Agentz]
      */
-    override fun getAgent(): Agent {
+    override fun getAgent(): Agentz {
         return storeAgent
     }
 

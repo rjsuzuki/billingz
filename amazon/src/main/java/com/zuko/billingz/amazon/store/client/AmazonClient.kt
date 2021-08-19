@@ -14,13 +14,13 @@ import com.amazon.device.iap.model.UserDataResponse
 import com.zuko.billingz.amazon.store.model.AmazonProduct
 import com.zuko.billingz.amazon.store.model.AmazonOrder
 import com.zuko.billingz.amazon.store.model.AmazonReceipt
-import com.zuko.billingz.lib.store.client.Client
-import com.zuko.billingz.lib.store.inventory.Inventory
-import com.zuko.billingz.lib.store.model.Product
-import com.zuko.billingz.lib.store.model.Receipt
-import com.zuko.billingz.lib.store.sales.Sales
+import com.zuko.billingz.core.store.client.Clientz
+import com.zuko.billingz.core.store.inventory.Inventoryz
+import com.zuko.billingz.core.store.model.Productz
+import com.zuko.billingz.core.store.model.Receiptz
+import com.zuko.billingz.core.store.sales.Salez
 
-class AmazonClient(val inventory: Inventory, val sales: Sales): Client {
+class AmazonClient(val inventory: Inventoryz, val sales: Salez): Clientz {
 
     override var isClientReady = MutableLiveData<Boolean>()
 
@@ -36,7 +36,7 @@ class AmazonClient(val inventory: Inventory, val sales: Sales): Client {
         return initialized() && isConnected
     }
 
-    override fun init(context: Context?, connectionListener: Client.ConnectionListener) {
+    override fun init(context: Context?, connectionListener: Clientz.ConnectionListener) {
 
         Log.v(TAG, "initClient")
         PurchasingService.registerListener(context, object: PurchasingListener {
@@ -70,7 +70,7 @@ class AmazonClient(val inventory: Inventory, val sales: Sales): Client {
                         Log.d(TAG, "Successful product data request: ${response.requestId}")
 
                         // convert
-                        val products = ArrayMap<String, Product>()
+                        val products = ArrayMap<String, Productz>()
                         for(r in response.productData) {
                             val product = AmazonProduct(r.value)
                             products[r.key] = product
@@ -133,7 +133,7 @@ class AmazonClient(val inventory: Inventory, val sales: Sales): Client {
                         Log.d(TAG, "Successful purchase updates request: ${response.requestId}")
 
                         // convert receipts
-                        val list = mutableListOf<Receipt>()
+                        val list = mutableListOf<Receiptz>()
                         for(r in response.receipts) {
                             val receipt = AmazonReceipt(r)
                             receipt.userId = response.userData.userId

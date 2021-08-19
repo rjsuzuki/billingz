@@ -18,8 +18,8 @@ package com.zuko.billingz.google.store.model
 
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.Purchase
-import com.zuko.billingz.lib.store.model.Order
-import com.zuko.billingz.lib.store.model.Product
+import com.zuko.billingz.core.store.model.Orderz
+import com.zuko.billingz.core.store.model.Productz
 
 /**
  * Represents an Order.
@@ -29,14 +29,14 @@ import com.zuko.billingz.lib.store.model.Product
  */
 data class GoogleOrder(val purchase: Purchase? = null,
                        val billingResult: BillingResult?,
-                       val msg: String): Order {
+                       val msg: String): Orderz {
 
     override var orderId: String? = purchase?.orderId
     override var packageName: String? = purchase?.packageName
     override var orderTime: Long = -1L
     override var orderToken: String? = null
-    override var product: Product? = null
-    override var status: Order.Status = Order.Status.UNKNOWN
+    override var product: Productz? = null
+    override var status: Orderz.Status = Orderz.Status.UNKNOWN
     override var isCancelled: Boolean = Purchase.PurchaseState.UNSPECIFIED_STATE == purchase?.purchaseState
 
 }

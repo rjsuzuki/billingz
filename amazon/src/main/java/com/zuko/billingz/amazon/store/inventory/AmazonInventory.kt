@@ -4,66 +4,66 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.amazon.device.iap.PurchasingService
-import com.zuko.billingz.lib.LogUtil
-import com.zuko.billingz.lib.store.inventory.Inventory
-import com.zuko.billingz.lib.store.model.Product
+import com.zuko.billingz.core.LogUtilz
+import com.zuko.billingz.core.store.inventory.Inventoryz
+import com.zuko.billingz.core.store.model.Productz
 
-class AmazonInventory: Inventory {
+class AmazonInventory: Inventoryz {
     override var consumableSkus: MutableList<String> = mutableListOf()
     override var nonConsumableSkus: MutableList<String> = mutableListOf()
     override var subscriptionSkus: MutableList<String> = mutableListOf()
 
-    override var allProducts: Map<String, Product> = HashMap()
-    override var consumables: Map<String, Product> = HashMap()
-    override var nonConsumables: Map<String, Product> = HashMap()
-    override var subscriptions: Map<String, Product> = HashMap()
-    override var requestedProducts: MutableLiveData<Map<String, Product>> = MutableLiveData()
+    override var allProducts: Map<String, Productz> = HashMap()
+    override var consumables: Map<String, Productz> = HashMap()
+    override var nonConsumables: Map<String, Productz> = HashMap()
+    override var subscriptions: Map<String, Productz> = HashMap()
+    override var requestedProducts: MutableLiveData<Map<String, Productz>> = MutableLiveData()
 
-    override fun queryInventory(skuList: List<String>, productType: Product.Type) {
+    override fun queryInventory(skuList: List<String>, productType: Productz.Type) {
         // Call this method to retrieve item data for a set of SKUs to display in your app.
         // Call getProductData in the OnResume method.
         val productDataRequestId = PurchasingService.getProductData(skuList.toSet()) // inventory
         Log.v(TAG, "get product data request: $productDataRequestId")
     }
 
-    override fun updateInventory(products: List<Product>?, productType: Product.Type) {
+    override fun updateInventory(products: List<Productz>?, productType: Productz.Type) {
         Log.d(TAG, "updateInventory : ${products?.size ?: 0}")
         if (!products.isNullOrEmpty()) {
             allProducts = allProducts + products.associateBy { it.sku.toString() }
 
             when (productType) {
-                Product.Type.CONSUMABLE -> {
+                Productz.Type.CONSUMABLE -> {
                     consumables = consumables + products.associateBy { it.sku.toString() }
                     requestedProducts.postValue(consumables)
                 }
-                Product.Type.NON_CONSUMABLE -> {
+                Productz.Type.NON_CONSUMABLE -> {
                     nonConsumables = nonConsumables + products.associateBy { it.sku.toString() }
                     requestedProducts.postValue(nonConsumables)
                 }
-                Product.Type.SUBSCRIPTION -> {
+                Productz.Type.SUBSCRIPTION -> {
                     subscriptions = subscriptions + products.associateBy { it.sku.toString() }
                     requestedProducts.postValue(subscriptions)
                 }
-                else -> LogUtil.log.w(TAG, "Unhandled product type: $productType")
+                else -> LogUtilz.log.w(TAG, "Unhandled product type: $productType")
             }
         }
     }
 
     override fun getAvailableProducts(
         skuList: MutableList<String>,
-        productType: Product.Type?
-    ): LiveData<Map<String, Product>> {
+        productType: Productz.Type?
+    ): LiveData<Map<String, Productz>> {
 
         when(productType) {
-            Product.Type.CONSUMABLE -> {
+            Productz.Type.CONSUMABLE -> {
                 //consumables = consumables + products.associateBy { it.sku.toString() }
                 requestedProducts.postValue(consumables)
             }
-            Product.Type.NON_CONSUMABLE -> {
+            Productz.Type.NON_CONSUMABLE -> {
                 //nonConsumables = nonConsumables + products.associateBy { it.sku.toString() }
                 requestedProducts.postValue(nonConsumables)
             }
-            Product.Type.SUBSCRIPTION -> {
+            Productz.Type.SUBSCRIPTION -> {
                 //subscriptions = subscriptions + products.associateBy { it.sku.toString() }
                 requestedProducts.postValue(subscriptions)
             }
@@ -71,16 +71,16 @@ class AmazonInventory: Inventory {
         return requestedProducts
     }
 
-    override fun getProduct(sku: String): Product? {
+    override fun getProduct(sku: String): Productz? {
         return allProducts[sku]
     }
 
-    override fun getProducts(type: Product.Type?, promo: Product.Promotion?): List<Product> {
+    override fun getProducts(type: Productz.Type?, promo: Productz.Promotion?): List<Productz> {
         when (type) {
-            Product.Type.CONSUMABLE -> {
+            Productz.Type.CONSUMABLE -> {
                 if(promo != null) {
                     consumables.values.iterator().forEach { product ->
-                        val promos = mutableListOf<Product>()
+                        val promos = mutableListOf<Productz>()
                         if(product.promotion == promo) {
                             promos.add(product)
                         }
@@ -89,10 +89,10 @@ class AmazonInventory: Inventory {
                 }
                 return consumables.values.toList()
             }
-            Product.Type.NON_CONSUMABLE -> {
+            Productz.Type.NON_CONSUMABLE -> {
                 if(promo != null) {
                     nonConsumables.values.iterator().forEach { product ->
-                        val promos = mutableListOf<Product>()
+                        val promos = mutableListOf<Productz>()
                         if(product.promotion == promo) {
                             promos.add(product)
                         }
@@ -101,10 +101,10 @@ class AmazonInventory: Inventory {
                 }
                 return nonConsumables.values.toList()
             }
-            Product.Type.SUBSCRIPTION -> {
+            Productz.Type.SUBSCRIPTION -> {
                 if(promo != null) {
                     subscriptions.values.iterator().forEach { product ->
-                        val promos = mutableListOf<Product>()
+                        val promos = mutableListOf<Productz>()
                         if(product.promotion == promo) {
                             promos.add(product)
                         }
@@ -118,7 +118,7 @@ class AmazonInventory: Inventory {
     }
 
     override fun destroy() {
-        LogUtil.log.v(TAG, "destroy")
+        LogUtilz.log.v(TAG, "destroy")
     }
 
     companion object {
