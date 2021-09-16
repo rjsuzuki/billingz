@@ -1,22 +1,22 @@
 # Billingz
 
-A simple/convenience library for implementing Android's Billing Library.
+A simple/convenience library for implementing Android's Billing Library. [![build_and_publish](https://github.com/rjsuzuki/billingz/actions/workflows/release-package.yml/badge.svg)](https://github.com/rjsuzuki/billingz/actions/workflows/release-package.yml)
 
-Currently supports up to : `com.android.billingclient:billing-ktx:3.0.2`
+Currently supports up to: 
+   - `google billing: 3.0.2`
+   - `amazon in-app: 2.0.76`
+## Version History
 
-### Version History
 `v1.0.0`
 
-## Architecture
+## Documentation
 
 [Click here to view full documentation](https://rjsuzuki.github.io/billingz-dokka/)
 
-Android Billing Lib --> Manager --> Agent 
-
 ## How to add module to your project
 
- 1. Clone or download project
- 2. Open Android Studio > open project you want to install the library into.
+1. Clone or download project
+2. Open Android Studio > open project you want to install the library into.
 
 Next, choose one of the available methods:
 
@@ -63,29 +63,55 @@ override fun onCreate(savedInstanceState: Bundle?) {
 
 ## Permissions
 
-- android.permission.ACCESS_NETWORK_STATE
+Declared permissions in the AndroidManifest file.
 
+- com.android.vending.BILLING
+- android.permission.ACCESS_NETWORK_STATE
 
 ## Changelog
 
-[Keep a changelog](https://keepachangelog.com/en/1.0.0/)
+- [Keep a changelog](https://keepachangelog.com/en/1.0.0/)
 
-### Bug Reporting
+## Bug Reporting
 
 - Create an Issue through the repository's github Issues page.
 
-## Linting
+## Linting & Style Guide
+
+- [Spotless Linting](https://github.com/diffplug/spotless)
+
+To run Spotless's gradle tasks, navigate to the root directory of the project first:
+  (Note: the syntax may be slightly different depending on your environment)
+
+1. To run/validate the project: `./gradlew spotlessCheck`
+2. To automatically apply all non-error linting: `./gradlew spotlessApply`
+
+This project defers to many of the default configurations of Spotless for linting and styling, but also adheres to Google's Android coding standards as well.
+- [Google's Android Kotlin Style Guide](https://developer.android.com/kotlin/style-guide)
+
+## KDoc Annotations 
+
+kdoc annotations are very similar to javadoc annotations.
+
+- `@param name` Documents a value parameter of a function or a type parameter of a class, property or function. Two acceptable syntaxes are: `@param name description` or `@param[name] description`
+- `@return` provides a description of what a method will or can return
+- `@constructor` primary constructor of a class
+- `@receiver` the receiver of an extension function
+- `@property name` Documents the property of a class which has the specified name. This tag can be used for documenting properties declared in the primary constructor, where putting a doc comment directly before the property definition would be awkward.
+- `@throws class, @exception class` Documents an exception which can be thrown by a method. Since Kotlin does not have checked exceptions, there is also no expectation that all possible exceptions are documented, but you can still use this tag when it provides useful information for users of the class.
+- `@sample identifier` Embeds the body of the function with the specified qualified name into the documentation for the current element, in order to show an example of how the element could be used.
+- `@see identifier` will generate a link similar to the {@link} tag, but more in the context of a reference and not inline
+- `@author` author of the relevant document
+- `@since` specifies which version the class, field, or method was added to the project
+- `@Deprecated` gives an explanation of why code was deprecated, when it may have been deprecated, and what the alternatives are
+- `@suppress` Excludes the element from the generated documentation. Can be used for elements which are not part of the official API of a module but still have to be visible externally.
 
 - [dokka](https://github.com/Kotlin/dokka/blob/master/README.md)
 - [kdoc syntax](https://kotlinlang.org/docs/kotlin-doc.html#block-tags)
-- `./gradlew dokkaHtml`
 
-### Common kdoc annotations
-`@param name description`
-`@Deprecated` not `@deprecated`
-`Use the method [foo] for this purpose.`
+To manually generate a new version of the library's documentation, simply navigate to the root directory of the project and run: `./gradlew dokkaHtml`
 
-### References
+## References
 
 - [security](https://developer.android.com/google/play/billing/security)
 A special case of sensitive data and logic that should be handled in the backend is purchase verification. After a user has made a purchase, you should do the following:
@@ -118,26 +144,10 @@ On hold: User experienced a payment issue, and no longer has access while Google
 Paused: User paused their access, and does not have access until they resume.
 Expired: User has cancelled and lost access to the subscription. The user is considered churned at expiration.
 
-### Licensing
+## Licensing
 
-MIT License
+Apache License 2.0
+The complete license can be found in the `LICENSE.md` file in the root directory of this project.
 
-Copyright (c) [2021] [ryanjsuzuki.com]
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+Copyright (c) 2021 rjsuzuki
+ 

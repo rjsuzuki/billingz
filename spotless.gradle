@@ -1,0 +1,40 @@
+apply plugin: "com.diffplug.spotless"
+
+/**
+ * Reference
+ * @link https://medium.com/@int_32/android-project-code-style-using-spotless-and-ktlint-5422fd90976c
+ */
+spotless { // Linter for project
+
+    java {
+        //target '**/*.java' indicates that rules should be applied to all files with the .java extension in all directories.
+        target '**/*.java'
+        googleJavaFormat().aosp()
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        indentWithSpaces()
+        endWithNewline()
+    }
+
+    kotlin {
+        target '**/*.kt'
+        ktlint("0.37.2")
+        trimTrailingWhitespace()
+        indentWithSpaces()
+        endWithNewline()
+    }
+
+    format 'misc', {
+        target '**/*.gradle', '**/*.md', '**/.gitignore'
+        indentWithSpaces()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+
+    format 'xml', {
+        target '**/*.xml'
+        indentWithSpaces()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+}

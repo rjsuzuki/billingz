@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Billingz</string>
+    <string name="confirm_deletion">Confirm deletion?</string>
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
+</resources>

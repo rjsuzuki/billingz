@@ -1,2 +1,4 @@
-include ':app'
+include ':core'
 rootProject.name = "Billingz"
+include ':amazon'
+include ':google'

@@ -7,12 +7,13 @@
         <option name="testRunner" value="GRADLE" />
         <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="gradleHome" value="/usr/local/Cellar/gradle/5.4.1/libexec" />
-        <option name="gradleJvm" value="1.8" />
+        <option name="gradleHome" value="$USER_HOME$/Android/gradle/opt/gradle/gradle-6.4.1" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/amazon" />
+            <option value="$PROJECT_DIR$/core" />
+            <option value="$PROJECT_DIR$/google" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
