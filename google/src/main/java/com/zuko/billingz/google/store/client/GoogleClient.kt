@@ -60,7 +60,7 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
                     .enablePendingPurchases() // switch
                     .build()
                 isInitialized = true
-            }
+            } ?: LogUtilz.log.w(TAG, "Failed to build client: null context")
         } catch (e: Exception) {
             isClientReady.value = false
             LogUtilz.log.wtf(TAG, "Failed to instantiate Android BillingClient. ${e.localizedMessage}")

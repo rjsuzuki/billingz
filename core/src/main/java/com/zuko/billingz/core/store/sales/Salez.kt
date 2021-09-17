@@ -1,6 +1,7 @@
 package com.zuko.billingz.core.store.sales
 
 import android.app.Activity
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.zuko.billingz.core.misc.CleanUpz
 import com.zuko.billingz.core.store.client.Clientz
@@ -44,12 +45,14 @@ interface Salez : CleanUpz {
     fun validateOrder(order: Orderz)
 
     /**
-     *
+     *  Verify the order(purchase).
      */
     fun processOrder(order: Orderz)
 
     /**
-     *
+     * Give content to the user.
+     * Acknowledge delivery of content. Optionally, mark the item as consumed
+     * so that the user can buy the item again.
      */
     fun completeOrder(order: Orderz)
 
@@ -71,7 +74,7 @@ interface Salez : CleanUpz {
     /**
      *
      */
-    fun queryOrders()
+    fun queryOrders(): LiveData<Orderz>
 
     /**
      *

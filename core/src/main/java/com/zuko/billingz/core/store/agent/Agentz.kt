@@ -45,7 +45,7 @@ interface Agentz {
      * @return [LiveData<Order>]
      * @param activity - the currently active android Activity class
      * @param productId - the product id that can be found on the GooglePlayConsole
-     * @param listener - @see [Sales2.OrderValidatorListener] a callback function to enable customized
+     * @param listener - @see [Salez.OrderValidatorListener] a callback function to enable customized
      * validation of a customer's purchase order - this allows you to do such things as verifying
      * a purchase with your backend before completing the purchase flow.
      */
@@ -71,7 +71,7 @@ interface Agentz {
      * @see [Salez.OrderValidatorListener]
      * @see [Salez.OrderUpdaterListener]
      */
-    fun queryOrders()
+    fun queryOrders(): LiveData<Orderz>
 
     /**
      * Queries database for matching product ids and loads them into the inventory.

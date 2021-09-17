@@ -48,7 +48,6 @@ interface Clientz : CleanUpz {
      * Initialize the Android Billing Library
      * INTERNAL USE ONLY
      * @param context
-     * @param orderUpdatedListener
      * @param connectionListener
      */
     @UiThread

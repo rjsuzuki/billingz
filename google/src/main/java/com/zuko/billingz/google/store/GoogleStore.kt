@@ -41,10 +41,8 @@ import kotlinx.coroutines.cancel
 
 /**
  * @author rjsuzuki
- * //TODO handle pending purchases?
- * //TODO retry connection
  */
-class GoogleStore: Storez {
+class GoogleStore private constructor(): Storez {
 
     private val mainScope = MainScope()
     private val purchasesUpdatedListener: PurchasesUpdatedListener =
@@ -58,14 +56,8 @@ class GoogleStore: Storez {
     private val client: Clientz = GoogleClient(purchasesUpdatedListener)
     private val inventory: Inventoryz = GoogleInventory(client as GoogleClient)
     private val sales: Salez = GoogleSales(inventory as GoogleInventory, client as GoogleClient)
-
     private var isInitialized = false
 
-
-    /*****************************************************************************************************
-     * Lifecycle events - developer must either add this class to a lifecycleOwner or manually add the events
-     * to their respective parent view
-     *****************************************************************************************************/
     init {
         LogUtilz.log.v(TAG, "instantiating...")
     }
@@ -82,7 +74,7 @@ class GoogleStore: Storez {
             client.connect()
 
         if(client.isReady())
-            sales.refreshQueries() // might need to react to connection
+            sales.refreshQueries()
     }
 
     override fun start() {
@@ -113,13 +105,10 @@ class GoogleStore: Storez {
         mainScope.cancel()
     }
 
-    /*****************************************************************************************************
-     * Private methods
-     *****************************************************************************************************/
-
     private val storeAgent = object : Agentz {
 
         override fun isBillingClientReady(): LiveData<Boolean> {
+            LogUtilz.log.v(TAG, "isBillingClientReady")
             return client.isClientReady
         }
 
@@ -128,7 +117,7 @@ class GoogleStore: Storez {
             productId: String?,
             listener: Salez.OrderValidatorListener?
         ): LiveData<Orderz> {
-            LogUtilz.log.v(TAG, "Starting purchase flow")
+            LogUtilz.log.v(TAG, "Starting order: $productId")
 
             sales.orderValidatorListener = listener
 
@@ -151,43 +140,75 @@ class GoogleStore: Storez {
             return data
         }
 
-        override fun queryOrders() {
-            sales.queryOrders()
+        override fun queryOrders(): LiveData<Orderz> {
+            LogUtilz.log.v(TAG, "queryOrders")
+            return sales.queryOrders()
         }
 
         override fun getReceipts(type: Productz.Type?): LiveData<List<Receiptz>> {
+            LogUtilz.log.v(TAG, "getReceipts: $type")
             if(client is GoogleClient) {
-                val skuType = if(type == Productz.Type.SUBSCRIPTION) BillingClient.SkuType.SUBS else BillingClient.SkuType.INAPP
-                //todo client.getBillingClient()?.queryPurchaseHistoryAsync(skuType, sales)
+
                 sales.queryReceipts(type)
             }
             return sales.orderHistory
         }
 
         override fun updateInventory(skuList: List<String>, type: Productz.Type) {
-            inventory.queryInventory(skuList = skuList, type)
+            LogUtilz.log.v(TAG, "updateInventory: ${skuList.size} : $type")
+            inventory.queryInventory(skuList = skuList, productType = type)
         }
 
         override fun getProducts(type: Productz.Type?, promo: Productz.Promotion?): List<Productz> {
-            return inventory.getProducts(type, promo)
+            LogUtilz.log.v(TAG, "getProducts: $type : $promo")
+            return inventory.getProducts(type = type, promo = promo)
         }
 
         override fun getProduct(sku: String): Productz? {
-            return inventory.getProduct(sku)
+            LogUtilz.log.v(TAG, "getProduct: $sku")
+            return inventory.getProduct(sku = sku)
         }
     }
 
-    /*****************************************************************************************************
-     * Public Methods - Facade Pattern
-     *****************************************************************************************************/
-
-    /**
-     * Returns the primary class for developers to conveniently
-     * interact with Android's Billing Library (Facade pattern).
-     * @return [Agentz]
-     */
     override fun getAgent(): Agentz {
         return storeAgent
+    }
+
+    /**
+     * Builder Pattern - create an instance of GoogleStore
+     */
+    class Builder(var context: Context?) {
+        private lateinit var instance: GoogleStore
+        private lateinit var updaterListener: Salez.OrderUpdaterListener
+        private lateinit var validatorListener: Salez.OrderValidatorListener
+
+        /**
+         * @param listener - Required to be set for proper functionality
+         */
+        fun setOrderUpdater(listener: Salez.OrderUpdaterListener): Builder {
+            updaterListener = listener
+            return this
+        }
+
+        /**
+         * @param listener - Required to be set for proper functionality
+         */
+        fun setOrderValidator(listener: Salez.OrderValidatorListener): Builder {
+            validatorListener = listener
+            return this
+        }
+
+        fun build(): GoogleStore {
+            if(!::instance.isInitialized) {
+                instance = GoogleStore()
+            }
+            instance.sales.apply {
+                orderUpdaterListener = updaterListener
+                orderValidatorListener = validatorListener
+            }
+            instance.init(context = context)
+            return instance
+        }
     }
 
     companion object {

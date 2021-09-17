@@ -2,6 +2,7 @@ package com.zuko.billingz.amazon.store.sales
 
 import android.app.Activity
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.amazon.device.iap.PurchasingService
 import com.amazon.device.iap.model.FulfillmentResult
@@ -23,6 +24,7 @@ class AmazonSales: Salez {
     private val mainScope = MainScope()
 
     override var currentReceipt = MutableLiveData<Receiptz>()
+    private var queriedOrder = MutableLiveData<Orderz>()
 
     override var orderHistory: MutableLiveData<List<Receiptz>> = MutableLiveData()
     override var orderUpdaterListener: Salez.OrderUpdaterListener? = null
@@ -114,7 +116,7 @@ class AmazonSales: Salez {
         Log.d(TAG, "Refresh receipts: $purchaseUpdatesRequestId")
     }
 
-    override fun queryOrders() {
+    override fun queryOrders(): LiveData<Orderz> {
         val purchaseUpdatesRequestId = PurchasingService.getPurchaseUpdates(true)
         Log.d(TAG, "Refresh receipts: $purchaseUpdatesRequestId")
         //todo - if order is pending still
@@ -126,7 +128,8 @@ class AmazonSales: Salez {
         // retrieves only unfulfilled and cancelled consumable purchases. Amazon recommends that you
         // persist the returned PurchaseUpdatesResponse data and query the system only for updates.
         // The response is paginated.
-         Log.d(TAG, "Query receipts: $purchaseUpdatesRequestId")
+        Log.d(TAG, "Query receipts: $purchaseUpdatesRequestId")
+        return queriedOrder
     }
 
     override fun queryReceipts(type: Productz.Type?) {

@@ -18,10 +18,9 @@ import com.zuko.billingz.core.store.sales.Salez
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 
-class AmazonStore: Storez {
+class AmazonStore private constructor(): Storez {
 
     private val mainScope = MainScope()
-
     private val inventory = AmazonInventory()
     private val sales = AmazonSales()
     private val client = AmazonClient(inventory, sales)
@@ -82,6 +81,7 @@ class AmazonStore: Storez {
     private val agent = object: Agentz {
 
         override fun isBillingClientReady(): LiveData<Boolean> {
+            LogUtilz.log.v(TAG, "isBillingClientReady")
             return client.isClientReady
         }
 
@@ -90,7 +90,7 @@ class AmazonStore: Storez {
             productId: String?,
             listener: Salez.OrderValidatorListener?
         ): LiveData<Orderz> {
-
+            LogUtilz.log.v(TAG, "Starting order: $productId")
             val data = MutableLiveData<Orderz>()
             val product = inventory.allProducts[productId]
             product?.let {
@@ -99,19 +99,23 @@ class AmazonStore: Storez {
             return data
         }
 
+        override fun queryOrders(): LiveData<Orderz> {
+            LogUtilz.log.v(TAG, "queryOrders")
+            return sales.queryOrders()
+        }
+
         override fun getReceipts(type: Productz.Type?): LiveData<List<Receiptz>> {
+            LogUtilz.log.v(TAG, "getReceipts: $type")
             return sales.orderHistory
         }
 
-        override fun queryOrders() {
-            sales.queryOrders()
-        }
-
         override fun updateInventory(skuList: List<String>, type: Productz.Type) {
+            LogUtilz.log.v(TAG, "updateInventory: ${skuList.size} : $type")
             inventory.queryInventory(skuList, type)
         }
 
         override fun getProducts(type: Productz.Type?, promo: Productz.Promotion?): List<Productz> {
+            LogUtilz.log.v(TAG, "getProducts: $type : $promo")
             return inventory.getProducts(
                 type = type,
                 promo = promo
@@ -119,12 +123,50 @@ class AmazonStore: Storez {
         }
 
         override fun getProduct(sku: String): Productz? {
-            return inventory.getProduct(sku)
+            LogUtilz.log.v(TAG, "getProduct: $sku")
+            return inventory.getProduct(sku = sku)
         }
     }
 
     override fun getAgent(): Agentz {
         return agent
+    }
+
+    /**
+     * Builder Pattern - create an instance of AmazonStore
+     */
+    class Builder(var context: Context?) {
+        private lateinit var instance: AmazonStore
+        private lateinit var updaterListener: Salez.OrderUpdaterListener
+        private lateinit var validatorListener: Salez.OrderValidatorListener
+
+        /**
+         * @param listener - Required to be set for proper functionality
+         */
+        fun setOrderUpdater(listener: Salez.OrderUpdaterListener): Builder {
+            updaterListener = listener
+            return this
+        }
+
+        /**
+         * @param listener - Required to be set for proper functionality
+         */
+        fun setOrderValidator(listener: Salez.OrderValidatorListener): Builder {
+            validatorListener = listener
+            return this
+        }
+
+        fun build(): AmazonStore {
+            if(!::instance.isInitialized) {
+                instance = AmazonStore()
+            }
+            instance.sales.apply {
+                orderUpdaterListener = updaterListener
+                orderValidatorListener = validatorListener
+            }
+            instance.init(context = context)
+            return instance
+        }
     }
 
     companion object {
