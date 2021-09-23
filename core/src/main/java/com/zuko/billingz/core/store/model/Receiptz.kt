@@ -5,36 +5,27 @@ import java.util.Date
 interface Receiptz {
 
     /**
-     * Unique id for receipt.
-     * IF amazon - the receiptId is the same is this var
-     *
-     */
-    var receiptId: String?
-
-    /**
      * Unique id of the order
      */
     var orderId: String?
 
     /**
-     * unique id of the user as identified by the relevant billing service.
+     * Unique id of the user as identified by the relevant billing service.
+     * Amazon only has a userData object, but Google will either provide an accountId
+     * and/or profileId
      */
     var userId: String?
 
     /**
      * Product id
      */
-    var sku: String?
+    var skus: List<String>?
 
-    /**
-     * @see [Productz.Type]
-     */
-    var productType: Productz.Type
 
     /**
      * Date of purchase
      */
-    var purchaseDate: Date?
+    var orderDate: Date?
 
     /**
      * Date of cancellation,
@@ -47,6 +38,6 @@ interface Receiptz {
      */
     var isCanceled: Boolean
 
-    // todo remove
+    @Deprecated("todo remove")
     var order: Orderz?
 }

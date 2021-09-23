@@ -6,7 +6,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.amazon.device.iap.PurchasingService
 import com.amazon.device.iap.model.FulfillmentResult
+import com.amazon.device.iap.model.Product
 import com.amazon.device.iap.model.PurchaseResponse
+import com.amazon.device.iap.model.Receipt
 import com.zuko.billingz.amazon.store.model.AmazonOrder
 import com.zuko.billingz.amazon.store.model.AmazonReceipt
 import com.zuko.billingz.core.LogUtilz
@@ -36,7 +38,7 @@ class AmazonSales: Salez {
             processOrder(order)
         }
 
-        override fun invalidate(order: Orderz) {
+        override fun invalidated(order: Orderz) {
             Log.d(TAG, "onFailure")
             cancelOrder(order)
         }
@@ -134,6 +136,11 @@ class AmazonSales: Salez {
 
     override fun queryReceipts(type: Productz.Type?) {
         val purchaseUpdatesRequestId = PurchasingService.getPurchaseUpdates(true) // sales
+        //todo - user requestID to check
+    }
+
+    override fun setObfuscatedIdentifiers(accountId: String?, profileId: String?) {
+        TODO("Not yet implemented")
     }
 
     private fun completeConsumable(response: PurchaseResponse) {

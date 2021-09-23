@@ -42,7 +42,7 @@ class ProductDiffCallbackz(private val oldList: MutableList<Productz>, private v
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
         return oldList[oldItemPosition].description == newList[newItemPosition].description &&
             // oldList[oldItemPosition].details == newList[newItemPosition].details &&
-            oldList[oldItemPosition].name == newList[newItemPosition].name &&
+            oldList[oldItemPosition].title == newList[newItemPosition].title &&
             oldList[oldItemPosition].price == newList[newItemPosition].price &&
             oldList[oldItemPosition].sku == newList[newItemPosition].sku &&
             // oldList[oldItemPosition].skuType == newList[newItemPosition].skuType &&

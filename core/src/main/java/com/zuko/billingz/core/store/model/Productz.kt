@@ -16,6 +16,9 @@
  */
 package com.zuko.billingz.core.store.model
 
+import java.util.Currency
+
+
 /**
  * @author rjsuzuki
  *
@@ -27,35 +30,30 @@ package com.zuko.billingz.core.store.model
 interface Productz {
 
     /**
-     * A convenience variable for database management.
-     * You may need to override each class to provide annotations for Room
-     */
-    var id: Int?
-
-    /**
      * The sku product id that is referenced by your account
      */
-    var sku: String?
+    val sku: String?
 
     /**
      * A convenience variable to provide the name/title of your product
      */
-    var name: String?
+    val title: String?
 
     /**
      * A convenience variable to provide the price of your product as a String
+     * in the local currency
      */
-    var price: String?
+    val price: String?
 
     /**
      * A convenience variable to provide a description of your product
      */
-    var description: String?
+    val description: String?
 
     /**
      * The remote path of the products image
      */
-    var iconUrl: String?
+    val iconUrl: String?
 
     /**
      * The product type can be one of the following:
@@ -70,6 +68,12 @@ interface Productz {
      * NONE is the default.
      */
     val promotion: Promotion
+
+    /**
+     * @return - [Currency] object to represent the ISO 4217 currency code
+     * for price and original price
+     */
+    fun getCurrency(): Currency
 
     enum class Type {
         UNKNOWN,

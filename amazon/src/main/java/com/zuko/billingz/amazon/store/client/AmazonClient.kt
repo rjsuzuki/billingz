@@ -14,6 +14,7 @@ import com.amazon.device.iap.model.UserDataResponse
 import com.zuko.billingz.amazon.store.model.AmazonProduct
 import com.zuko.billingz.amazon.store.model.AmazonOrder
 import com.zuko.billingz.amazon.store.model.AmazonReceipt
+import com.zuko.billingz.core.LogUtilz
 import com.zuko.billingz.core.store.client.Clientz
 import com.zuko.billingz.core.store.inventory.Inventoryz
 import com.zuko.billingz.core.store.model.Productz
@@ -38,7 +39,7 @@ class AmazonClient(val inventory: Inventoryz, val sales: Salez): Clientz {
 
     override fun init(context: Context?, connectionListener: Clientz.ConnectionListener) {
 
-        Log.v(TAG, "initClient")
+        LogUtilz.log.v(TAG, "initClient")
         PurchasingService.registerListener(context, object: PurchasingListener {
 
             override fun onUserDataResponse(response: UserDataResponse?) {
@@ -46,17 +47,17 @@ class AmazonClient(val inventory: Inventoryz, val sales: Salez): Clientz {
                 // Determines the UserId and marketplace of the currently logged on user.
                 when(response?.requestStatus) {
                     UserDataResponse.RequestStatus.SUCCESSFUL -> {
-                        Log.d(TAG, "Successful user data request: ${response.requestId}")
+                        LogUtilz.log.d(TAG, "Successful user data request: ${response.requestId}")
                         userDataResponse = response
                         isConnected = true
                     }
                     UserDataResponse.RequestStatus.FAILED -> {
-                        Log.e(TAG, "Failed user data request: ${response.requestId}")
+                        LogUtilz.log.e(TAG, "Failed user data request: ${response.requestId}")
                         isConnected = false
                     }
                     UserDataResponse.RequestStatus.NOT_SUPPORTED -> {
                         isConnected = false
-                        Log.wtf(TAG, "Unsupported user data request: ${response.requestId}")
+                        LogUtilz.log.wtf(TAG, "Unsupported user data request: ${response.requestId}")
                     }
                 }
             }
@@ -67,25 +68,25 @@ class AmazonClient(val inventory: Inventoryz, val sales: Salez): Clientz {
                 // Use the valid SKUs in onPurchaseResponse().
                 when(response?.requestStatus) {
                     ProductDataResponse.RequestStatus.SUCCESSFUL -> {
-                        Log.d(TAG, "Successful product data request: ${response.requestId}")
+                        LogUtilz.log.d(TAG, "Successful product data request: ${response.requestId}")
 
                         // convert
                         val products = ArrayMap<String, Productz>()
                         for(r in response.productData) {
                             val product = AmazonProduct(r.value)
                             products[r.key] = product
-                            Log.v(TAG, "Validated product: $product")
+                            LogUtilz.log.v(TAG, "Validated product: $product")
                         }
-                        inventory.allProducts = products
+                        //todo inventory.allProducts = products
 
                         // cache
                         val unavailableSkusSet = response.unavailableSkus // todo
                     }
                     ProductDataResponse.RequestStatus.FAILED -> {
-                        Log.e(TAG, "Failed product data request: ${response.requestId}")
+                        LogUtilz.log.e(TAG, "Failed product data request: ${response.requestId}")
                     }
                     ProductDataResponse.RequestStatus.NOT_SUPPORTED -> {
-                        Log.wtf(TAG, "Unsupported product data request: ${response.requestId}")
+                        LogUtilz.log.wtf(TAG, "Unsupported product data request: ${response.requestId}")
                     }
                 }
             }
@@ -95,28 +96,28 @@ class AmazonClient(val inventory: Inventoryz, val sales: Salez): Clientz {
                 // Used to determine the status of a purchase.
                 when(response?.requestStatus) {
                     PurchaseResponse.RequestStatus.SUCCESSFUL -> {
-                        Log.d(TAG, "Successful purchase request: ${response.requestId}")
+                        LogUtilz.log.d(TAG, "Successful purchase request: ${response.requestId}")
                         // convert to order
                         val order = AmazonOrder(response)
                         sales.validateOrder(order)
                     }
                     PurchaseResponse.RequestStatus.FAILED -> {
-                        Log.e(TAG, "Failed purchase request: ${response.requestId}")
+                        LogUtilz.log.e(TAG, "Failed purchase request: ${response.requestId}")
                         val order = AmazonOrder(response)
                         sales.failedOrder(order)
                     }
                     PurchaseResponse.RequestStatus.ALREADY_PURCHASED -> {
-                        Log.w(TAG, "Already purchased product for purchase request: ${response.requestId}")
+                        LogUtilz.log.w(TAG, "Already purchased product for purchase request: ${response.requestId}")
                         val order = AmazonOrder(response)
                         sales.failedOrder(order)
                     }
                     PurchaseResponse.RequestStatus.INVALID_SKU -> {
-                        Log.w(TAG, "Invalid sku id for purchase request: ${response.requestId}")
+                        LogUtilz.log.w(TAG, "Invalid sku id for purchase request: ${response.requestId}")
                         val order = AmazonOrder(response)
                         sales.failedOrder(order)
                     }
                     PurchaseResponse.RequestStatus.NOT_SUPPORTED -> {
-                        Log.wtf(TAG, "Unsupported purchase request: ${response.requestId}")
+                        LogUtilz.log.wtf(TAG, "Unsupported purchase request: ${response.requestId}")
                         val order = AmazonOrder(response)
                         sales.failedOrder(order)
                     }
@@ -130,7 +131,7 @@ class AmazonClient(val inventory: Inventoryz, val sales: Salez): Clientz {
                 // data and query the system only for updates.
                 when(response?.requestStatus) {
                     PurchaseUpdatesResponse.RequestStatus.SUCCESSFUL -> {
-                        Log.d(TAG, "Successful purchase updates request: ${response.requestId}")
+                        LogUtilz.log.d(TAG, "Successful purchase updates request: ${response.requestId}")
 
                         // convert receipts
                         val list = mutableListOf<Receiptz>()
@@ -143,10 +144,10 @@ class AmazonClient(val inventory: Inventoryz, val sales: Salez): Clientz {
                         sales.orderHistory.value = list
                     }
                     PurchaseUpdatesResponse.RequestStatus.FAILED -> {
-                        Log.e(TAG, "Failed purchase updates request: ${response.requestId}")
+                        LogUtilz.log.e(TAG, "Failed purchase updates request: ${response.requestId}")
                     }
                     PurchaseUpdatesResponse.RequestStatus.NOT_SUPPORTED -> {
-                        Log.wtf(TAG, "Unsupported purchase update request: ${response.requestId}")
+                        LogUtilz.log.wtf(TAG, "Unsupported purchase update request: ${response.requestId}")
                     }
                 }
             }
@@ -155,25 +156,25 @@ class AmazonClient(val inventory: Inventoryz, val sales: Salez): Clientz {
     }
 
     override fun connect() {
-        Log.v(TAG, "connect")
+        LogUtilz.log.v(TAG, "connect")
         // Call this method to retrieve the app-specific ID and marketplace for the user who is
         // currently logged on. For example, if a user switched accounts or if multiple users
         // accessed your app on the same device, this call will help you make sure that the receipts
         // that you retrieve are for the current user account.
         val userRequestId = PurchasingService.getUserData() // client
-        Log.d(TAG, "Requesting user data: $userRequestId")
+        LogUtilz.log.d(TAG, "Requesting user data: $userRequestId")
     }
 
     override fun disconnect() {
-        Log.v(TAG, "disconnect")
+        LogUtilz.log.v(TAG, "disconnect")
     }
 
     override fun checkConnection() {
-        Log.v(TAG, "checkConnection")
+        LogUtilz.log.v(TAG, "checkConnection")
     }
 
     override fun destroy() {
-        Log.v(TAG, "destroy")
+        LogUtilz.log.v(TAG, "destroy")
     }
 
     companion object {

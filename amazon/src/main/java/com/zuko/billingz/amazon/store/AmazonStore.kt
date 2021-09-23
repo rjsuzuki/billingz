@@ -4,8 +4,12 @@ import android.app.Activity
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.amazon.device.iap.PurchasingService
+import com.amazon.device.iap.model.PurchaseResponse
+import com.amazon.device.iap.model.Receipt
 import com.zuko.billingz.amazon.store.client.AmazonClient
 import com.zuko.billingz.amazon.store.inventory.AmazonInventory
+import com.zuko.billingz.amazon.store.model.AmazonProduct
 import com.zuko.billingz.amazon.store.sales.AmazonSales
 import com.zuko.billingz.core.LogUtilz
 import com.zuko.billingz.core.store.Storez
@@ -92,11 +96,21 @@ class AmazonStore private constructor(): Storez {
         ): LiveData<Orderz> {
             LogUtilz.log.v(TAG, "Starting order: $productId")
             val data = MutableLiveData<Orderz>()
-            val product = inventory.allProducts[productId]
+            val product = inventory.getProduct(productId)
             product?.let {
                 sales.startOrder(activity, product, client)
             }
             return data
+        }
+
+        override fun consume(product: Productz) {
+            LogUtilz.log.v(TAG, "consume: $product")
+            if(product is AmazonProduct) {
+                // todo
+                //product.amazonProduct
+                //PurchasingService.getPurchaseUpdates()
+                //PurchasingService.notifyFulfillment(product.amazonProduct)
+            }
         }
 
         override fun queryOrders(): LiveData<Orderz> {
@@ -109,12 +123,13 @@ class AmazonStore private constructor(): Storez {
             return sales.orderHistory
         }
 
-        override fun updateInventory(skuList: List<String>, type: Productz.Type) {
-            LogUtilz.log.v(TAG, "updateInventory: ${skuList.size} : $type")
-            inventory.queryInventory(skuList, type)
+        override fun updateInventory(products: Map<String, Productz.Type>) {
+            LogUtilz.log.v(TAG, "updateInventory: ${products.size}")
+            inventory.queryInventory(products = products)
         }
 
-        override fun getProducts(type: Productz.Type?, promo: Productz.Promotion?): List<Productz> {
+        override fun getProducts(type: Productz.Type?,
+                                 promo: Productz.Promotion?): Map<String, Productz> {
             LogUtilz.log.v(TAG, "getProducts: $type : $promo")
             return inventory.getProducts(
                 type = type,
@@ -122,7 +137,7 @@ class AmazonStore private constructor(): Storez {
             )
         }
 
-        override fun getProduct(sku: String): Productz? {
+        override fun getProduct(sku: String?): Productz? {
             LogUtilz.log.v(TAG, "getProduct: $sku")
             return inventory.getProduct(sku = sku)
         }

@@ -32,32 +32,6 @@ android {
         return rootProject.name
     }
 
-    // Github Packages
-    def githubProperties = new Properties()
-    githubProperties.load(new FileInputStream(rootProject.file("github.properties")))
-
-    publishing {
-        repositories {
-            maven {
-                name = "GitHubPackages"
-                url = uri("https://maven.pkg.github.com/rjsuzuki/billingz")
-                credentials {
-                    username = System.getenv('GPR_USER')    ?: githubProperties['gpr.usr'] // GPR_USER is a CI Environment Variable
-                    password = System.getenv('GPR_API_KEY') ?: githubProperties['gpr.key'] // GPR_API_KEY is a CI Environment Variable
-                }
-            }
-        }
-
-        publications {
-            release(MavenPublication) {
-                groupId 'com.zuko.libs'
-                artifactId 'billingz'
-                version getVersionName()
-                artifact("$buildDir/outputs/aar/lib-release.aar")
-            }
-        }
-    }
-
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
 
@@ -97,7 +71,6 @@ android {
 }
 
 dependencies {
-    api "com.android.billingclient:billing-ktx:4.0.0"
     api 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1'
     api 'org.jetbrains.kotlin:kotlin-stdlib:1.5.21'
     api "androidx.lifecycle:lifecycle-common-java8:2.3.1"

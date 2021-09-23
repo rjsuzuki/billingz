@@ -16,6 +16,7 @@
  */
 package com.zuko.billingz.core.store.inventory
 
+import android.util.ArrayMap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.zuko.billingz.core.misc.CleanUpz
@@ -26,32 +27,30 @@ import com.zuko.billingz.core.store.model.Productz
  */
 interface Inventoryz : CleanUpz {
 
-    var consumableSkus: MutableList<String>
-    var nonConsumableSkus: MutableList<String>
-    var subscriptionSkus: MutableList<String>
 
     /**
-     *
+     * Current cache of all products that is provided by your app/server.
      */
-    var allProducts: Map<String, Productz>
+    var allProducts: Map<String, Productz.Type>
 
     /**
-     *
+     * Current cache of available consumables.
      */
     var consumables: Map<String, Productz>
 
     /**
-     *
+     * Current cache of available non-consumables.
      */
     var nonConsumables: Map<String, Productz>
 
     /**
-     *
+     * Current cache of available subscriptions.
      */
     var subscriptions: Map<String, Productz>
 
     /**
-     *
+     * Provides the most recent collection of Products queried.
+     * May or may not be filtered by product type.
      */
     var requestedProducts: MutableLiveData<Map<String, Productz>>
 
@@ -59,35 +58,33 @@ interface Inventoryz : CleanUpz {
      *
      * @param skuList, a list of string productIds that will try to match
      * against (validate) the billing client's server for list of available products.
-     * @param productType
+     * @param type
      */
-    fun queryInventory(skuList: List<String>, productType: Productz.Type)
+    fun queryInventory(products: Map<String, Productz.Type>): LiveData<Map<String, Productz>>
 
     /**
      * @param products
-     * @param productType
+     * @param type
+     * Mainly for internal use only
      */
-    fun updateInventory(products: List<Productz>?, productType: Productz.Type)
+    fun updateInventory(products: List<Productz>?, type: Productz.Type)
 
     /**
-     * Get the details for a specified product.
+     * Search for a specified product by sku id.
      * @return [Productz] - Android Billing Library object
-     * @param sku - the product id that can be found on the GooglePlayConsole
+     * @param sku - the sku product id
      */
-    fun getProduct(sku: String): Productz?
-
-    fun getProducts(type: Productz.Type?, promo: Productz.Promotion?): List<Productz>
+    fun getProduct(sku: String?): Productz?
 
     /**
-     * Get all available products,
+     * Get all available products (in cache),
      * set productType to null to query all products.
-     * Available products have been validated.
-     * @param skuList: MutableList<String>
-     * @param productType: Product.ProductType
-     * @return [LiveData<Map<String, Product>]
+     * Available products are validated. Note: the list will be empty
+     * if the inventory has not been properly updated.
+     * @param type:
+     * @param promo
+     *
      */
-    fun getAvailableProducts(
-        skuList: MutableList<String>,
-        productType: Productz.Type?
-    ): LiveData<Map<String, Productz>>
+    fun getProducts(type: Productz.Type?, promo: Productz.Promotion?): Map<String, Productz>
+
 }

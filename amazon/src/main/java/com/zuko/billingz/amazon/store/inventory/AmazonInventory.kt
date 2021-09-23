@@ -1,5 +1,6 @@
 package com.zuko.billingz.amazon.store.inventory
 
+import android.util.ArrayMap
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -9,29 +10,25 @@ import com.zuko.billingz.core.store.inventory.Inventoryz
 import com.zuko.billingz.core.store.model.Productz
 
 class AmazonInventory: Inventoryz {
-    override var consumableSkus: MutableList<String> = mutableListOf()
-    override var nonConsumableSkus: MutableList<String> = mutableListOf()
-    override var subscriptionSkus: MutableList<String> = mutableListOf()
 
-    override var allProducts: Map<String, Productz> = HashMap()
+    override var allProducts: Map<String, Productz.Type> = HashMap()
     override var consumables: Map<String, Productz> = HashMap()
     override var nonConsumables: Map<String, Productz> = HashMap()
     override var subscriptions: Map<String, Productz> = HashMap()
     override var requestedProducts: MutableLiveData<Map<String, Productz>> = MutableLiveData()
 
-    override fun queryInventory(skuList: List<String>, productType: Productz.Type) {
+    override fun queryInventory(products: Map<String, Productz.Type>): LiveData<Map<String, Productz>> {
         // Call this method to retrieve item data for a set of SKUs to display in your app.
         // Call getProductData in the OnResume method.
-        val productDataRequestId = PurchasingService.getProductData(skuList.toSet()) // inventory
+        val productDataRequestId = PurchasingService.getProductData(products.keys.toSet()) // inventory
         Log.v(TAG, "get product data request: $productDataRequestId")
+        return requestedProducts
     }
 
-    override fun updateInventory(products: List<Productz>?, productType: Productz.Type) {
+    override fun updateInventory(products: List<Productz>?, type: Productz.Type) {
         Log.d(TAG, "updateInventory : ${products?.size ?: 0}")
         if (!products.isNullOrEmpty()) {
-            allProducts = allProducts + products.associateBy { it.sku.toString() }
-
-            when (productType) {
+            when (type) {
                 Productz.Type.CONSUMABLE -> {
                     consumables = consumables + products.associateBy { it.sku.toString() }
                     requestedProducts.postValue(consumables)
@@ -44,12 +41,12 @@ class AmazonInventory: Inventoryz {
                     subscriptions = subscriptions + products.associateBy { it.sku.toString() }
                     requestedProducts.postValue(subscriptions)
                 }
-                else -> LogUtilz.log.w(TAG, "Unhandled product type: $productType")
+                else -> LogUtilz.log.w(TAG, "Unhandled product type: $type")
             }
         }
     }
 
-    override fun getAvailableProducts(
+    fun getAvailableProducts(
         skuList: MutableList<String>,
         productType: Productz.Type?
     ): LiveData<Map<String, Productz>> {
@@ -71,49 +68,61 @@ class AmazonInventory: Inventoryz {
         return requestedProducts
     }
 
-    override fun getProduct(sku: String): Productz? {
-        return allProducts[sku]
+    override fun getProduct(sku: String?): Productz? {
+        if(consumables.containsKey(sku))
+            return consumables[sku]
+        if(nonConsumables.containsKey(sku))
+            return nonConsumables[sku]
+        if(subscriptions.containsKey(sku))
+            return subscriptions[sku]
+        return null
     }
 
-    override fun getProducts(type: Productz.Type?, promo: Productz.Promotion?): List<Productz> {
+    override fun getProducts(type: Productz.Type?, promo: Productz.Promotion?): Map<String, Productz> {
         when (type) {
             Productz.Type.CONSUMABLE -> {
                 if(promo != null) {
-                    consumables.values.iterator().forEach { product ->
-                        val promos = mutableListOf<Productz>()
-                        if(product.promotion == promo) {
-                            promos.add(product)
+                    consumables.forEach { entry ->
+                        val promos = ArrayMap<String, Productz>()
+                        if(entry.value.promotion == promo) {
+                            promos[entry.key] = entry.value
                         }
                         return promos
                     }
                 }
-                return consumables.values.toList()
+                return consumables
             }
             Productz.Type.NON_CONSUMABLE -> {
                 if(promo != null) {
-                    nonConsumables.values.iterator().forEach { product ->
-                        val promos = mutableListOf<Productz>()
-                        if(product.promotion == promo) {
-                            promos.add(product)
+                    nonConsumables.forEach { entry ->
+                        val promos = ArrayMap<String, Productz>()
+                        if(entry.value.promotion == promo) {
+                            promos[entry.key] = entry.value
                         }
                         return promos
                     }
                 }
-                return nonConsumables.values.toList()
+                return nonConsumables
             }
             Productz.Type.SUBSCRIPTION -> {
-                if(promo != null) {
-                    subscriptions.values.iterator().forEach { product ->
-                        val promos = mutableListOf<Productz>()
-                        if(product.promotion == promo) {
-                            promos.add(product)
+                if(promo != null ) {
+                    subscriptions.forEach { entry ->
+                        val promos = ArrayMap<String, Productz>()
+                        if(entry.value.promotion == promo) {
+                            promos[entry.key] = entry.value
                         }
                         return promos
                     }
                 }
-                return subscriptions.values.toList()
+                return subscriptions
             }
-            else -> return allProducts.values.toList()
+            else -> {
+                val all = ArrayMap<String, Productz>()
+                all.putAll(consumables)
+                all.putAll(nonConsumables)
+                all.putAll(subscriptions)
+                return all
+            }
         }
     }
 

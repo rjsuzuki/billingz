@@ -28,6 +28,7 @@ import com.zuko.billingz.google.store.inventory.GoogleInventory
 import com.zuko.billingz.google.store.model.GoogleOrder
 import com.zuko.billingz.google.store.sales.GoogleSales
 import com.zuko.billingz.core.LogUtilz
+import com.zuko.billingz.core.store.Securityz
 import com.zuko.billingz.core.store.Storez
 import com.zuko.billingz.core.store.agent.Agentz
 import com.zuko.billingz.core.store.client.Clientz
@@ -118,11 +119,10 @@ class GoogleStore private constructor(): Storez {
             listener: Salez.OrderValidatorListener?
         ): LiveData<Orderz> {
             LogUtilz.log.v(TAG, "Starting order: $productId")
-
             sales.orderValidatorListener = listener
 
             val data = MutableLiveData<Orderz>()
-            val product = inventory.allProducts[productId]
+            val product = inventory.getProduct(productId)
             product?.let {
                 sales.startOrder(activity, product, client)
                 val order = GoogleOrder(
@@ -140,6 +140,10 @@ class GoogleStore private constructor(): Storez {
             return data
         }
 
+        override fun consume(product: Productz) {
+            LogUtilz.log.v(TAG, "consume: $product")
+        }
+
         override fun queryOrders(): LiveData<Orderz> {
             LogUtilz.log.v(TAG, "queryOrders")
             return sales.queryOrders()
@@ -154,17 +158,17 @@ class GoogleStore private constructor(): Storez {
             return sales.orderHistory
         }
 
-        override fun updateInventory(skuList: List<String>, type: Productz.Type) {
-            LogUtilz.log.v(TAG, "updateInventory: ${skuList.size} : $type")
-            inventory.queryInventory(skuList = skuList, productType = type)
+        override fun updateInventory(products: Map<String, Productz.Type>) {
+            LogUtilz.log.v(TAG, "updateInventory: ${products.size}")
+            inventory.queryInventory(products = products)
         }
 
-        override fun getProducts(type: Productz.Type?, promo: Productz.Promotion?): List<Productz> {
+        override fun getProducts(type: Productz.Type?, promo: Productz.Promotion?): Map<String, Productz> {
             LogUtilz.log.v(TAG, "getProducts: $type : $promo")
             return inventory.getProducts(type = type, promo = promo)
         }
 
-        override fun getProduct(sku: String): Productz? {
+        override fun getProduct(sku: String?): Productz? {
             LogUtilz.log.v(TAG, "getProduct: $sku")
             return inventory.getProduct(sku = sku)
         }
@@ -181,6 +185,8 @@ class GoogleStore private constructor(): Storez {
         private lateinit var instance: GoogleStore
         private lateinit var updaterListener: Salez.OrderUpdaterListener
         private lateinit var validatorListener: Salez.OrderValidatorListener
+        private var obfuscatedAccountId: String? = null
+        private var obfuscatedProfileId: String? = null
 
         /**
          * @param listener - Required to be set for proper functionality
@@ -198,6 +204,35 @@ class GoogleStore private constructor(): Storez {
             return this
         }
 
+        /**
+         * Google Play can use it to detect irregular activity, such as many devices
+         * making purchases on the same account in a short period of time.
+         * @param - unique identifier for the user's account (64 character limit)
+         * The account ID is obfuscated via AES-256 encryption before being cached and used.
+         */
+        fun setAccountId(id: String?): Builder {
+            if(!id.isNullOrBlank()) {
+                obfuscatedAccountId = Securityz.encrypt(id).toString()
+            }
+            return this
+        }
+
+        /**
+         * Some applications allow users to have multiple profiles within a single account.
+         * Use this method to send the user's profile identifier to Google.
+         * @param - unique identifier for the user's profile (64 character limit).
+         * The profile ID is obfuscated via AES-256 encryption before being cached and used.
+         */
+        fun setProfileId(id: String?): Builder {
+            if(!id.isNullOrBlank()) {
+                obfuscatedProfileId = Securityz.encrypt(id).toString()
+            }
+            return this
+        }
+
+        /**
+         * Return an instance of the GoogleStore
+         */
         fun build(): GoogleStore {
             if(!::instance.isInitialized) {
                 instance = GoogleStore()
@@ -206,6 +241,10 @@ class GoogleStore private constructor(): Storez {
                 orderUpdaterListener = updaterListener
                 orderValidatorListener = validatorListener
             }
+            instance.sales.setObfuscatedIdentifiers(
+                accountId = obfuscatedAccountId,
+                profileId = obfuscatedProfileId
+            )
             instance.init(context = context)
             return instance
         }

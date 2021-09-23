@@ -20,11 +20,11 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import androidx.recyclerview.widget.RecyclerView
-import com.android.billingclient.api.PurchaseHistoryRecord
+
 import com.zuko.billingz.R
+import com.zuko.billingz.core.store.model.Receiptz
 import com.zuko.billingz.databinding.ListItemHistoryRecordBinding
 import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
 
 /**
@@ -32,7 +32,7 @@ import java.util.Locale
  * @constructor
  * @param list
  */
-class ReceiptzAdapterz(private val list: MutableList<PurchaseHistoryRecord>) : RecyclerView.Adapter<ReceiptzAdapterz.HistoryRecordViewHolder>() {
+class ReceiptzAdapterz(private val list: MutableList<Receiptz>) : RecyclerView.Adapter<ReceiptzAdapterz.HistoryRecordViewHolder>() {
 
     inner class HistoryRecordViewHolder(val binding: ListItemHistoryRecordBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -44,9 +44,12 @@ class ReceiptzAdapterz(private val list: MutableList<PurchaseHistoryRecord>) : R
     override fun onBindViewHolder(holder: HistoryRecordViewHolder, position: Int) {
         val item = list[position]
         holder.binding.recordSku.text = item.toString()
-        val time = SimpleDateFormat("MM-dd-yyyy hh:mm", Locale.getDefault()).format(Date(item.purchaseTime))
-        holder.binding.recordTime.text = time
-        // item.sku
+        item.orderDate?.let { date ->
+            val time = SimpleDateFormat("MM-dd-yyyy hh:mm",
+                Locale.getDefault()).format(date)
+            holder.binding.recordTime.text = time
+        }
+     // item.sku
         // item.signature
         // item.purchaseTime
         // item.purchaseToken

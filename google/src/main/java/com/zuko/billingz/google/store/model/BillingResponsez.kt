@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
-package com.zuko.billingz.core.misc
+package com.zuko.billingz.google.store.model
 
 import android.util.Log
 import com.android.billingclient.api.BillingClient

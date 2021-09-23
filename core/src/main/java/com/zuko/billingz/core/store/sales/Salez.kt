@@ -40,12 +40,12 @@ interface Salez : CleanUpz {
     fun startOrder(activity: Activity?, product: Productz, client: Clientz)
 
     /**
-     *
+     *  Verify the order(purchase). Check for fraud/abuse.
      */
     fun validateOrder(order: Orderz)
 
     /**
-     *  Verify the order(purchase).
+     * Entitlement.
      */
     fun processOrder(order: Orderz)
 
@@ -57,12 +57,18 @@ interface Salez : CleanUpz {
     fun completeOrder(order: Orderz)
 
     /**
-     *
+     * If an order is cancelled
      */
     fun cancelOrder(order: Orderz)
 
     /**
-     *
+     * Purchases can be voided for a variety of reasons, such as:
+     * 1. A purchase is canceled, either by the user, by the developer, or by Google.
+     *      For subscriptions, note that this refers to canceling the purchase of a subscription,
+     *      rather than canceling the subscription itself.
+     * 2. A purchase is charged back.
+     * 3. The app developer cancels or refunds a user order and checks the
+     *      "revoke" option in the console.
      */
     fun failedOrder(order: Orderz)
 
@@ -72,7 +78,7 @@ interface Salez : CleanUpz {
     fun refreshQueries()
 
     /**
-     *
+     * TODO
      */
     fun queryOrders(): LiveData<Orderz>
 
@@ -80,6 +86,16 @@ interface Salez : CleanUpz {
      *
      */
     fun queryReceipts(type: Productz.Type? = null)
+
+    /**
+     * @param profileId - Specifies an optional obfuscated string that is
+     * uniquely associated with the user's profile in your app
+     * @param accountId - Google Play can use it to detect irregular activity,
+     * such as many devices making purchases on the same account in a
+     * short period of time (64 character limit)
+     * https://developer.android.com/reference/com/android/billingclient/api/AccountIdentifiers#getObfuscatedAccountId()
+     */
+    fun setObfuscatedIdentifiers(accountId: String? = null, profileId: String? = null)
 
     /**
      * For developers to implement.
@@ -159,6 +175,6 @@ interface Salez : CleanUpz {
          * fulfilled already or the sku is no longer available, etc.
          * @param order
          */
-        fun invalidate(order: Orderz)
+        fun invalidated(order: Orderz)
     }
 }

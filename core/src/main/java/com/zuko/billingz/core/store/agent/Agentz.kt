@@ -57,6 +57,11 @@ interface Agentz {
     ): LiveData<Orderz>
 
     /**
+     * Notify the server that the user has "used" the consumable product.
+     */
+    fun consume(product: Productz)
+
+    /**
      * Returns the most recent purchase(s) made
      * by the user for each SKU, even if that purchase is expired, canceled, or consumed.
      * Set parameter to null for all products
@@ -75,18 +80,19 @@ interface Agentz {
 
     /**
      * Queries database for matching product ids and loads them into the inventory.
+     * @param products - key is the sku(product id), value is the product type
      */
-    fun updateInventory(skuList: List<String>, type: Productz.Type)
-
-    /**
-     * Return a list of validated products from the inventory.
-     * Narrow your search results by providing both or either parameters.
-     */
-    fun getProducts(type: Productz.Type?, promo: Productz.Promotion?): List<Productz>
+    fun updateInventory(products: Map<String, Productz.Type>)
 
     /**
      * Return a product that matches the sku (product id).
      * Null if no matching product exists.
      */
-    fun getProduct(sku: String): Productz?
+    fun getProduct(sku: String?): Productz?
+
+    /**
+     * Return a list of validated products from the inventory.
+     * Narrow your search results by providing both or either parameters.
+     */
+    fun getProducts(type: Productz.Type?, promo: Productz.Promotion?): Map<String, Productz>
 }

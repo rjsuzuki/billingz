@@ -8,7 +8,7 @@ import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.zuko.billingz.core.LogUtilz
-import com.zuko.billingz.core.misc.BillingResponsez
+import com.zuko.billingz.google.store.model.BillingResponsez
 import com.zuko.billingz.core.store.client.Clientz
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -46,6 +46,7 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
         context: Context?,
         connectionListener: Clientz.ConnectionListener
     ) {
+        LogUtilz.log.v(TAG, "Initializing client...")
         this.connectionListener = connectionListener
 
         try {
@@ -68,6 +69,7 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
     }
 
     override fun connect() {
+        LogUtilz.log.v(TAG, "Connecting to Google...")
         billingClient?.startConnection(object : BillingClientStateListener {
             override fun onBillingSetupFinished(billingResult: BillingResult) {
                 BillingResponsez.logResult(billingResult)
@@ -96,17 +98,31 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
     }
 
     override fun disconnect() {
+        LogUtilz.log.v(TAG,"Disconnecting from Google...")
         billingClient?.endConnection()
     }
 
     override fun checkConnection() {
-        if (isInitialized && !isConnected) {
+        LogUtilz.log.d(TAG, "Connection state: ${getConnectionState()}")
+        if (!isReady()) {
             connect()
         }
     }
 
+    private fun getConnectionState(): String {
+        return ConnectionStatus.values()[billingClient?.connectionState ?: 0].name
+    }
+
+    enum class ConnectionStatus {
+        DISCONNECTED,
+        CONNECTING,
+        CONNECTED,
+        CLOSED
+    }
+
     @Synchronized
     private fun retry() {
+        LogUtilz.log.w(TAG,"Retrying to connect...")
         if (isInitialized && !isConnected) {
             retryAttempts++
             if (retryAttempts <= maxAttempts) {
@@ -126,6 +142,7 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
     }
 
     override fun destroy() {
+        LogUtilz.log.v(TAG,"Destroying client...")
         isInitialized = false
         disconnect()
         cancel()
