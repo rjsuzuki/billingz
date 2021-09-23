@@ -4,6 +4,7 @@ buildscript {
         // ValidateTor Library Info
         libVersionCode = 1
         libVersionName = "1.0.1"
+        compose_version = '1.0.0'
     }
     repositories {
         google()

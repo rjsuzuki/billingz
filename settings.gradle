@@ -2,3 +2,5 @@ include ':core'
 rootProject.name = "Billingz"
 include ':amazon'
 include ':google'
+include ':demo'
+include ':lib'
