@@ -2,9 +2,8 @@ package com.zuko.billingz.google.store.model
 
 import com.android.billingclient.api.Purchase
 import com.zuko.billingz.core.store.model.Orderz
-import com.zuko.billingz.core.store.model.Productz
 import com.zuko.billingz.core.store.model.Receiptz
-import java.util.*
+import java.util.Date
 
 /**
  * Google Receipts only are generated if the purchase state is complete (purchased: 1)

@@ -16,7 +16,6 @@
  */
 package com.zuko.billingz.core.store.inventory
 
-import android.util.ArrayMap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.zuko.billingz.core.misc.CleanUpz
@@ -26,7 +25,6 @@ import com.zuko.billingz.core.store.model.Productz
  * Blueprint for managing a store's (your applications) entire collection of available products (inventory)
  */
 interface Inventoryz : CleanUpz {
-
 
     /**
      * Current cache of all products that is provided by your app/server.
@@ -86,5 +84,4 @@ interface Inventoryz : CleanUpz {
      *
      */
     fun getProducts(type: Productz.Type?, promo: Productz.Promotion?): Map<String, Productz>
-
 }

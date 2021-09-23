@@ -21,7 +21,6 @@ interface Receiptz {
      */
     var skus: List<String>?
 
-
     /**
      * Date of purchase
      */

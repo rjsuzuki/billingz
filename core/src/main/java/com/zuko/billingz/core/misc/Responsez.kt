@@ -17,9 +17,11 @@
 package com.zuko.billingz.core.misc
 
 class Responsez<T>
-private constructor(val status: Status,
-                    val data: T?,
-                    val msg: String?) {
+private constructor(
+    val status: Status,
+    val data: T?,
+    val msg: String?
+) {
 
     enum class Status { SUCCESS, ERROR, LOADING }
 

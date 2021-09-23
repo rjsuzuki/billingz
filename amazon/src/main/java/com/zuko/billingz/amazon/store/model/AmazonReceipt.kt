@@ -1,9 +1,7 @@
 package com.zuko.billingz.amazon.store.model
 
-import com.amazon.device.iap.model.ProductType
 import com.amazon.device.iap.model.Receipt
 import com.zuko.billingz.core.store.model.Orderz
-import com.zuko.billingz.core.store.model.Productz
 import com.zuko.billingz.core.store.model.Receiptz
 import java.util.Date
 

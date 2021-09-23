@@ -18,7 +18,6 @@ package com.zuko.billingz.core.store.model
 
 import java.util.Currency
 
-
 /**
  * @author rjsuzuki
  *

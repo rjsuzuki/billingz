@@ -20,7 +20,6 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import androidx.recyclerview.widget.RecyclerView
-
 import com.zuko.billingz.R
 import com.zuko.billingz.core.store.model.Receiptz
 import com.zuko.billingz.databinding.ListItemHistoryRecordBinding
@@ -45,11 +44,13 @@ class ReceiptzAdapterz(private val list: MutableList<Receiptz>) : RecyclerView.A
         val item = list[position]
         holder.binding.recordSku.text = item.toString()
         item.orderDate?.let { date ->
-            val time = SimpleDateFormat("MM-dd-yyyy hh:mm",
-                Locale.getDefault()).format(date)
+            val time = SimpleDateFormat(
+                "MM-dd-yyyy hh:mm",
+                Locale.getDefault()
+            ).format(date)
             holder.binding.recordTime.text = time
         }
-     // item.sku
+        // item.sku
         // item.signature
         // item.purchaseTime
         // item.purchaseToken
