@@ -5,43 +5,17 @@ plugins {
     id "kotlin-kapt"
     id "org.jetbrains.dokka"
 }
-
 apply from: "$project.rootDir/spotless.gradle"
 
+
 android {
-    def versionProperties = new Properties()
-    rootProject.file("version.properties").withInputStream { versionProperties.load(it) }
-
-    def getDynamicVersionCode =  { ->
-        String major = versionProperties['v.major']
-        String minor = versionProperties['v.minor']
-        String hotfix = versionProperties['v.hotfix']
-        String result = "$major$minor$hotfix"
-        return result.toInteger()
-    }
-
-    def getVersionName = { ->
-        String major = versionProperties['v.major']
-        String minor = versionProperties['v.minor']
-        String hotfix = versionProperties['v.hotfix']
-        String result = "${major.toString()}.${minor.toString()}.${hotfix.toString()}"
-        return result
-    }
-
-    def getArtifactId = { ->
-        return rootProject.name
-    }
-
-    compileSdkVersion 30
-    buildToolsVersion "30.0.3"
+    compileSdk LibraryInfo.compileSDK
+    buildToolsVersion LibraryInfo.buildTools
 
     defaultConfig {
-        group = "com.zuko.billingz"
-        minSdkVersion 21
-        targetSdkVersion 30
-        versionCode 1
-        versionName getVersionName()
-        multiDexEnabled true
+        minSdk LibraryInfo.minSDK
+        targetSdk LibraryInfo.targetSDK
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -72,7 +46,8 @@ android {
 
 dependencies {
     api 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1'
-    api 'org.jetbrains.kotlin:kotlin-stdlib:1.5.21'
+    api 'org.jetbrains.kotlin:kotlin-stdlib:1.5.10'
+
     api "androidx.lifecycle:lifecycle-common-java8:2.3.1"
     api "androidx.core:core-ktx:1.6.0"
     api "androidx.appcompat:appcompat:1.3.1"
@@ -80,9 +55,6 @@ dependencies {
     api 'androidx.constraintlayout:constraintlayout:2.1.0'
     api 'com.airbnb.android:lottie:4.1.0'
 
-    testImplementation "junit:junit:4.13.2"
-    androidTestImplementation "androidx.test.ext:junit:1.1.3"
-    androidTestImplementation "androidx.test.espresso:espresso-core:3.4.0"
 }
 
 dokkaHtml.configure {

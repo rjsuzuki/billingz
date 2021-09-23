@@ -1,12 +1,13 @@
 package com.zuko.billingz.amazon.store.model
 
+import com.amazon.device.iap.model.Product
 import com.amazon.device.iap.model.ProductType
 import com.zuko.billingz.core.store.model.Productz
 import java.util.Currency
 import java.util.Locale
 
-data class AmazonProduct(var amazonProduct: com.amazon.device.iap.model.Product): Productz {
-    override var id: Int = -1
+data class AmazonProduct(var amazonProduct: Product): Productz {
+
     override var sku: String? = amazonProduct.sku
     override var title: String? = amazonProduct.title
     override var price: String? = amazonProduct.price

@@ -12,7 +12,7 @@ import com.zuko.billingz.core.store.model.Productz
 data class GoogleProduct(val skuDetails: SkuDetails,
                          override val type: Productz.Type): Productz {
 
-    override var id: Int = -1
+    var id: Int = -1
     override val sku: String = skuDetails.sku
     override val title: String = skuDetails.title
     override val price: String = skuDetails.price

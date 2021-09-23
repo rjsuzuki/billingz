@@ -13,7 +13,7 @@ import java.util.UUID
  */
 data class AmazonOrder(val response: PurchaseResponse) : Orderz {
 
-    override var product: Productz? = null
+    var product: Productz? = null
 
     override var orderId: String? = response.receipt.receiptId
     override var orderTime: Long = response.receipt.purchaseDate.time

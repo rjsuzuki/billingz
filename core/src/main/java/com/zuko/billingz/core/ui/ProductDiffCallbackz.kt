@@ -36,7 +36,7 @@ class ProductDiffCallbackz(private val oldList: MutableList<Productz>, private v
     }
 
     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        return oldList[oldItemPosition].id == newList[newItemPosition].id
+        return oldList[oldItemPosition].sku == newList[newItemPosition].sku
     }
 
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {

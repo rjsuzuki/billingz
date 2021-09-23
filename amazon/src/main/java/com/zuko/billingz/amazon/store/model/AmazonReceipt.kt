@@ -7,8 +7,8 @@ import java.util.Date
 
 data class AmazonReceipt(
     var iapReceipt: Receipt,
-    override var order: Orderz? = null,
-    override var userId: String? = null
+    override var userId: String? = null,
+    override var order: Orderz? = null
 ) : Receiptz {
 
     override var orderId: String? = iapReceipt.receiptId
@@ -19,5 +19,4 @@ data class AmazonReceipt(
     override var isCanceled: Boolean = iapReceipt.isCanceled
 
     var marketplace: String? = null
-
 }
