@@ -17,7 +17,7 @@
 package com.zuko.billingz.google.store.sales
 
 import android.app.Activity
-import android.util.Log
+import android.os.Bundle
 import androidx.annotation.UiThread
 import androidx.collection.ArrayMap
 import androidx.lifecycle.LiveData
@@ -32,24 +32,26 @@ import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchaseHistoryResponseListener
 import com.android.billingclient.api.PurchasesResponseListener
 import com.android.billingclient.api.SkuDetails
+import com.android.billingclient.api.queryPurchaseHistory
 import com.zuko.billingz.google.store.client.GoogleClient
 import com.zuko.billingz.google.store.inventory.GoogleInventory
 import com.zuko.billingz.google.store.model.GoogleOrder
 import com.zuko.billingz.google.store.model.GoogleProduct
 import com.zuko.billingz.google.store.model.GoogleReceipt
 import com.zuko.billingz.core.LogUtilz
-import com.zuko.billingz.core.store.Securityz
-import com.zuko.billingz.google.store.model.BillingResponsez
 import com.zuko.billingz.core.store.client.Clientz
 import com.zuko.billingz.core.store.model.Orderz
 import com.zuko.billingz.core.store.model.Productz
 import com.zuko.billingz.core.store.model.Receiptz
+import com.zuko.billingz.core.store.sales.OrderOptions
 import com.zuko.billingz.core.store.sales.Salez
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import java.util.Date
 
 /**
  * Representation of the sales department of a store.
@@ -78,16 +80,8 @@ class GoogleSales(private val inventory: GoogleInventory,
      * incomplete purchase flows from a bad network, etc.
      */
     private var queriedOrder = MutableLiveData<Orderz>()
-
-    /**
-     * Cache for pending orders
-     */
     private var pendingOrders = ArrayMap<String, Orderz>()
-
-    // subscriptions that require attention
     private var activeSubscriptions: MutableList<Purchase> = mutableListOf()
-
-    // in-app products that require attention
     private var activeInAppProducts: MutableList<Purchase> = mutableListOf()
 
     override fun setObfuscatedIdentifiers(accountId: String?, profileId: String?) {
@@ -100,9 +94,25 @@ class GoogleSales(private val inventory: GoogleInventory,
     }
 
     // step 1
-    override fun startOrder(activity: Activity?, product: Productz, client: Clientz) {
+    override fun startOrder(activity: Activity?,
+                            product: Productz,
+                            client: Clientz,
+                            options: Bundle?) {
+        LogUtilz.log.v(TAG, "Starting Order for sku: ${product.sku}")
         if(product is GoogleProduct && client is GoogleClient) {
-            startPurchaseRequest(activity, product.skuDetails, client.getBillingClient())
+            if(product.type == Productz.Type.SUBSCRIPTION) {
+                startSubscriptionPurchaseFlow(
+                    activity = activity,
+                    newSku = product.skuDetails,
+                    billingClient = client.getBillingClient()
+                )
+            } else {
+                startInAppPurchaseFlow(
+                    activity = activity,
+                    skuDetails = product.skuDetails,
+                    billingClient = client.getBillingClient()
+                )
+            }
         }
     }
 
@@ -163,7 +173,6 @@ class GoogleSales(private val inventory: GoogleInventory,
                                     mainScope = mainScope)
                             }
                             Productz.Type.CONSUMABLE -> {
-                                //todo - this probably needs to wait for user action
                                 completeConsumable(
                                     client.getBillingClient(),
                                     order.purchase)
@@ -180,28 +189,31 @@ class GoogleSales(private val inventory: GoogleInventory,
 
     override fun cancelOrder(order: Orderz) {
         LogUtilz.log.v(TAG, "cancel order: $order")
-        TODO("Not yet implemented")
+        // todo
     }
 
     override fun failedOrder(order: Orderz) {
         LogUtilz.log.e(TAG, "failed order: $order")
         if(order.state == Orderz.State.FAILED) {
-
+            // todo - maybe remove
             // check if purchaseToken is unique (if qu
         }
     }
 
+    /**
+     * When a user upgrades, downgrades, or resignup from your app before the subscription expires,
+     * the old subscription is invalidated, and a new subscription is created with a new purchase token.
+     */
     @UiThread
-    private fun startPurchaseRequest(
-        activity: Activity?,
-        skuDetails: SkuDetails?,
-        billingClient: BillingClient?
-    ): BillingResult {
-        LogUtilz.log.v(TAG, "startPurchaseRequest")
-        if(activity == null || skuDetails == null || billingClient == null)
+    private fun startSubscriptionPurchaseFlow(activity: Activity?,
+                                              newSku: SkuDetails?,
+                                              billingClient: BillingClient?,
+                                              options: Bundle? = null): BillingResult {
+        LogUtilz.log.v(TAG, "Starting subscription purchase flow")
+        if(activity == null || newSku == null || billingClient == null)
             return BillingResult.newBuilder()
                 .setResponseCode(BillingClient.BillingResponseCode.ERROR)
-                .setDebugMessage("Can't start purchase flow with null parameters")
+                .setDebugMessage("Can't start subscription purchase flow with null parameters")
                 .build()
 
         // Retrieve a value for "skuDetails" by calling querySkuDetailsAsync().
@@ -209,6 +221,62 @@ class GoogleSales(private val inventory: GoogleInventory,
         // and block some types of fraudulent transactions before they are completed.
         // Google Play recommends that you use either encryption or a one-way hash to
         // generate an obfuscated identifier
+        val flowParams = BillingFlowParams.newBuilder()
+            .setSkuDetails(newSku)
+
+        obfuscatedAccountId?.let {
+            flowParams.setObfuscatedAccountId(it)
+        }
+        obfuscatedProfileId?.let {
+            flowParams.setObfuscatedProfileId(it)
+        }
+
+        if(options?.getBoolean(OrderOptions.IS_SUB_CHANGE_KEY) == true) {
+            val prorationMode = options.getInt(OrderOptions.PRORATION_MODE_KEY, BillingFlowParams.ProrationMode.IMMEDIATE_WITH_TIME_PRORATION)
+            val oldSubSku = options.getString(OrderOptions.OLD_SUB_SKU_KEY)
+
+            if(oldSubSku.isNullOrBlank())
+                return BillingResult.newBuilder()
+                    .setResponseCode(BillingClient.BillingResponseCode.ERROR)
+                    .setDebugMessage("Subscription modification requires the product id of the currently active subscription")
+                    .build()
+
+            activeSubscriptions.forEach { sub ->
+                if(sub.skus.contains(oldSubSku)) {
+                    LogUtilz.log.d(TAG, "Subscription to replace confirmed:" +
+                            "\n old sku: $oldSubSku" +
+                            "\n proration mode: $prorationMode")
+                    // start upgrade or downgrade
+                    val subUpdateParams = BillingFlowParams.SubscriptionUpdateParams.newBuilder()
+                        .setOldSkuPurchaseToken(sub.purchaseToken)
+                        .setReplaceSkusProrationMode(prorationMode)
+                        .build()
+                    flowParams.setSubscriptionUpdateParams(subUpdateParams)
+                    return@forEach
+                }
+            }
+        }
+
+        flowParams.build()
+
+        // UI flow will start
+        val result = billingClient.launchBillingFlow(activity, flowParams.build())
+        LogUtilz.log.v(TAG, "Purchased flow finished : $result")
+
+        return result
+    }
+
+    @UiThread
+    private fun startInAppPurchaseFlow(activity: Activity?,
+                                       skuDetails: SkuDetails?,
+                                       billingClient: BillingClient?): BillingResult {
+        LogUtilz.log.v(TAG, "Starting in-app purchase flow")
+        if(activity == null || skuDetails == null || billingClient == null)
+            return BillingResult.newBuilder()
+                .setResponseCode(BillingClient.BillingResponseCode.ERROR)
+                .setDebugMessage("Can't start in-app purchase flow with null parameters")
+                .build()
+
         val flowParams = BillingFlowParams.newBuilder()
             .setSkuDetails(skuDetails)
 
@@ -218,64 +286,52 @@ class GoogleSales(private val inventory: GoogleInventory,
         obfuscatedProfileId?.let {
             flowParams.setObfuscatedProfileId(it)
         }
-
-        if(skuDetails.type == BillingClient.SkuType.SUBS) {
-            val subParams = getSubscriptionUpdateParams(
-                oldPurchaseToken = "",
-                prorationMode = BillingFlowParams.ProrationMode.IMMEDIATE_WITH_TIME_PRORATION
-            )
-            subParams?.let {
-                flowParams.setSubscriptionUpdateParams(it)
-            }
-        }
         flowParams.build()
 
         // UI flow will start
         val result = billingClient.launchBillingFlow(activity, flowParams.build())
-        Log.d(TAG, "Purchased flow finished : $result")
-
+        LogUtilz.log.v(TAG, "Purchased flow finished : $result")
         return result
     }
 
-    private fun getSubscriptionUpdateParams(oldPurchaseToken: String, prorationMode: Int): BillingFlowParams.SubscriptionUpdateParams? {
-        return BillingFlowParams.SubscriptionUpdateParams.newBuilder()
-            .setOldSkuPurchaseToken(oldPurchaseToken)
-            .setReplaceSkusProrationMode(prorationMode)
-            .build()
-    }
-
-    fun processUpdatedPurchases(billingResult: BillingResult?, purchases: MutableList<Purchase>?) {
+    /**
+     * For resolving queried purchases from BillingClient.queryPurchasesAsync().
+     *
+     */
+    fun processUpdatedPurchases(billingResult: BillingResult?,
+                                purchases: MutableList<Purchase>?) {
         LogUtilz.log.v(TAG, "processUpdatedPurchases: ${purchases?.size ?: 0 }")
-        BillingResponsez.logResult(billingResult)
+        GoogleResponse.logResult(billingResult)
 
         if (purchases.isNullOrEmpty()) {
-            val order = GoogleOrder(
-                billingResult = billingResult,
-                msg = "Null/Empty list of purchases"
-            )
-            order.state = Orderz.State.PROCESSING
-            if (billingResult == null) {
-                isQueriedOrders = true
-                // only queried orders start with a null billingResult
-                this.queriedOrder.postValue(order)
-            } else {
-                isQueriedOrders = false
-            }
-            Log.d(TAG, "No purchases available")
+            isQueriedOrders = false
+            LogUtilz.log.d(TAG, "No purchases available")
         } else {
             for (p in purchases) {
-                when (p.purchaseState) {
-                    Purchase.PurchaseState.PURCHASED -> processValidation(p, billingResult)
-                    Purchase.PurchaseState.PENDING -> processPendingTransaction(p, billingResult)
-                    Purchase.PurchaseState.UNSPECIFIED_STATE -> processPurchasingError(p, billingResult)
+                if (billingResult == null) {
+                    // only queried orders start with a null billingResult
+                    isQueriedOrders = true
+                    val order = GoogleOrder(
+                        purchase = p,
+                        billingResult = null,
+                        msg = "Queried Order"
+                    )
+                    this.queriedOrder.postValue(order)
+                } else {
+                    isQueriedOrders = false
+                    when (p.purchaseState) {
+                        Purchase.PurchaseState.PURCHASED -> processValidation(p, billingResult)
+                        Purchase.PurchaseState.PENDING -> processPendingTransaction(p, billingResult)
+                        Purchase.PurchaseState.UNSPECIFIED_STATE -> processPurchasingError(p, billingResult)
+                    }
                 }
             }
         }
     }
 
     private fun processValidation(purchase: Purchase, billingResult: BillingResult?) {
-        LogUtilz.log.v(TAG, "processValidation")
-        BillingResponsez.logResult(billingResult)
+        LogUtilz.log.v(TAG, "processValidation: $purchase")
+        GoogleResponse.logResult(billingResult)
         if (isNewPurchase(purchase)) {
             val order = GoogleOrder(
                 purchase = purchase,
@@ -290,7 +346,7 @@ class GoogleSales(private val inventory: GoogleInventory,
     }
 
     private fun isNewPurchase(purchase: Purchase): Boolean {
-        LogUtilz.log.v(TAG, "isPurchaseValid")
+        LogUtilz.log.v(TAG, "isPurchaseValid: $purchase")
         if (purchase.isAcknowledged) {
             // Note: If you do not acknowledge a purchase within three days,
             // the user automatically receives a refund, and Google Play revokes the purchase.
@@ -310,7 +366,7 @@ class GoogleSales(private val inventory: GoogleInventory,
                 "\n purchase: $purchase," +
                 "\n billingResult: $billingResult" +
                 "\n )")
-        BillingResponsez.logResult(billingResult)
+        GoogleResponse.logResult(billingResult)
         if (pendingOrders.containsKey(purchase.orderId)) {
             LogUtilz.log.v(TAG, "Pending transaction already in processing for orderId: ${purchase.orderId}")
         } else {
@@ -329,7 +385,7 @@ class GoogleSales(private val inventory: GoogleInventory,
                 "\n purchase: $purchase," +
                 "\n billingResult: $billingResult" +
                 "\n )")
-        BillingResponsez.logResult(billingResult)
+        GoogleResponse.logResult(billingResult)
         val order = GoogleOrder(
             purchase = purchase,
             billingResult = billingResult,
@@ -338,9 +394,8 @@ class GoogleSales(private val inventory: GoogleInventory,
         orderUpdaterListener?.onError(order)
     }
 
-    private fun completeConsumable(
-        billingClient: BillingClient?,
-        purchase: Purchase?) {
+    private fun completeConsumable(billingClient: BillingClient?, purchase: Purchase?) {
+        LogUtilz.log.v(TAG, "completeConsumable: $purchase")
 
         if(billingClient?.isReady == false) {
             LogUtilz.log.wtf(TAG, "billing client is not ready")
@@ -356,7 +411,7 @@ class GoogleSales(private val inventory: GoogleInventory,
             val msg: String
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 msg = "Consumable successfully purchased: $p"
-                Log.d(TAG, "Product successfully purchased and consumed: ${purchase.orderId}")
+                LogUtilz.log.d(TAG, "Product successfully purchased and consumed: ${purchase.orderId}")
                 val order = GoogleOrder(
                     purchase = purchase,
                     billingResult = billingResult,
@@ -387,6 +442,7 @@ class GoogleSales(private val inventory: GoogleInventory,
         purchase: Purchase?,
         mainScope: CoroutineScope?
     ) {
+        LogUtilz.log.v(TAG, "completeNonConsumable: $purchase")
         if(billingClient?.isReady == false) {
             LogUtilz.log.wtf(TAG, "billing client is not ready")
             return
@@ -432,6 +488,7 @@ class GoogleSales(private val inventory: GoogleInventory,
         purchase: Purchase?,
         mainScope: CoroutineScope?
     ) {
+        LogUtilz.log.v(TAG, "completeSubscription: $purchase")
         if(billingClient?.isReady == false) {
             LogUtilz.log.wtf(TAG, "billing client is not ready")
             return
@@ -497,10 +554,42 @@ class GoogleSales(private val inventory: GoogleInventory,
         if (client.isReady()) {
             LogUtilz.log.i(TAG, "Fetching all $type purchases made by user.")
             mainScope.launch(Dispatchers.IO) {
-                queryPurchaseHistory(type)
+                queryOrderHistory(type)
             }
         } else {
             LogUtilz.log.e(TAG, "Android BillingClient was not ready yet to continue queryPurchases()")
+        }
+    }
+
+    suspend fun queryReceiptsAsync(type: Productz.Type?): List<Receiptz> = coroutineScope {
+        LogUtilz.log.v(TAG, "queryReceiptsAsync: $type")
+        if (client.isReady()) {
+            LogUtilz.log.i(TAG, "Fetching all $type purchases made by user.")
+            val skuType = if(type == Productz.Type.SUBSCRIPTION) BillingClient.SkuType.SUBS else BillingClient.SkuType.INAPP
+
+            val purchaseHistoryResult = client.getBillingClient()?.queryPurchaseHistory(skuType)
+            if(purchaseHistoryResult?.purchaseHistoryRecordList.isNullOrEmpty()) {
+                emptyList()
+            } else {
+                // convert records into receipts
+                val receiptsList = mutableListOf<Receiptz>()
+                purchaseHistoryResult?.purchaseHistoryRecordList?.forEach { record ->
+                    val receipt = GoogleReceipt(
+                        purchase = null
+                    )
+                    receipt.entitlement = record.purchaseToken
+                    receipt.orderDate = Date(record.purchaseTime)
+                    receipt.skus = record.skus
+                    receipt.originalJson = record.originalJson
+                    receipt.quantity = record.quantity
+                    receipt.signature = record.signature
+                    receiptsList.add(receipt)
+                }
+                receiptsList
+            }
+        } else {
+            LogUtilz.log.e(TAG, "Android BillingClient was not ready yet to continue queryPurchases()")
+            emptyList()
         }
     }
 
@@ -509,8 +598,8 @@ class GoogleSales(private val inventory: GoogleInventory,
 
         val purchaseResponseListener =
             PurchasesResponseListener { billingResult, purchases ->
-                BillingResponsez.logResult(billingResult)
-                LogUtilz.log.d(TAG, "Purchases: $purchases")
+                GoogleResponse.logResult(billingResult)
+                LogUtilz.log.d(TAG, "Queried Purchases (SUB): $purchases")
 
                 if(billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                     activeSubscriptions.addAll(purchases)
@@ -527,8 +616,8 @@ class GoogleSales(private val inventory: GoogleInventory,
 
         val purchaseResponseListener =
             PurchasesResponseListener { billingResult, purchases ->
-                BillingResponsez.logResult(billingResult)
-                LogUtilz.log.d(TAG, "Purchases: $purchases")
+                GoogleResponse.logResult(billingResult)
+                LogUtilz.log.d(TAG, "Queried Purchases (IAP): $purchases")
 
                 if(billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                     activeInAppProducts.addAll(purchases)
@@ -540,19 +629,34 @@ class GoogleSales(private val inventory: GoogleInventory,
         client.getBillingClient()?.queryPurchasesAsync(BillingClient.SkuType.INAPP, purchaseResponseListener)
     }
 
-    private fun queryPurchaseHistory(type: Productz.Type?) {
-        LogUtilz.log.v(TAG, "queryPurchaseHistory: $type")
+    private fun queryOrderHistory(type: Productz.Type?) {
+        LogUtilz.log.v(TAG, "queryOrderHistory: $type")
         val skuType = if(type == Productz.Type.SUBSCRIPTION) BillingClient.SkuType.SUBS else BillingClient.SkuType.INAPP
         val purchaseHistoryResponseListener =
             PurchaseHistoryResponseListener { billingResult, records ->
                 // handle billingResult
-                BillingResponsez.logResult(billingResult)
+                GoogleResponse.logResult(billingResult)
 
                 // todo - purchase history records
                 if(records.isNullOrEmpty()) {
+                    LogUtilz.log.w(TAG, "No receipts found for product type: $type")
                     // notify empty list
                 } else {
                     // convert records into receipts
+                    val receiptsList = mutableListOf<Receiptz>()
+                    records.forEach { record ->
+                        val receipt = GoogleReceipt(
+                            purchase = null
+                        )
+                        receipt.entitlement = record.purchaseToken
+                        receipt.orderDate = Date(record.purchaseTime)
+                        receipt.skus = record.skus
+                        receipt.originalJson = record.originalJson
+                        receipt.quantity = record.quantity
+                        receipt.signature = record.signature
+                        receiptsList.add(receipt)
+                    }
+                    orderHistory.postValue(receiptsList)
                 }
             }
         client.getBillingClient()?.queryPurchaseHistoryAsync(skuType, purchaseHistoryResponseListener)

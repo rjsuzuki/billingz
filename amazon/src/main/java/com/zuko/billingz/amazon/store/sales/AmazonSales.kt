@@ -1,6 +1,7 @@
 package com.zuko.billingz.amazon.store.sales
 
 import android.app.Activity
+import android.os.Bundle
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -57,7 +58,10 @@ class AmazonSales: Salez {
     }
 
     // step 1
-    override fun startOrder(activity: Activity?, product: Productz, client: Clientz) {
+    override fun startOrder(activity: Activity?,
+                            product: Productz,
+                            client: Clientz,
+                            options: Bundle?) {
         PurchasingService.purchase(product.sku)
     }
 
@@ -140,7 +144,7 @@ class AmazonSales: Salez {
     }
 
     override fun setObfuscatedIdentifiers(accountId: String?, profileId: String?) {
-        TODO("Not yet implemented")
+        // todo
     }
 
     private fun completeConsumable(response: PurchaseResponse) {

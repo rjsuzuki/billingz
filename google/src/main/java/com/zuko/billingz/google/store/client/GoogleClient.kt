@@ -8,7 +8,7 @@ import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.zuko.billingz.core.LogUtilz
-import com.zuko.billingz.google.store.model.BillingResponsez
+import com.zuko.billingz.google.store.sales.GoogleResponse
 import com.zuko.billingz.core.store.client.Clientz
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -72,7 +72,7 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
         LogUtilz.log.v(TAG, "Connecting to Google...")
         billingClient?.startConnection(object : BillingClientStateListener {
             override fun onBillingSetupFinished(billingResult: BillingResult) {
-                BillingResponsez.logResult(billingResult)
+                GoogleResponse.logResult(billingResult)
                 when (billingResult.responseCode) {
                     BillingClient.BillingResponseCode.OK -> {
                         // The BillingClient is ready. You can query purchases here.

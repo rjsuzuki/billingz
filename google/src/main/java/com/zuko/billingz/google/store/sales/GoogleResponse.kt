@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
-package com.zuko.billingz.google.store.model
+package com.zuko.billingz.google.store.sales
 
 import android.util.Log
 import com.android.billingclient.api.BillingClient
@@ -24,7 +24,7 @@ import com.zuko.billingz.core.LogUtilz
 /**
  * @author rjsuzuki
  */
-object BillingResponsez {
+object GoogleResponse {
 
     private const val TAG = "BillingResponsez"
 

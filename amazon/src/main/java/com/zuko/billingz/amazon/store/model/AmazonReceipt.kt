@@ -10,6 +10,7 @@ data class AmazonReceipt(
     override var userId: String? = null,
     override var order: Orderz? = null
 ) : Receiptz {
+    override var entitlement: String? = iapReceipt.receiptId
 
     override var orderId: String? = iapReceipt.receiptId
     override var orderDate: Date? = iapReceipt.purchaseDate

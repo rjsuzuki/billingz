@@ -18,6 +18,7 @@ package com.zuko.billingz.google.store
 
 import android.app.Activity
 import android.content.Context
+import android.os.Bundle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.android.billingclient.api.BillingClient
@@ -116,6 +117,7 @@ class GoogleStore private constructor(): Storez {
         override fun startOrder(
             activity: Activity?,
             productId: String?,
+            options: Bundle?,
             listener: Salez.OrderValidatorListener?
         ): LiveData<Orderz> {
             LogUtilz.log.v(TAG, "Starting order: $productId")
@@ -140,19 +142,14 @@ class GoogleStore private constructor(): Storez {
             return data
         }
 
-        override fun consume(product: Productz) {
-            LogUtilz.log.v(TAG, "consume: $product")
-        }
-
         override fun queryOrders(): LiveData<Orderz> {
             LogUtilz.log.v(TAG, "queryOrders")
             return sales.queryOrders()
         }
 
-        override fun getReceipts(type: Productz.Type?): LiveData<List<Receiptz>> {
+        override fun queryReceipts(type: Productz.Type?): LiveData<List<Receiptz>> {
             LogUtilz.log.v(TAG, "getReceipts: $type")
             if(client is GoogleClient) {
-
                 sales.queryReceipts(type)
             }
             return sales.orderHistory

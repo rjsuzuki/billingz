@@ -1,6 +1,7 @@
 package com.zuko.billingz.core.store.sales
 
 import android.app.Activity
+import android.os.Bundle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.zuko.billingz.core.misc.CleanUpz
@@ -35,9 +36,12 @@ interface Salez : CleanUpz {
     var orderValidatorListener: OrderValidatorListener?
 
     /**
-     *
+     * Start a basic purchase flow
      */
-    fun startOrder(activity: Activity?, product: Productz, client: Clientz)
+    fun startOrder(activity: Activity?,
+                   product: Productz,
+                   client: Clientz,
+                   options: Bundle? = null)
 
     /**
      *  Verify the order(purchase). Check for fraud/abuse.

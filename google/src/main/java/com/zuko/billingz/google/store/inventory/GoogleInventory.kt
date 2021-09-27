@@ -140,6 +140,7 @@ class GoogleInventory(private val client: GoogleClient): Inventoryz {
     }
 
     override fun getProduct(sku: String?): Productz? {
+        LogUtilz.log.v(TAG, "getProduct: $sku")
         if(consumables.containsKey(sku))
             return consumables[sku]
         if(nonConsumables.containsKey(sku))

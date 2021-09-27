@@ -17,6 +17,7 @@
 package com.zuko.billingz.core.store.agent
 
 import android.app.Activity
+import android.os.Bundle
 import androidx.annotation.UiThread
 import androidx.lifecycle.LiveData
 import com.zuko.billingz.core.store.model.Orderz
@@ -53,20 +54,19 @@ interface Agentz {
     fun startOrder(
         activity: Activity?,
         productId: String?,
+        options: Bundle? = null,
         listener: Salez.OrderValidatorListener?
     ): LiveData<Orderz>
-
-    /**
-     * Notify the server that the user has "used" the consumable product.
-     */
-    fun consume(product: Productz)
 
     /**
      * Returns the most recent purchase(s) made
      * by the user for each SKU, even if that purchase is expired, canceled, or consumed.
      * Set parameter to null for all products
      */
-    fun getReceipts(type: Productz.Type?): LiveData<List<Receiptz>>
+    @UiThread
+    fun queryReceipts(type: Productz.Type?): LiveData<List<Receiptz>>
+
+    //fun queryReceiptsAsync(type: Productz.Type?)
 
     /**
      * Handle purchases still remaining from recent history. Observe the liveData object
@@ -76,7 +76,10 @@ interface Agentz {
      * @see [Salez.OrderValidatorListener]
      * @see [Salez.OrderUpdaterListener]
      */
+    @UiThread
     fun queryOrders(): LiveData<Orderz>
+
+    //fun queryOrdersAsync()
 
     /**
      * Queries database for matching product ids and loads them into the inventory.

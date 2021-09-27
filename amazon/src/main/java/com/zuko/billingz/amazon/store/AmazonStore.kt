@@ -2,6 +2,7 @@ package com.zuko.billingz.amazon.store
 
 import android.app.Activity
 import android.content.Context
+import android.os.Bundle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.amazon.device.iap.PurchasingService
@@ -92,6 +93,7 @@ class AmazonStore private constructor(): Storez {
         override fun startOrder(
             activity: Activity?,
             productId: String?,
+            options: Bundle?,
             listener: Salez.OrderValidatorListener?
         ): LiveData<Orderz> {
             LogUtilz.log.v(TAG, "Starting order: $productId")
@@ -103,22 +105,12 @@ class AmazonStore private constructor(): Storez {
             return data
         }
 
-        override fun consume(product: Productz) {
-            LogUtilz.log.v(TAG, "consume: $product")
-            if(product is AmazonProduct) {
-                // todo
-                //product.amazonProduct
-                //PurchasingService.getPurchaseUpdates()
-                //PurchasingService.notifyFulfillment(product.amazonProduct)
-            }
-        }
-
         override fun queryOrders(): LiveData<Orderz> {
             LogUtilz.log.v(TAG, "queryOrders")
             return sales.queryOrders()
         }
 
-        override fun getReceipts(type: Productz.Type?): LiveData<List<Receiptz>> {
+        override fun queryReceipts(type: Productz.Type?): LiveData<List<Receiptz>> {
             LogUtilz.log.v(TAG, "getReceipts: $type")
             return sales.orderHistory
         }

@@ -5,6 +5,12 @@ import java.util.Date
 interface Receiptz {
 
     /**
+     * Unique id for granting entitlement of a product.
+     * Google uses PurchaseTokens.
+     */
+    var entitlement: String?
+
+    /**
      * Unique id of the order
      */
     var orderId: String?
