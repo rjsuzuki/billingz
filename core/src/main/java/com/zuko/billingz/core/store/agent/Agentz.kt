@@ -19,6 +19,7 @@ package com.zuko.billingz.core.store.agent
 import android.app.Activity
 import android.os.Bundle
 import androidx.annotation.UiThread
+import androidx.collection.ArrayMap
 import androidx.lifecycle.LiveData
 import com.zuko.billingz.core.store.model.Orderz
 import com.zuko.billingz.core.store.model.Productz
@@ -64,9 +65,7 @@ interface Agentz {
      * Set parameter to null for all products
      */
     @UiThread
-    fun queryReceipts(type: Productz.Type?): LiveData<List<Receiptz>>
-
-    //fun queryReceiptsAsync(type: Productz.Type?)
+    fun queryReceipts(type: Productz.Type?): LiveData<ArrayMap<String, Receiptz>>
 
     /**
      * Handle purchases still remaining from recent history. Observe the liveData object
@@ -78,8 +77,6 @@ interface Agentz {
      */
     @UiThread
     fun queryOrders(): LiveData<Orderz>
-
-    //fun queryOrdersAsync()
 
     /**
      * Queries database for matching product ids and loads them into the inventory.

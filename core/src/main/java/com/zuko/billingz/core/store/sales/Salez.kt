@@ -2,6 +2,7 @@ package com.zuko.billingz.core.store.sales
 
 import android.app.Activity
 import android.os.Bundle
+import androidx.collection.ArrayMap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.zuko.billingz.core.misc.CleanUpz
@@ -21,9 +22,11 @@ interface Salez : CleanUpz {
     var currentReceipt: MutableLiveData<Receiptz>
 
     /**
+     * Collection of the latest purchases sorted as Key/Value pairs.
+     * Key = string value of entitlement id(purchase token for Google, receipt id for Amazon)
      *
      */
-    var orderHistory: MutableLiveData<List<Receiptz>>
+    var orderHistory: MutableLiveData<ArrayMap<String, Receiptz>>
 
     /**
      *
@@ -49,7 +52,7 @@ interface Salez : CleanUpz {
     fun validateOrder(order: Orderz)
 
     /**
-     * Entitlement.
+     * Internal use only
      */
     fun processOrder(order: Orderz)
 
@@ -57,11 +60,12 @@ interface Salez : CleanUpz {
      * Give content to the user.
      * Acknowledge delivery of content. Optionally, mark the item as consumed
      * so that the user can buy the item again.
+     * Internal use only
      */
     fun completeOrder(order: Orderz)
 
     /**
-     * If an order is cancelled
+     * Internal use only
      */
     fun cancelOrder(order: Orderz)
 
@@ -77,17 +81,24 @@ interface Salez : CleanUpz {
     fun failedOrder(order: Orderz)
 
     /**
-     *
+     * Internal use only
      */
     fun refreshQueries()
 
     /**
-     * TODO
+     * Returns purchases details for currently owned items bought within your app.
+     * Only active subscriptions and non-consumed one-time purchases are returned.
+     * This method uses a cache of Google Play Store app without initiating a network request.
+     * Note: It's recommended for security purposes to go through purchases verification
+     * on your backend (if you have one) by calling one of the following APIs:
+     * [https://developers.google.com/android-publisher/api-ref/purchases/products/get]
+     * [https://developers.google.com/android-publisher/api-ref/purchases/subscriptions/get]
      */
     fun queryOrders(): LiveData<Orderz>
 
     /**
-     *
+     * Returns the most recent purchase made by the user for each SKU,
+     * even if that purchase is expired, canceled, or consumed.
      */
     fun queryReceipts(type: Productz.Type? = null)
 

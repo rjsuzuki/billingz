@@ -134,14 +134,14 @@ class AmazonClient(val inventory: Inventoryz, val sales: Salez): Clientz {
                         LogUtilz.log.d(TAG, "Successful purchase updates request: ${response.requestId}")
 
                         // convert receipts
-                        val list = mutableListOf<Receiptz>()
+                        val map = ArrayMap<String, Receiptz>()
                         for(r in response.receipts) {
                             val receipt = AmazonReceipt(r)
                             receipt.userId = response.userData.userId
                             receipt.marketplace = response.userData.marketplace
-                            list.add(receipt)
+                            map[r.receiptId] = receipt
                         }
-                        sales.orderHistory.value = list
+                        sales.orderHistory.value = map
                     }
                     PurchaseUpdatesResponse.RequestStatus.FAILED -> {
                         LogUtilz.log.e(TAG, "Failed purchase updates request: ${response.requestId}")

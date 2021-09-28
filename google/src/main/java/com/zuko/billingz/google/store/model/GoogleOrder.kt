@@ -71,7 +71,7 @@ data class GoogleOrder(var purchase: Purchase? = null,
 
     override var skus: List<String>? = purchase?.skus
     override var state: Orderz.State = when(purchase?.purchaseState) {
-        Purchase.PurchaseState.PURCHASED -> Orderz.State.COMPLETE
+        Purchase.PurchaseState.PURCHASED -> Orderz.State.PROCESSING
         Purchase.PurchaseState.PENDING -> Orderz.State.PENDING
         else -> Orderz.State.UNKNOWN
     }

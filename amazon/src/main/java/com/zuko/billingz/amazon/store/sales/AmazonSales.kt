@@ -3,6 +3,7 @@ package com.zuko.billingz.amazon.store.sales
 import android.app.Activity
 import android.os.Bundle
 import android.util.Log
+import androidx.collection.ArrayMap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.amazon.device.iap.PurchasingService
@@ -29,7 +30,7 @@ class AmazonSales: Salez {
     override var currentReceipt = MutableLiveData<Receiptz>()
     private var queriedOrder = MutableLiveData<Orderz>()
 
-    override var orderHistory: MutableLiveData<List<Receiptz>> = MutableLiveData()
+    override var orderHistory: MutableLiveData<ArrayMap<String, Receiptz>> = MutableLiveData()
     override var orderUpdaterListener: Salez.OrderUpdaterListener? = null
     override var orderValidatorListener: Salez.OrderValidatorListener? = null
 

@@ -47,9 +47,8 @@ interface Orderz {
 
     enum class State {
         UNKNOWN,
-        STARTING,
-        VALIDATING,
         PROCESSING,
+        VALIDATING,
         COMPLETE,
         FAILED,
         PENDING

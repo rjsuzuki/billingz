@@ -19,6 +19,7 @@ package com.zuko.billingz.google.store
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
+import androidx.collection.ArrayMap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.android.billingclient.api.BillingClient
@@ -147,7 +148,7 @@ class GoogleStore private constructor(): Storez {
             return sales.queryOrders()
         }
 
-        override fun queryReceipts(type: Productz.Type?): LiveData<List<Receiptz>> {
+        override fun queryReceipts(type: Productz.Type?): LiveData<ArrayMap<String, Receiptz>> {
             LogUtilz.log.v(TAG, "getReceipts: $type")
             if(client is GoogleClient) {
                 sales.queryReceipts(type)
