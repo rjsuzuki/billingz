@@ -120,14 +120,6 @@ interface Salez : CleanUpz {
      * show in-app popup, or deliver msg to an inbox, or use an OS notification.
      */
     interface OrderUpdaterListener {
-
-        /**
-         * @param order
-         * @param productType
-         * @param callback
-         */
-        fun onResume(order: Orderz, callback: UpdaterCallback)
-
         /**
          *
          */

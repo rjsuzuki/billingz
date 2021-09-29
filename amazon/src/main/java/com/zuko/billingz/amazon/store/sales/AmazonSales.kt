@@ -68,6 +68,8 @@ class AmazonSales: Salez {
 
     // step 2
     override fun validateOrder(order: Orderz) {
+        order.state = Orderz.State.VALIDATING
+
         try {
             if(order is AmazonOrder) {
                 if(order.response.receipt?.isCanceled == true) {
@@ -87,7 +89,8 @@ class AmazonSales: Salez {
 
     // step 3
     override fun processOrder(order: Orderz) {
-        orderUpdaterListener?.onResume(order, updaterCallback)
+        order.state = Orderz.State.PROCESSING
+        completeOrder(order)
     }
 
     // step 4

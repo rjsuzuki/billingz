@@ -3,6 +3,7 @@ package com.zuko.billingz.amazon.store
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
+import androidx.collection.ArrayMap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.amazon.device.iap.PurchasingService
@@ -110,7 +111,7 @@ class AmazonStore private constructor(): Storez {
             return sales.queryOrders()
         }
 
-        override fun queryReceipts(type: Productz.Type?): LiveData<List<Receiptz>> {
+        override fun queryReceipts(type: Productz.Type?): LiveData<ArrayMap<String, Receiptz>> {
             LogUtilz.log.v(TAG, "getReceipts: $type")
             return sales.orderHistory
         }
