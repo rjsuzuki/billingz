@@ -101,7 +101,7 @@ class GoogleSales(private val inventory: GoogleInventory,
                             options: Bundle?) {
         LogUtilz.log.v(TAG, "Starting Order for sku: ${product.sku}")
         if(product is GoogleProduct && client is GoogleClient) {
-            if(product.type == Productz.Type.SUBSCRIPTION) {
+            val result = if(product.type == Productz.Type.SUBSCRIPTION) {
                 startSubscriptionPurchaseFlow(
                     activity = activity,
                     newSku = product.skuDetails,
@@ -114,6 +114,7 @@ class GoogleSales(private val inventory: GoogleInventory,
                     billingClient = client.getBillingClient()
                 )
             }
+            GoogleResponse.logResult(result)
         }
     }
 
@@ -254,8 +255,8 @@ class GoogleSales(private val inventory: GoogleInventory,
 
         // UI flow will start
         val result = billingClient.launchBillingFlow(activity, flowParams.build())
-        LogUtilz.log.v(TAG, "Purchased flow finished : $result")
-
+        LogUtilz.log.v(TAG, "Purchase flow UI finished with response code: ${result.responseCode}")
+        GoogleResponse.logResult(result)
         return result
     }
 
@@ -685,6 +686,6 @@ class GoogleSales(private val inventory: GoogleInventory,
     }
 
     companion object {
-        private const val TAG = "CustomerSales"
+        private const val TAG = "GoogleSales"
     }
 }

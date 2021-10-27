@@ -26,7 +26,7 @@ import com.zuko.billingz.core.LogUtilz
  */
 object GoogleResponse {
 
-    private const val TAG = "BillingResponsez"
+    private const val TAG = "GoogleBillingz"
 
     /**
      * Convenience logger to interpret the integer code of the [BillingResult]
