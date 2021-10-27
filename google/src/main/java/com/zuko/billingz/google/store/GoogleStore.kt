@@ -45,7 +45,7 @@ import kotlinx.coroutines.cancel
 /**
  * @author rjsuzuki
  */
-class GoogleStore private constructor(): Storez {
+class GoogleStore internal constructor(): Storez {
 
     private val mainScope = MainScope()
     private val purchasesUpdatedListener: PurchasesUpdatedListener =
@@ -55,7 +55,7 @@ class GoogleStore private constructor(): Storez {
             sales.refreshQueries()
         }
     }
-
+    private var context: Context? = null
     private val client: Clientz = GoogleClient(purchasesUpdatedListener)
     private val inventory: Inventoryz = GoogleInventory(client as GoogleClient)
     private val sales: Salez = GoogleSales(inventory as GoogleInventory, client as GoogleClient)
@@ -67,12 +67,13 @@ class GoogleStore private constructor(): Storez {
 
     override fun init(context: Context?) {
         LogUtilz.log.v(TAG, "initializing...")
-        client.init(context, connectionListener)
+        this.context = context
         isInitialized = true
     }
 
     override fun create() {
         LogUtilz.log.v(TAG, "creating...")
+        client.init(context, connectionListener)
         if (isInitialized && client.initialized())
             client.connect()
 
@@ -97,21 +98,23 @@ class GoogleStore private constructor(): Storez {
 
     override fun stop() {
         LogUtilz.log.v(TAG, "stopping...")
-        client.disconnect()
     }
 
     override fun destroy() {
         LogUtilz.log.v(TAG, "destroying...")
+        client.disconnect() // BillingClient can only be used once.
         client.destroy()
         sales.destroy()
         inventory.destroy()
         mainScope.cancel()
+        context = null
     }
 
     private val storeAgent = object : Agentz {
 
         override fun isBillingClientReady(): LiveData<Boolean> {
-            LogUtilz.log.v(TAG, "isBillingClientReady")
+            LogUtilz.log.v(TAG, "isBillingClientReady: ${client.isReady()}")
+            client.checkConnection()
             return client.isClientReady
         }
 

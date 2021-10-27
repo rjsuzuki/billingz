@@ -43,6 +43,6 @@ interface Receiptz {
      */
     var isCanceled: Boolean
 
-    @Deprecated("todo remove")
+
     var order: Orderz?
 }

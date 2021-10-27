@@ -63,7 +63,7 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
                 isInitialized = true
             } ?: LogUtilz.log.w(TAG, "Failed to build client: null context")
         } catch (e: Exception) {
-            isClientReady.value = false
+            isClientReady.postValue(false)
             LogUtilz.log.wtf(TAG, "Failed to instantiate Android BillingClient. ${e.localizedMessage}")
         }
     }
@@ -121,7 +121,7 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
     }
 
     @Synchronized
-    private fun retry() {
+    internal fun retry() {
         LogUtilz.log.w(TAG,"Retrying to connect...")
         if (isInitialized && !isConnected) {
             retryAttempts++

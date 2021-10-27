@@ -251,8 +251,6 @@ class GoogleSales(private val inventory: GoogleInventory,
             }
         }
 
-        flowParams.build()
-
         // UI flow will start
         val result = billingClient.launchBillingFlow(activity, flowParams.build())
         LogUtilz.log.v(TAG, "Purchase flow UI finished with response code: ${result.responseCode}")
@@ -280,7 +278,6 @@ class GoogleSales(private val inventory: GoogleInventory,
         obfuscatedProfileId?.let {
             flowParams.setObfuscatedProfileId(it)
         }
-        flowParams.build()
 
         // UI flow will start
         val result = billingClient.launchBillingFlow(activity, flowParams.build())
@@ -294,12 +291,12 @@ class GoogleSales(private val inventory: GoogleInventory,
      */
     fun processUpdatedPurchases(billingResult: BillingResult?,
                                 purchases: MutableList<Purchase>?) {
-        LogUtilz.log.v(TAG, "processUpdatedPurchases: ${purchases?.size ?: 0 }")
+        LogUtilz.log.v(TAG, "processUpdatedPurchases: purchase list size:${purchases?.size ?: 0 }")
         GoogleResponse.logResult(billingResult)
 
         if (purchases.isNullOrEmpty()) {
             isQueriedOrders = false
-            LogUtilz.log.d(TAG, "No purchases available")
+            LogUtilz.log.d(TAG, "No purchases available to resolve from queryPurchasesAsync")
         } else {
             for (p in purchases) {
                 if (billingResult == null) {

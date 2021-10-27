@@ -51,7 +51,8 @@ class GoogleInventory(private val client: GoogleClient): Inventoryz {
     private fun handleQueryResult(result: SkuDetailsResult?, type: Productz.Type) {
         LogUtilz.log.d(TAG, "Processing inventory query result ->" +
                 "\n type: $type," +
-                "\n billingResult: ${result?.billingResult}," +
+                "\n billingResult code: ${result?.billingResult?.responseCode}," +
+                "\n billingResult msg: ${result?.billingResult?.debugMessage ?: "n/a"}," +
                 "\n products: ${result?.skuDetailsList}" +
                 "\n -----------------------------------")
         if(result?.billingResult?.responseCode == BillingClient.BillingResponseCode.OK

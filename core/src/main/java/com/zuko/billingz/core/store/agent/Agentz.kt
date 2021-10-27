@@ -35,7 +35,9 @@ interface Agentz {
 
     /**
      * Observe changes to the BillingClient's connection to GooglePlay
-     * from the UI thread (in an activity/fragment class).
+     * from the UI thread (in an activity/fragment class). Calling this function
+     * automatically checks if client is connected and will attempt to reconnect
+     * if need be.
      * @return [LiveData<Boolean>]
      */
     @UiThread

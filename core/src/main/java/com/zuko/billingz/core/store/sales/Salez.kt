@@ -41,10 +41,12 @@ interface Salez : CleanUpz {
     /**
      * Start a basic purchase flow
      */
-    fun startOrder(activity: Activity?,
-                   product: Productz,
-                   client: Clientz,
-                   options: Bundle? = null)
+    fun startOrder(
+        activity: Activity?,
+        product: Productz,
+        client: Clientz,
+        options: Bundle? = null
+    )
 
     /**
      *  Verify the order(purchase). Check for fraud/abuse.
