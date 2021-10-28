@@ -149,5 +149,5 @@ Expired: User has cancelled and lost access to the subscription. The user is con
 Apache License 2.0
 The complete license can be found in the `LICENSE.md` file in the root directory of this project.
 
-Copyright (c) 2021 rjsuzuki
+Copyright (c) 2021 rjsuzuki & [Text Me, Inc.](textmeinc.com)
  
