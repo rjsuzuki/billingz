@@ -144,6 +144,9 @@ On hold: User experienced a payment issue, and no longer has access while Google
 Paused: User paused their access, and does not have access until they resume.
 Expired: User has cancelled and lost access to the subscription. The user is considered churned at expiration.
 
+## Special Acknowledgements
+- [TextMe, Inc.](www.textmeinc.com)
+
 ## Licensing
 
 Apache License 2.0
