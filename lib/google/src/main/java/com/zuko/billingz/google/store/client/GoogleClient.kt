@@ -44,6 +44,10 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
     private var connectionListener: Clientz.ConnectionListener? = null
 
     override var isClientReady = MutableLiveData<Boolean>()
+        get() {
+            field.value = isReady()
+            return field
+        }
 
     fun getBillingClient(): BillingClient? {
         return billingClient
