@@ -65,11 +65,11 @@ class GoogleInventory(private val client: GoogleClient) : Inventoryz {
         LogUtilz.log.d(
             TAG,
             "Processing inventory query result ->" +
-                    "\n type: $type," +
-                    "\n billingResult code: ${result?.billingResult?.responseCode}," +
-                    "\n billingResult msg: ${result?.billingResult?.debugMessage ?: "n/a"}," +
-                    "\n products: ${result?.skuDetailsList}" +
-                    "\n -----------------------------------"
+                "\n type: $type," +
+                "\n billingResult code: ${result?.billingResult?.responseCode}," +
+                "\n billingResult msg: ${result?.billingResult?.debugMessage ?: "n/a"}," +
+                "\n products: ${result?.skuDetailsList}" +
+                "\n -----------------------------------"
         )
         if (result?.billingResult?.responseCode == BillingClient.BillingResponseCode.OK &&
             !result.skuDetailsList.isNullOrEmpty()
@@ -89,8 +89,8 @@ class GoogleInventory(private val client: GoogleClient) : Inventoryz {
         LogUtilz.log.i(
             TAG,
             "queryInventory(" +
-                    "\n products: ${products.size}," +
-                    "\n )"
+                "\n products: ${products.size}," +
+                "\n )"
         )
         allProducts = products // todo
 
@@ -121,12 +121,14 @@ class GoogleInventory(private val client: GoogleClient) : Inventoryz {
                 }
                 launch(Dispatchers.IO) {
                     LogUtilz.log.d(TAG, "inventory coroutines nonConsumables queried")
-                    val result = queryProducts(skus = nonConsumables, type = Productz.Type.NON_CONSUMABLE)
+                    val result =
+                        queryProducts(skus = nonConsumables, type = Productz.Type.NON_CONSUMABLE)
                     handleQueryResult(result = result, type = Productz.Type.NON_CONSUMABLE)
                 }
                 launch(Dispatchers.IO) {
                     LogUtilz.log.d(TAG, "inventory coroutines subscriptions queried")
-                    val result = queryProducts(skus = subscriptions, type = Productz.Type.SUBSCRIPTION)
+                    val result =
+                        queryProducts(skus = subscriptions, type = Productz.Type.SUBSCRIPTION)
                     handleQueryResult(result = result, type = Productz.Type.SUBSCRIPTION)
                 }
             }
@@ -138,9 +140,9 @@ class GoogleInventory(private val client: GoogleClient) : Inventoryz {
         LogUtilz.log.i(
             TAG,
             "updateInventory(" +
-                    "\n products: ${products?.size ?: 0}," +
-                    "\n type: $type," +
-                    "\n )"
+                "\n products: ${products?.size ?: 0}," +
+                "\n type: $type," +
+                "\n )"
         )
         if (!products.isNullOrEmpty()) {
             when (type) {
@@ -174,7 +176,10 @@ class GoogleInventory(private val client: GoogleClient) : Inventoryz {
         return null
     }
 
-    override fun getProducts(type: Productz.Type?, promo: Productz.Promotion?): Map<String, Productz> {
+    override fun getProducts(
+        type: Productz.Type?,
+        promo: Productz.Promotion?
+    ): Map<String, Productz> {
         when (type) {
             Productz.Type.CONSUMABLE -> {
                 if (promo != null) {

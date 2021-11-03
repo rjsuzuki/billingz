@@ -90,9 +90,9 @@ class GoogleSales(
         LogUtilz.log.d(
             TAG,
             "Setting obfuscated identifiers (" +
-                    "\n Account ID: $accountId," +
-                    "\n Profile ID: $profileId" +
-                    "\n )"
+                "\n Account ID: $accountId," +
+                "\n Profile ID: $profileId" +
+                "\n )"
         )
         obfuscatedAccountId = accountId
         obfuscatedProfileId = profileId
@@ -254,8 +254,8 @@ class GoogleSales(
                 LogUtilz.log.d(
                     TAG,
                     "Subscription to replace confirmed:" +
-                            "\n old sku: $oldSubSku" +
-                            "\n proration mode: $prorationMode"
+                        "\n old sku: $oldSubSku" +
+                        "\n proration mode: $prorationMode"
                 )
                 // start upgrade or downgrade
                 activeSubscriptions[oldSubSku]?.entitlement?.let { oldPurchaseToken ->
@@ -379,9 +379,9 @@ class GoogleSales(
         LogUtilz.log.d(
             TAG,
             "processPendingTransaction (" +
-                    "\n purchase: $purchase," +
-                    "\n billingResult: $billingResult" +
-                    "\n )"
+                "\n purchase: $purchase," +
+                "\n billingResult: $billingResult" +
+                "\n )"
         )
         GoogleResponse.logResult(billingResult)
         if (pendingOrders.containsKey(purchase.orderId)) {
@@ -404,9 +404,9 @@ class GoogleSales(
         LogUtilz.log.e(
             TAG,
             "processPurchasingError (" +
-                    "\n purchase: $purchase," +
-                    "\n billingResult: $billingResult" +
-                    "\n )"
+                "\n purchase: $purchase," +
+                "\n billingResult: $billingResult" +
+                "\n )"
         )
         GoogleResponse.logResult(billingResult)
         val order = GoogleOrder(
