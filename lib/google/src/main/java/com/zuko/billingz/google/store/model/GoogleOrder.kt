@@ -30,9 +30,11 @@ import com.zuko.billingz.core.store.model.Productz
  *
  *
  */
-data class GoogleOrder(var purchase: Purchase? = null,
-                       val billingResult: BillingResult?,
-                       val msg: String): Orderz {
+data class GoogleOrder(
+    var purchase: Purchase? = null,
+    val billingResult: BillingResult?,
+    val msg: String
+) : Orderz {
 
     /**
      * An Order ID is a string that represents a financial transaction
@@ -70,17 +72,13 @@ data class GoogleOrder(var purchase: Purchase? = null,
     var products: Map<String, Productz.Type> = ArrayMap()
 
     override var skus: List<String>? = purchase?.skus
-    override var state: Orderz.State = when(purchase?.purchaseState) {
+    override var state: Orderz.State = when (purchase?.purchaseState) {
         Purchase.PurchaseState.PURCHASED -> Orderz.State.PROCESSING
         Purchase.PurchaseState.PENDING -> Orderz.State.PENDING
         else -> Orderz.State.UNKNOWN
     }
-    override var isCancelled: Boolean = Purchase.PurchaseState.UNSPECIFIED_STATE == purchase?.purchaseState
+    override var isCancelled: Boolean =
+        Purchase.PurchaseState.UNSPECIFIED_STATE == purchase?.purchaseState
     override var quantity: Int = purchase?.quantity ?: 1
     override var originalJson: String? = purchase?.originalJson
 }
-
-
-
-
-

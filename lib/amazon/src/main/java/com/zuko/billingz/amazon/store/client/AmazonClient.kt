@@ -35,7 +35,7 @@ import com.zuko.billingz.core.store.model.Productz
 import com.zuko.billingz.core.store.model.Receiptz
 import com.zuko.billingz.core.store.sales.Salez
 
-class AmazonClient(val inventory: Inventoryz, val sales: Salez): Clientz {
+class AmazonClient(val inventory: Inventoryz, val sales: Salez) : Clientz {
 
     override var isClientReady = MutableLiveData<Boolean>()
 
@@ -54,118 +54,157 @@ class AmazonClient(val inventory: Inventoryz, val sales: Salez): Clientz {
     override fun init(context: Context?, connectionListener: Clientz.ConnectionListener) {
 
         LogUtilz.log.v(TAG, "initClient")
-        PurchasingService.registerListener(context, object: PurchasingListener {
+        PurchasingService.registerListener(
+            context,
+            object : PurchasingListener {
 
-            override fun onUserDataResponse(response: UserDataResponse?) {
-                // Invoked after a call to getUserData().
-                // Determines the UserId and marketplace of the currently logged on user.
-                when(response?.requestStatus) {
-                    UserDataResponse.RequestStatus.SUCCESSFUL -> {
-                        LogUtilz.log.d(TAG, "Successful user data request: ${response.requestId}")
-                        userDataResponse = response
-                        isConnected = true
-                    }
-                    UserDataResponse.RequestStatus.FAILED -> {
-                        LogUtilz.log.e(TAG, "Failed user data request: ${response.requestId}")
-                        isConnected = false
-                    }
-                    UserDataResponse.RequestStatus.NOT_SUPPORTED -> {
-                        isConnected = false
-                        LogUtilz.log.wtf(TAG, "Unsupported user data request: ${response.requestId}")
-                    }
-                }
-            }
-
-            override fun onProductDataResponse(response: ProductDataResponse?) {
-                // Invoked after a call to getProductDataRequest(java.util.Set skus).
-                // Retrieves information about SKUs you would like to sell from your app.
-                // Use the valid SKUs in onPurchaseResponse().
-                when(response?.requestStatus) {
-                    ProductDataResponse.RequestStatus.SUCCESSFUL -> {
-                        LogUtilz.log.d(TAG, "Successful product data request: ${response.requestId}")
-
-                        // convert
-                        val products = ArrayMap<String, Productz>()
-                        for(r in response.productData) {
-                            val product = AmazonProduct(r.value)
-                            products[r.key] = product
-                            LogUtilz.log.v(TAG, "Validated product: $product")
+                override fun onUserDataResponse(response: UserDataResponse?) {
+                    // Invoked after a call to getUserData().
+                    // Determines the UserId and marketplace of the currently logged on user.
+                    when (response?.requestStatus) {
+                        UserDataResponse.RequestStatus.SUCCESSFUL -> {
+                            LogUtilz.log.d(
+                                TAG,
+                                "Successful user data request: ${response.requestId}"
+                            )
+                            userDataResponse = response
+                            isConnected = true
                         }
-                        //todo inventory.allProducts = products
-
-                        // cache
-                        val unavailableSkusSet = response.unavailableSkus // todo
-                    }
-                    ProductDataResponse.RequestStatus.FAILED -> {
-                        LogUtilz.log.e(TAG, "Failed product data request: ${response.requestId}")
-                    }
-                    ProductDataResponse.RequestStatus.NOT_SUPPORTED -> {
-                        LogUtilz.log.wtf(TAG, "Unsupported product data request: ${response.requestId}")
-                    }
-                }
-            }
-
-            override fun onPurchaseResponse(response: PurchaseResponse?) {
-                // Invoked after a call to purchase(String sku).
-                // Used to determine the status of a purchase.
-                when(response?.requestStatus) {
-                    PurchaseResponse.RequestStatus.SUCCESSFUL -> {
-                        LogUtilz.log.d(TAG, "Successful purchase request: ${response.requestId}")
-                        // convert to order
-                        val order = AmazonOrder(response)
-                        sales.validateOrder(order)
-                    }
-                    PurchaseResponse.RequestStatus.FAILED -> {
-                        LogUtilz.log.e(TAG, "Failed purchase request: ${response.requestId}")
-                        val order = AmazonOrder(response)
-                        sales.failedOrder(order)
-                    }
-                    PurchaseResponse.RequestStatus.ALREADY_PURCHASED -> {
-                        LogUtilz.log.w(TAG, "Already purchased product for purchase request: ${response.requestId}")
-                        val order = AmazonOrder(response)
-                        sales.failedOrder(order)
-                    }
-                    PurchaseResponse.RequestStatus.INVALID_SKU -> {
-                        LogUtilz.log.w(TAG, "Invalid sku id for purchase request: ${response.requestId}")
-                        val order = AmazonOrder(response)
-                        sales.failedOrder(order)
-                    }
-                    PurchaseResponse.RequestStatus.NOT_SUPPORTED -> {
-                        LogUtilz.log.wtf(TAG, "Unsupported purchase request: ${response.requestId}")
-                        val order = AmazonOrder(response)
-                        sales.failedOrder(order)
-                    }
-                }
-            }
-
-            override fun onPurchaseUpdatesResponse(response: PurchaseUpdatesResponse?) {
-                // Invoked after a call to getPurchaseUpdates(boolean reset).
-                // Retrieves the purchase history.
-                // Amazon recommends that you persist the returned PurchaseUpdatesResponse
-                // data and query the system only for updates.
-                when(response?.requestStatus) {
-                    PurchaseUpdatesResponse.RequestStatus.SUCCESSFUL -> {
-                        LogUtilz.log.d(TAG, "Successful purchase updates request: ${response.requestId}")
-
-                        // convert receipts
-                        val map = ArrayMap<String, Receiptz>()
-                        for(r in response.receipts) {
-                            val receipt = AmazonReceipt(r)
-                            receipt.userId = response.userData.userId
-                            receipt.marketplace = response.userData.marketplace
-                            map[r.receiptId] = receipt
+                        UserDataResponse.RequestStatus.FAILED -> {
+                            LogUtilz.log.e(TAG, "Failed user data request: ${response.requestId}")
+                            isConnected = false
                         }
-                        sales.orderHistory.value = map
+                        UserDataResponse.RequestStatus.NOT_SUPPORTED -> {
+                            isConnected = false
+                            LogUtilz.log.wtf(
+                                TAG,
+                                "Unsupported user data request: ${response.requestId}"
+                            )
+                        }
                     }
-                    PurchaseUpdatesResponse.RequestStatus.FAILED -> {
-                        LogUtilz.log.e(TAG, "Failed purchase updates request: ${response.requestId}")
+                }
+
+                override fun onProductDataResponse(response: ProductDataResponse?) {
+                    // Invoked after a call to getProductDataRequest(java.util.Set skus).
+                    // Retrieves information about SKUs you would like to sell from your app.
+                    // Use the valid SKUs in onPurchaseResponse().
+                    when (response?.requestStatus) {
+                        ProductDataResponse.RequestStatus.SUCCESSFUL -> {
+                            LogUtilz.log.d(
+                                TAG,
+                                "Successful product data request: ${response.requestId}"
+                            )
+
+                            // convert
+                            val products = ArrayMap<String, Productz>()
+                            for (r in response.productData) {
+                                val product = AmazonProduct(r.value)
+                                products[r.key] = product
+                                LogUtilz.log.v(TAG, "Validated product: $product")
+                            }
+                            // todo inventory.allProducts = products
+
+                            // cache
+                            val unavailableSkusSet = response.unavailableSkus // todo
+                        }
+                        ProductDataResponse.RequestStatus.FAILED -> {
+                            LogUtilz.log.e(
+                                TAG,
+                                "Failed product data request: ${response.requestId}"
+                            )
+                        }
+                        ProductDataResponse.RequestStatus.NOT_SUPPORTED -> {
+                            LogUtilz.log.wtf(
+                                TAG,
+                                "Unsupported product data request: ${response.requestId}"
+                            )
+                        }
                     }
-                    PurchaseUpdatesResponse.RequestStatus.NOT_SUPPORTED -> {
-                        LogUtilz.log.wtf(TAG, "Unsupported purchase update request: ${response.requestId}")
+                }
+
+                override fun onPurchaseResponse(response: PurchaseResponse?) {
+                    // Invoked after a call to purchase(String sku).
+                    // Used to determine the status of a purchase.
+                    when (response?.requestStatus) {
+                        PurchaseResponse.RequestStatus.SUCCESSFUL -> {
+                            LogUtilz.log.d(
+                                TAG,
+                                "Successful purchase request: ${response.requestId}"
+                            )
+                            // convert to order
+                            val order = AmazonOrder(response)
+                            sales.validateOrder(order)
+                        }
+                        PurchaseResponse.RequestStatus.FAILED -> {
+                            LogUtilz.log.e(TAG, "Failed purchase request: ${response.requestId}")
+                            val order = AmazonOrder(response)
+                            sales.failedOrder(order)
+                        }
+                        PurchaseResponse.RequestStatus.ALREADY_PURCHASED -> {
+                            LogUtilz.log.w(
+                                TAG,
+                                "Already purchased product for purchase request: ${response.requestId}"
+                            )
+                            val order = AmazonOrder(response)
+                            sales.failedOrder(order)
+                        }
+                        PurchaseResponse.RequestStatus.INVALID_SKU -> {
+                            LogUtilz.log.w(
+                                TAG,
+                                "Invalid sku id for purchase request: ${response.requestId}"
+                            )
+                            val order = AmazonOrder(response)
+                            sales.failedOrder(order)
+                        }
+                        PurchaseResponse.RequestStatus.NOT_SUPPORTED -> {
+                            LogUtilz.log.wtf(
+                                TAG,
+                                "Unsupported purchase request: ${response.requestId}"
+                            )
+                            val order = AmazonOrder(response)
+                            sales.failedOrder(order)
+                        }
+                    }
+                }
+
+                override fun onPurchaseUpdatesResponse(response: PurchaseUpdatesResponse?) {
+                    // Invoked after a call to getPurchaseUpdates(boolean reset).
+                    // Retrieves the purchase history.
+                    // Amazon recommends that you persist the returned PurchaseUpdatesResponse
+                    // data and query the system only for updates.
+                    when (response?.requestStatus) {
+                        PurchaseUpdatesResponse.RequestStatus.SUCCESSFUL -> {
+                            LogUtilz.log.d(
+                                TAG,
+                                "Successful purchase updates request: ${response.requestId}"
+                            )
+
+                            // convert receipts
+                            val map = ArrayMap<String, Receiptz>()
+                            for (r in response.receipts) {
+                                val receipt = AmazonReceipt(r)
+                                receipt.userId = response.userData.userId
+                                receipt.marketplace = response.userData.marketplace
+                                map[r.receiptId] = receipt
+                            }
+                            sales.orderHistory.value = map
+                        }
+                        PurchaseUpdatesResponse.RequestStatus.FAILED -> {
+                            LogUtilz.log.e(
+                                TAG,
+                                "Failed purchase updates request: ${response.requestId}"
+                            )
+                        }
+                        PurchaseUpdatesResponse.RequestStatus.NOT_SUPPORTED -> {
+                            LogUtilz.log.wtf(
+                                TAG,
+                                "Unsupported purchase update request: ${response.requestId}"
+                            )
+                        }
                     }
                 }
             }
-        })
+        )
         isInitialized = true
     }
 

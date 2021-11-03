@@ -25,7 +25,7 @@ import com.zuko.billingz.core.LogUtilz
 import com.zuko.billingz.core.store.inventory.Inventoryz
 import com.zuko.billingz.core.store.model.Productz
 
-class AmazonInventory: Inventoryz {
+class AmazonInventory : Inventoryz {
 
     override var allProducts: Map<String, Productz.Type> = HashMap()
     override var consumables: Map<String, Productz> = HashMap()
@@ -67,17 +67,17 @@ class AmazonInventory: Inventoryz {
         productType: Productz.Type?
     ): LiveData<Map<String, Productz>> {
 
-        when(productType) {
+        when (productType) {
             Productz.Type.CONSUMABLE -> {
-                //consumables = consumables + products.associateBy { it.sku.toString() }
+                // consumables = consumables + products.associateBy { it.sku.toString() }
                 requestedProducts.postValue(consumables)
             }
             Productz.Type.NON_CONSUMABLE -> {
-                //nonConsumables = nonConsumables + products.associateBy { it.sku.toString() }
+                // nonConsumables = nonConsumables + products.associateBy { it.sku.toString() }
                 requestedProducts.postValue(nonConsumables)
             }
             Productz.Type.SUBSCRIPTION -> {
-                //subscriptions = subscriptions + products.associateBy { it.sku.toString() }
+                // subscriptions = subscriptions + products.associateBy { it.sku.toString() }
                 requestedProducts.postValue(subscriptions)
             }
         }
@@ -85,11 +85,11 @@ class AmazonInventory: Inventoryz {
     }
 
     override fun getProduct(sku: String?): Productz? {
-        if(consumables.containsKey(sku))
+        if (consumables.containsKey(sku))
             return consumables[sku]
-        if(nonConsumables.containsKey(sku))
+        if (nonConsumables.containsKey(sku))
             return nonConsumables[sku]
-        if(subscriptions.containsKey(sku))
+        if (subscriptions.containsKey(sku))
             return subscriptions[sku]
         return null
     }
@@ -97,10 +97,10 @@ class AmazonInventory: Inventoryz {
     override fun getProducts(type: Productz.Type?, promo: Productz.Promotion?): Map<String, Productz> {
         when (type) {
             Productz.Type.CONSUMABLE -> {
-                if(promo != null) {
+                if (promo != null) {
                     consumables.forEach { entry ->
                         val promos = ArrayMap<String, Productz>()
-                        if(entry.value.promotion == promo) {
+                        if (entry.value.promotion == promo) {
                             promos[entry.key] = entry.value
                         }
                         return promos
@@ -109,10 +109,10 @@ class AmazonInventory: Inventoryz {
                 return consumables
             }
             Productz.Type.NON_CONSUMABLE -> {
-                if(promo != null) {
+                if (promo != null) {
                     nonConsumables.forEach { entry ->
                         val promos = ArrayMap<String, Productz>()
-                        if(entry.value.promotion == promo) {
+                        if (entry.value.promotion == promo) {
                             promos[entry.key] = entry.value
                         }
                         return promos
@@ -121,10 +121,10 @@ class AmazonInventory: Inventoryz {
                 return nonConsumables
             }
             Productz.Type.SUBSCRIPTION -> {
-                if(promo != null ) {
+                if (promo != null) {
                     subscriptions.forEach { entry ->
                         val promos = ArrayMap<String, Productz>()
-                        if(entry.value.promotion == promo) {
+                        if (entry.value.promotion == promo) {
                             promos[entry.key] = entry.value
                         }
                         return promos

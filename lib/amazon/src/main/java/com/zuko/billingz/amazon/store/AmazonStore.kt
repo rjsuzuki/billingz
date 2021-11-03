@@ -36,7 +36,7 @@ import com.zuko.billingz.core.store.sales.Salez
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 
-class AmazonStore private constructor(): Storez {
+class AmazonStore private constructor() : Storez {
 
     private val mainScope = MainScope()
     private val inventory = AmazonInventory()
@@ -75,7 +75,7 @@ class AmazonStore private constructor(): Storez {
     override fun resume() {
         LogUtilz.log.v(TAG, "resuming...")
         client.checkConnection()
-        if(client.isReady()) {
+        if (client.isReady()) {
             sales.refreshQueries()
         }
     }
@@ -96,9 +96,9 @@ class AmazonStore private constructor(): Storez {
         client.destroy()
     }
 
-    private val agent = object: Agentz {
+    private val agent = object : Agentz {
         override fun isInventoryReady(): LiveData<Boolean> {
-            //todo
+            // todo
             return MutableLiveData()
         }
 
@@ -137,8 +137,10 @@ class AmazonStore private constructor(): Storez {
             return inventory.queryInventory(products = products)
         }
 
-        override fun getProducts(type: Productz.Type?,
-                                 promo: Productz.Promotion?): Map<String, Productz> {
+        override fun getProducts(
+            type: Productz.Type?,
+            promo: Productz.Promotion?
+        ): Map<String, Productz> {
             LogUtilz.log.v(TAG, "getProducts: $type : $promo")
             return inventory.getProducts(
                 type = type,
@@ -181,7 +183,7 @@ class AmazonStore private constructor(): Storez {
         }
 
         fun build(): AmazonStore {
-            if(!::instance.isInitialized) {
+            if (!::instance.isInitialized) {
                 instance = AmazonStore()
             }
             instance.sales.apply {

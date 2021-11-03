@@ -287,7 +287,6 @@ class GoogleStore internal constructor() : Storez {
             }
             return instance
         }
-
     }
 
     companion object {

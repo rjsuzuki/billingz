@@ -5,12 +5,13 @@ import com.android.billingclient.api.SkuDetails
 import com.zuko.billingz.core.store.model.Productz
 import java.util.Currency
 
-
 /**
  * https://developer.android.com/reference/com/android/billingclient/api/SkuDetails
  */
-data class GoogleProduct(val skuDetails: SkuDetails,
-                         override val type: Productz.Type): Productz {
+data class GoogleProduct(
+    val skuDetails: SkuDetails,
+    override val type: Productz.Type
+) : Productz {
 
     var id: Int = -1
     override val sku: String = skuDetails.sku

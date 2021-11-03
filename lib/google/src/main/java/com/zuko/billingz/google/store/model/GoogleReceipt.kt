@@ -13,14 +13,15 @@ data class GoogleReceipt(
     val purchase: Purchase?,
     override var userId: String? = null,
     override var order: Orderz? = null
-): Receiptz {
+) : Receiptz {
     override var entitlement: String? = purchase?.purchaseToken
     override var orderId: String? = order?.orderId
     override var orderDate: Date? = order?.orderTime?.let { Date(it) }
     override var skus: List<String>? = order?.skus
 
     override var cancelDate: Date? = null
-    override var isCanceled: Boolean = purchase?.purchaseState == Purchase.PurchaseState.UNSPECIFIED_STATE
+    override var isCanceled: Boolean =
+        purchase?.purchaseState == Purchase.PurchaseState.UNSPECIFIED_STATE
 
     var quantity: Int = 1
     var signature: String? = purchase?.signature

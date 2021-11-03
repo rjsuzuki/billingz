@@ -22,14 +22,14 @@ import com.zuko.billingz.core.store.model.Productz
 import java.util.Currency
 import java.util.Locale
 
-data class AmazonProduct(var amazonProduct: Product): Productz {
+data class AmazonProduct(var amazonProduct: Product) : Productz {
 
     override var sku: String? = amazonProduct.sku
     override var title: String? = amazonProduct.title
     override var price: String? = amazonProduct.price
     override var description: String? = amazonProduct.description
     override var iconUrl: String? = amazonProduct.smallIconUrl
-    override val type: Productz.Type = when(amazonProduct.productType) {
+    override val type: Productz.Type = when (amazonProduct.productType) {
         ProductType.CONSUMABLE -> Productz.Type.CONSUMABLE
         ProductType.ENTITLED -> Productz.Type.NON_CONSUMABLE
         ProductType.SUBSCRIPTION -> Productz.Type.SUBSCRIPTION

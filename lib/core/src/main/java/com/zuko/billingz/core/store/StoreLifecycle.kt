@@ -19,7 +19,6 @@ package com.zuko.billingz.core.store
 import android.content.Context
 import androidx.lifecycle.DefaultLifecycleObserver
 
-
 /**
  * Implement androidx.lifecycle events
  */

@@ -33,7 +33,7 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class GoogleInventory(private val client: GoogleClient): Inventoryz {
+class GoogleInventory(private val client: GoogleClient) : Inventoryz {
 
     override var allProducts: Map<String, Productz.Type> = ArrayMap() // todo remove
 
@@ -45,7 +45,7 @@ class GoogleInventory(private val client: GoogleClient): Inventoryz {
     private val mainScope = MainScope()
 
     private suspend fun queryProducts(skus: List<String>, type: Productz.Type): SkuDetailsResult? {
-        val skuType = when(type) {
+        val skuType = when (type) {
             Productz.Type.CONSUMABLE -> BillingClient.SkuType.INAPP
             Productz.Type.NON_CONSUMABLE -> BillingClient.SkuType.INAPP
             Productz.Type.SUBSCRIPTION -> BillingClient.SkuType.SUBS
@@ -62,14 +62,18 @@ class GoogleInventory(private val client: GoogleClient): Inventoryz {
     }
 
     private fun handleQueryResult(result: SkuDetailsResult?, type: Productz.Type) {
-        LogUtilz.log.d(TAG, "Processing inventory query result ->" +
-                "\n type: $type," +
-                "\n billingResult code: ${result?.billingResult?.responseCode}," +
-                "\n billingResult msg: ${result?.billingResult?.debugMessage ?: "n/a"}," +
-                "\n products: ${result?.skuDetailsList}" +
-                "\n -----------------------------------")
-        if(result?.billingResult?.responseCode == BillingClient.BillingResponseCode.OK
-            && !result.skuDetailsList.isNullOrEmpty()) {
+        LogUtilz.log.d(
+            TAG,
+            "Processing inventory query result ->" +
+                    "\n type: $type," +
+                    "\n billingResult code: ${result?.billingResult?.responseCode}," +
+                    "\n billingResult msg: ${result?.billingResult?.debugMessage ?: "n/a"}," +
+                    "\n products: ${result?.skuDetailsList}" +
+                    "\n -----------------------------------"
+        )
+        if (result?.billingResult?.responseCode == BillingClient.BillingResponseCode.OK &&
+            !result.skuDetailsList.isNullOrEmpty()
+        ) {
             val availableProducts = mutableListOf<Productz>()
             result.skuDetailsList?.let { skus ->
                 for (s in skus) {
@@ -83,7 +87,8 @@ class GoogleInventory(private val client: GoogleClient): Inventoryz {
 
     override fun queryInventory(products: Map<String, Productz.Type>): LiveData<Map<String, Productz>> {
         LogUtilz.log.i(
-            TAG, "queryInventory(" +
+            TAG,
+            "queryInventory(" +
                     "\n products: ${products.size}," +
                     "\n )"
         )
@@ -130,10 +135,13 @@ class GoogleInventory(private val client: GoogleClient): Inventoryz {
     }
 
     override fun updateInventory(products: List<Productz>?, type: Productz.Type) {
-        LogUtilz.log.i(TAG, "updateInventory(" +
-                "\n products: ${products?.size ?: 0}," +
-                "\n type: $type," +
-                "\n )")
+        LogUtilz.log.i(
+            TAG,
+            "updateInventory(" +
+                    "\n products: ${products?.size ?: 0}," +
+                    "\n type: $type," +
+                    "\n )"
+        )
         if (!products.isNullOrEmpty()) {
             when (type) {
                 Productz.Type.CONSUMABLE -> {
@@ -157,11 +165,11 @@ class GoogleInventory(private val client: GoogleClient): Inventoryz {
 
     override fun getProduct(sku: String?): Productz? {
         LogUtilz.log.v(TAG, "getProduct: $sku")
-        if(consumables.containsKey(sku))
+        if (consumables.containsKey(sku))
             return consumables[sku]
-        if(nonConsumables.containsKey(sku))
+        if (nonConsumables.containsKey(sku))
             return nonConsumables[sku]
-        if(subscriptions.containsKey(sku))
+        if (subscriptions.containsKey(sku))
             return subscriptions[sku]
         return null
     }
@@ -169,10 +177,10 @@ class GoogleInventory(private val client: GoogleClient): Inventoryz {
     override fun getProducts(type: Productz.Type?, promo: Productz.Promotion?): Map<String, Productz> {
         when (type) {
             Productz.Type.CONSUMABLE -> {
-                if(promo != null) {
+                if (promo != null) {
                     consumables.forEach { entry ->
                         val promos = ArrayMap<String, Productz>()
-                        if(entry.value.promotion == promo) {
+                        if (entry.value.promotion == promo) {
                             promos[entry.key] = entry.value
                         }
                         return promos
@@ -181,10 +189,10 @@ class GoogleInventory(private val client: GoogleClient): Inventoryz {
                 return consumables
             }
             Productz.Type.NON_CONSUMABLE -> {
-                if(promo != null) {
+                if (promo != null) {
                     nonConsumables.forEach { entry ->
                         val promos = ArrayMap<String, Productz>()
-                        if(entry.value.promotion == promo) {
+                        if (entry.value.promotion == promo) {
                             promos[entry.key] = entry.value
                         }
                         return promos
@@ -193,10 +201,10 @@ class GoogleInventory(private val client: GoogleClient): Inventoryz {
                 return nonConsumables
             }
             Productz.Type.SUBSCRIPTION -> {
-                if(promo != null ) {
+                if (promo != null) {
                     subscriptions.forEach { entry ->
                         val promos = ArrayMap<String, Productz>()
-                        if(entry.value.promotion == promo) {
+                        if (entry.value.promotion == promo) {
                             promos[entry.key] = entry.value
                         }
                         return promos
@@ -215,7 +223,7 @@ class GoogleInventory(private val client: GoogleClient): Inventoryz {
     }
 
     override fun destroy() {
-        LogUtilz.log.v(TAG,"destroy")
+        LogUtilz.log.v(TAG, "destroy")
     }
 
     companion object {

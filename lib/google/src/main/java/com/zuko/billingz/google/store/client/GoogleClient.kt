@@ -32,7 +32,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListener): Clientz {
+class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListener) : Clientz {
 
     private val mainScope = MainScope()
 
@@ -119,7 +119,7 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
     }
 
     override fun disconnect() {
-        LogUtilz.log.v(TAG,"Disconnecting from Google...")
+        LogUtilz.log.v(TAG, "Disconnecting from Google...")
         billingClient?.endConnection()
     }
 
@@ -143,7 +143,7 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
 
     @Synchronized
     internal fun retry() {
-        LogUtilz.log.w(TAG,"Retrying to connect...")
+        LogUtilz.log.w(TAG, "Retrying to connect...")
         if (isInitialized && !isConnected) {
             retryAttempts++
             if (retryAttempts <= maxAttempts) {
@@ -163,7 +163,7 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
     }
 
     override fun destroy() {
-        LogUtilz.log.v(TAG,"Destroying client...")
+        LogUtilz.log.v(TAG, "Destroying client...")
         isInitialized = false
         disconnect()
         cancel()

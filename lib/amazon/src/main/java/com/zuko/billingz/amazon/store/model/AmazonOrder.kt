@@ -17,7 +17,6 @@
 package com.zuko.billingz.amazon.store.model
 
 import com.amazon.device.iap.model.PurchaseResponse
-
 import com.zuko.billingz.core.store.model.Orderz
 import com.zuko.billingz.core.store.model.Productz
 

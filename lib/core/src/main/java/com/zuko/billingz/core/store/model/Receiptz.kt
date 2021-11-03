@@ -43,6 +43,5 @@ interface Receiptz {
      */
     var isCanceled: Boolean
 
-
     var order: Orderz?
 }

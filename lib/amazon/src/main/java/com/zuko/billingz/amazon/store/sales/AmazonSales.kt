@@ -36,8 +36,8 @@ import com.zuko.billingz.core.store.sales.Salez
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 
-//https://developer.amazon.com/docs/in-app-purchasing/iap-implement-iap.html#responsereceiver
-class AmazonSales: Salez {
+// https://developer.amazon.com/docs/in-app-purchasing/iap-implement-iap.html#responsereceiver
+class AmazonSales : Salez {
 
     private val mainScope = MainScope()
 
@@ -73,10 +73,12 @@ class AmazonSales: Salez {
     }
 
     // step 1
-    override fun startOrder(activity: Activity?,
-                            product: Productz,
-                            client: Clientz,
-                            options: Bundle?) {
+    override fun startOrder(
+        activity: Activity?,
+        product: Productz,
+        client: Clientz,
+        options: Bundle?
+    ) {
         PurchasingService.purchase(product.sku)
     }
 
@@ -85,8 +87,8 @@ class AmazonSales: Salez {
         order.state = Orderz.State.VALIDATING
 
         try {
-            if(order is AmazonOrder) {
-                if(order.response.receipt?.isCanceled == true) {
+            if (order is AmazonOrder) {
+                if (order.response.receipt?.isCanceled == true) {
                     // revoke
                     cancelOrder(order)
                     Log.wtf(TAG, "isCanceled")
@@ -94,7 +96,10 @@ class AmazonSales: Salez {
                 }
                 // Verify the receipts from the purchase by having your back-end server
                 // verify the receiptId with Amazon's Receipt Verification Service (RVS) before fulfilling the item
-                orderValidatorListener?.validate(order, validatorCallback) ?: LogUtilz.log.e(TAG, "Null validator object. Cannot complete order.")
+                orderValidatorListener?.validate(order, validatorCallback) ?: LogUtilz.log.e(
+                    TAG,
+                    "Null validator object. Cannot complete order."
+                )
             }
         } catch (e: Exception) {
             Log.e(TAG, e.localizedMessage ?: "error")
@@ -110,17 +115,17 @@ class AmazonSales: Salez {
     // step 4
     override fun completeOrder(order: Orderz) {
         try {
-            if(order is AmazonOrder) {
+            if (order is AmazonOrder) {
 
                 // we check if the order is canceled again before completing
-                if(order.response.receipt?.isCanceled == true) {
+                if (order.response.receipt?.isCanceled == true) {
                     // revoke
                     cancelOrder(order)
                     Log.wtf(TAG, "isCanceled")
                     return
                 }
 
-                when(order.product?.type) {
+                when (order.product?.type) {
                     Productz.Type.CONSUMABLE -> completeConsumable(order.response)
                     Productz.Type.NON_CONSUMABLE -> completeNonConsumable(order.response)
                     Productz.Type.SUBSCRIPTION -> completeSubscription(order.response)
@@ -143,7 +148,7 @@ class AmazonSales: Salez {
     override fun queryOrders(): LiveData<Orderz> {
         val purchaseUpdatesRequestId = PurchasingService.getPurchaseUpdates(true)
         Log.d(TAG, "Refresh receipts: $purchaseUpdatesRequestId")
-        //todo - if order is pending still
+        // todo - if order is pending still
         // orderUpdaterListener?.onResume(order, updaterCallback)
 
         // retrieves all Subscription and Entitlement purchases across all devices.
@@ -158,7 +163,7 @@ class AmazonSales: Salez {
 
     override fun queryReceipts(type: Productz.Type?) {
         val purchaseUpdatesRequestId = PurchasingService.getPurchaseUpdates(true) // sales
-        //todo - user requestID to check
+        // todo - user requestID to check
     }
 
     override fun setObfuscatedIdentifiers(accountId: String?, profileId: String?) {
@@ -189,15 +194,21 @@ class AmazonSales: Salez {
 
     override fun cancelOrder(order: Orderz) {
         LogUtilz.log.v(TAG, "cancelOrder")
-        if(order is AmazonOrder) {
-            PurchasingService.notifyFulfillment(order.response.receipt.receiptId, FulfillmentResult.UNAVAILABLE)
+        if (order is AmazonOrder) {
+            PurchasingService.notifyFulfillment(
+                order.response.receipt.receiptId,
+                FulfillmentResult.UNAVAILABLE
+            )
         }
     }
 
     override fun failedOrder(order: Orderz) {
         LogUtilz.log.v(TAG, "failedOrder")
-        if(order is AmazonOrder) {
-            PurchasingService.notifyFulfillment(order.response.receipt.receiptId, FulfillmentResult.UNAVAILABLE)
+        if (order is AmazonOrder) {
+            PurchasingService.notifyFulfillment(
+                order.response.receipt.receiptId,
+                FulfillmentResult.UNAVAILABLE
+            )
         }
     }
 
