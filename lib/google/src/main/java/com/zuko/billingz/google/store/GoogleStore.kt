@@ -136,10 +136,10 @@ class GoogleStore internal constructor() : Storez {
             return data
         }
 
-        override fun isBillingClientReady(): LiveData<Boolean> {
+        override fun getState(): LiveData<Clientz.ConnectionStatus> {
             LogUtilz.log.v(TAG, "isBillingClientReady: ${client.isReady()}")
             client.checkConnection()
-            return client.isClientReady
+            return client.connectionState
         }
 
         override fun startOrder(

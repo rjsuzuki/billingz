@@ -102,9 +102,9 @@ class AmazonStore private constructor() : Storez {
             return MutableLiveData()
         }
 
-        override fun isBillingClientReady(): LiveData<Boolean> {
+        override fun getState(): LiveData<Clientz.ConnectionStatus> {
             LogUtilz.log.v(TAG, "isBillingClientReady")
-            return client.isClientReady
+            return client.connectionState
         }
 
         override fun startOrder(

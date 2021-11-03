@@ -37,7 +37,7 @@ import com.zuko.billingz.core.store.sales.Salez
 
 class AmazonClient(val inventory: Inventoryz, val sales: Salez) : Clientz {
 
-    override var isClientReady = MutableLiveData<Boolean>()
+    override var connectionState = MutableLiveData<Clientz.ConnectionStatus>()
 
     private var isInitialized = false
     private var isConnected = false

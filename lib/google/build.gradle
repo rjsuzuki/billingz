@@ -3,6 +3,7 @@ plugins {
     id "maven-publish"
     id "kotlin-android"
     id "kotlin-kapt"
+    id "org.jetbrains.dokka"
 }
 
 android {
@@ -126,5 +127,4 @@ dependencies {
     api project(':lib:core')
     api "com.android.billingclient:billing-ktx:4.0.0"
     api "androidx.core:core-ktx:1.6.0"
-
 }

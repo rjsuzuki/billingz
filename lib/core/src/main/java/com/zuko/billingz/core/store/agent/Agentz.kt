@@ -21,6 +21,7 @@ import android.os.Bundle
 import androidx.annotation.UiThread
 import androidx.collection.ArrayMap
 import androidx.lifecycle.LiveData
+import com.zuko.billingz.core.store.client.Clientz
 import com.zuko.billingz.core.store.model.Orderz
 import com.zuko.billingz.core.store.model.Productz
 import com.zuko.billingz.core.store.model.Receiptz
@@ -48,7 +49,7 @@ interface Agentz {
      * @return [LiveData<Boolean>]
      */
     @UiThread
-    fun isBillingClientReady(): LiveData<Boolean>
+    fun getState(): LiveData<Clientz.ConnectionStatus>
 
     /**
      * Initiate the purchase flow from the perspective of a user interaction.

@@ -43,9 +43,9 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
     private var maxAttempts = 3
     private var connectionListener: Clientz.ConnectionListener? = null
 
-    override var isClientReady = MutableLiveData<Boolean>()
+    override var connectionState = MutableLiveData<Clientz.ConnectionStatus>()
         get() {
-            field.value = isReady()
+            field.value = getConnectionState()
             return field
         }
 
@@ -58,7 +58,7 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
     }
 
     override fun isReady(): Boolean {
-        LogUtilz.log.d(TAG, "Connection state: ${getConnectionState()}")
+        LogUtilz.log.d(TAG, "Is ready connection state: ${getConnectionStateName()}")
         return isInitialized && isConnected && billingClient?.isReady == true
     }
 
@@ -72,6 +72,7 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
             if (billingClient != null) {
                 LogUtilz.log.v(TAG, "Client already initialized...")
                 connect()
+                isInitialized = true
                 return
             }
             context?.let {
@@ -82,7 +83,7 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
                 isInitialized = true
             } ?: LogUtilz.log.w(TAG, "Failed to build client: null context")
         } catch (e: Exception) {
-            isClientReady.postValue(false)
+            connectionState.postValue(getConnectionState())
             LogUtilz.log.wtf(TAG, "Failed to instantiate Android BillingClient. ${e.localizedMessage}")
         }
     }
@@ -90,6 +91,9 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
     override fun connect() {
         LogUtilz.log.v(TAG, "Connecting to Google...")
         if (billingClient?.isReady == true) {
+            isConnected = true
+            connectionListener?.connected()
+            connectionState.postValue(getConnectionState())
             LogUtilz.log.v(TAG, "Client is already connected to Google...")
             return
         }
@@ -101,16 +105,18 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
                         // The BillingClient is ready. You can query purchases here.
                         isConnected = true
                         connectionListener?.connected()
-                        isClientReady.postValue(true)
+                        connectionState.postValue(getConnectionState())
                     }
                     else -> {
                         Log.w(TAG, "Unhandled response code: ${billingResult.responseCode}")
                         isConnected = false
+                        connectionState.postValue(getConnectionState())
                     }
                 }
             }
 
             override fun onBillingServiceDisconnected() {
+                connectionState.postValue(getConnectionState())
                 isConnected = false
                 retry()
                 // Note: It's strongly recommended that you implement your own connection retry logic
@@ -126,21 +132,18 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
     }
 
     override fun checkConnection() {
-        LogUtilz.log.d(TAG, "Connection state: ${getConnectionState()}")
+        LogUtilz.log.d(TAG, "Connection state: ${getConnectionStateName()}")
         if (!isReady()) {
             connect()
         }
     }
 
-    private fun getConnectionState(): String {
-        return ConnectionStatus.values()[billingClient?.connectionState ?: 0].name
+    private fun getConnectionState(): Clientz.ConnectionStatus {
+        return Clientz.ConnectionStatus.values()[billingClient?.connectionState ?: 0]
     }
 
-    enum class ConnectionStatus {
-        DISCONNECTED,
-        CONNECTING,
-        CONNECTED,
-        CLOSED
+    private fun getConnectionStateName(): String {
+        return getConnectionState().name
     }
 
     @Synchronized

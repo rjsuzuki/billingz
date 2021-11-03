@@ -27,7 +27,7 @@ import com.zuko.billingz.core.misc.CleanUpz
 interface Clientz : CleanUpz {
 
     // fun getBillingClient(): BillingClient?
-    var isClientReady: MutableLiveData<Boolean>
+    var connectionState: MutableLiveData<ConnectionStatus>
 
     /**
      * @return Boolean
@@ -99,5 +99,12 @@ interface Clientz : CleanUpz {
          *
          */
         fun cancel()
+    }
+
+    enum class ConnectionStatus {
+        DISCONNECTED,
+        CONNECTING,
+        CONNECTED,
+        CLOSED
     }
 }
