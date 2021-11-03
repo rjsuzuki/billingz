@@ -95,6 +95,7 @@ class GoogleStore internal constructor() : Storez {
             client.init(context, connectionListener)
             client.connect()
         }
+        client.checkConnection()
     }
 
     override fun start() {
