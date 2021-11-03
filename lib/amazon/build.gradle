@@ -1,10 +1,96 @@
 plugins {
     id "com.android.library"
+    id "maven-publish"
     id "kotlin-android"
     id "kotlin-kapt"
 }
 
 android {
+    // Github Packages
+    def githubProperties = new Properties()
+    githubProperties.load(new FileInputStream(rootProject.file("github.properties")))
+    githubProperties["gpr.usr"] ?: System.getenv("GPR_USER")
+
+    githubProperties.load(new FileInputStream(rootProject.file("github.properties")))
+    githubProperties["gpr.key"] ?: System.getenv("GPR_API_KEY")
+
+    def versionProperties = new Properties()
+    rootProject.file("version.properties").withInputStream { versionProperties.load(it) }
+    def getArtifactId = { ->
+        return  "billingz"
+    }
+
+    //always two digits
+    def getMinor = { ->
+        String minor = versionProperties['v.minor']
+        var m = Integer.valueOf(minor)
+        if(m < 10) {
+            return "0${minor}"
+        }
+        return minor
+    }
+
+    def getHotfix = { ->
+        String hotfix = versionProperties['v.hotfix']
+        var h = Integer.valueOf(hotfix)
+        if(h < 10) {
+            return "${hotfix}0"
+        }
+        return hotfix
+    }
+
+    def getDynamicVersionCode = { ->
+        String major = versionProperties['v.major']
+        String minor = getMinor()
+        String hotfix = getHotfix()
+
+        String result = "${major}${minor}${hotfix}"
+        return result.toInteger()
+    }
+
+    def getVersionName = { ->
+        String major  = versionProperties['v.major']
+        String minor  = getMinor()
+        String hotfix = getHotfix()
+        String result = "${major.toString()}.${minor.toString()}.${hotfix.toString()}"
+        return result
+    }
+
+    afterEvaluate {
+        publishing {
+
+            repositories {
+                maven {
+                    name = "GitHubPackages"
+                    url = uri("https://maven.pkg.github.com/rjsuzuki/billingz")
+                    credentials {
+                        username = System.getenv('GPR_USER')    ?: githubProperties['gpr.usr'] // GPR_USER is a CI Environment Variable
+                        password = System.getenv('GPR_API_KEY') ?: githubProperties['gpr.key'] // GPR_API_KEY is a CI Environment Variable
+                    }
+                }
+            }
+
+            publications {
+                // Creates a Maven publication called "release".
+                release(MavenPublication) {
+                    groupId = 'com.zuko.android'
+                    artifactId = getArtifactId()
+                    version = getVersionName()
+                    artifact("$buildDir/outputs/aar/${artifactId}-release.aar")
+                }
+
+                // Creates a Maven publication called "debug".
+                debug(MavenPublication) {
+                    // Applies the component for the debug build variant
+                    // from components.debug
+                    groupId = 'com.zuko.android'
+                    artifactId = getArtifactId()
+                    version = getVersionName()
+                    artifact("$buildDir/outputs/aar/${getArtifactId()}-debug.aar")
+                }
+            }
+        }
+    }
     compileSdk LibraryInfo.compileSDK
     buildToolsVersion LibraryInfo.buildTools
 

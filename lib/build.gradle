@@ -22,7 +22,7 @@ android {
     rootProject.file("version.properties").withInputStream { versionProperties.load(it) }
 
     def getArtifactId = { ->
-        return "billingz"
+        return  "billingz"
     }
 
     //always two digits
@@ -49,52 +49,16 @@ android {
         String minor = getMinor()
         String hotfix = getHotfix()
 
-    String result = "$major$minor$hotfix"
-    return result.toInteger()
-}
+        String result = "${major}${minor}${hotfix}"
+        return result.toInteger()
+    }
+
     def getVersionName = { ->
         String major  = versionProperties['v.major']
         String minor  = getMinor()
         String hotfix = getHotfix()
         String result = "${major.toString()}.${minor.toString()}.${hotfix.toString()}"
         return result
-    }
-
-
-    afterEvaluate {
-        publishing {
-
-            repositories {
-                maven {
-                    name = "GitHubPackages"
-                    url = uri("https://maven.pkg.github.com/rjsuzuki/billingz")
-                    credentials {
-                        username = System.getenv('GPR_USER')    ?: githubProperties['gpr.usr'] // GPR_USER is a CI Environment Variable
-                        password = System.getenv('GPR_API_KEY') ?: githubProperties['gpr.key'] // GPR_API_KEY is a CI Environment Variable
-                    }
-                }
-            }
-
-            publications {
-                // Creates a Maven publication called "release".
-                release(MavenPublication) {
-                    groupId = 'com.zuko.libs'
-                    artifactId = getArtifactId()
-                    version = getVersionName()
-                    artifact("$buildDir/outputs/aar/${artifactId}-release.aar")
-                }
-
-                // Creates a Maven publication called "debug".
-                debug(MavenPublication) {
-                    // Applies the component for the debug build variant
-                    // from components.debug
-                    groupId = 'com.zuko.libs'
-                    artifactId = getArtifactId()
-                    version = getVersionName()
-                    artifact("$buildDir/outputs/aar/${getArtifactId()}-debug.aar")
-                }
-            }
-        }
     }
 
     compileSdk LibraryInfo.compileSDK
@@ -104,9 +68,9 @@ android {
         minSdk LibraryInfo.minSDK
         targetSdk LibraryInfo.targetSDK
         group = "com.zuko.billingz"
-
+        versionCode 1
         versionName getVersionName()
-        multiDexEnabled true
+        multiDexEnabled false
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
     }
@@ -117,23 +81,6 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-    }
-    flavorDimension "market"
-    productFlavors {
-        google {
-            dimension "market"
-            //minSdk LibraryInfo.minSDK
-            //targetSdk LibraryInfo.targetSDK
-            versionName getArtifactId()
-            versionNameSuffix = "-google"
-        }
-        amazon {
-            dimension "market"
-           // minSdk LibraryInfo.minSDK
-           // targetSdk LibraryInfo.targetSDK
-            versionName = getArtifactId()
-            versionNameSuffix  "-amazon"
         }
     }
 
@@ -171,7 +118,7 @@ dependencies {
 
     api project(':lib:core')
     api project(':lib:google')
-    //api project(':lib:amazon')
+    api project(':lib:amazon')
 
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.3.1'
