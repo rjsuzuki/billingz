@@ -1,6 +1,7 @@
-include ':core'
-rootProject.name = "Billingz"
-include ':amazon'
-include ':google'
-include ':demo'
+rootProject.name = "billingz"
+
+//include ':demo'
 include ':lib'
+include ':lib:core'
+include ':lib:amazon'
+include ':lib:google'
