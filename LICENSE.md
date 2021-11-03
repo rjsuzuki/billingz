@@ -187,7 +187,6 @@
       identification within third-party archives.
 
    Copyright 2021 [rjsuzuki](https://github.com/rjsuzuki)
-
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
