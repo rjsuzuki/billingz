@@ -59,7 +59,7 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
 
     override fun isReady(): Boolean {
         LogUtilz.log.d(TAG, "Connection state: ${getConnectionState()}")
-        return billingClient?.isReady == true
+        return isInitialized && isConnected && billingClient?.isReady == true
     }
 
     override fun init(
@@ -70,11 +70,9 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
         this.connectionListener = connectionListener
         try {
             if (billingClient != null) {
-                billingClient?.endConnection()
-                billingClient = null
-                isInitialized = false
-                isConnected = false
-                isClientReady.postValue(false)
+                LogUtilz.log.v(TAG, "Client already initialized...")
+                connect()
+                return
             }
             context?.let {
                 billingClient = BillingClient.newBuilder(context)

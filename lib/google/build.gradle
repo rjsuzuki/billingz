@@ -24,6 +24,9 @@ android {
     def getMinor = { ->
         String minor = versionProperties['v.minor']
         var m = Integer.valueOf(minor)
+        if(m == 0) {
+            return "0"
+        }
         if(m < 10) {
             return "0${minor}"
         }
@@ -72,7 +75,7 @@ android {
             publications {
                 // Creates a Maven publication called "release".
                 release(MavenPublication) {
-                    groupId = 'com.zuko.android'
+                    groupId = 'com.zuko.android.billingz'
                     artifactId = getArtifactId()
                     version = getVersionName()
                     artifact("$buildDir/outputs/aar/${artifactId}-release.aar")
@@ -82,7 +85,7 @@ android {
                 debug(MavenPublication) {
                     // Applies the component for the debug build variant
                     // from components.debug
-                    groupId = 'com.zuko.android'
+                    groupId = 'com.zuko.android.billingz'
                     artifactId = getArtifactId()
                     version = getVersionName()
                     artifact("$buildDir/outputs/aar/${getArtifactId()}-debug.aar")
