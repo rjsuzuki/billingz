@@ -122,4 +122,6 @@ android {
 dependencies {
     api project(':lib:core')
     api "com.android.billingclient:billing-ktx:4.0.0"
+    api "androidx.core:core-ktx:1.6.0"
+
 }
