@@ -128,12 +128,8 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 }
 
-dokkaHtml.configure {
-    dokkaSourceSets {
-        named("main") {
-            noAndroidSdkLink.set(false)
-        }
-    }
+tasks.dokkaHtmlMultiModule.configure {
+    //outputDirectory.set(buildDir.resolve("dokkaCustomMultiModuleOutput"))
 }
 
 

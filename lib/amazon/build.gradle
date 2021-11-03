@@ -129,3 +129,11 @@ dependencies {
     api files("libs/in-app-purchasing-2.0.76.jar")
     api "androidx.core:core-ktx:1.6.0"
 }
+
+dokkaHtml.configure {
+    dokkaSourceSets {
+        named("main") {
+            noAndroidSdkLink.set(false)
+        }
+    }
+}
