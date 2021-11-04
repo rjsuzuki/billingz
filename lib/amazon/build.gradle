@@ -18,17 +18,17 @@ android {
     def versionProperties = new Properties()
     rootProject.file("version.properties").withInputStream { versionProperties.load(it) }
     def getArtifactId = { ->
-        return  "amazon"
+        return "amazon"
     }
 
     //always two digits
     def getMinor = { ->
         String minor = versionProperties['v.minor']
         var m = Integer.valueOf(minor)
-        if(m == 0) {
+        if (m == 0) {
             return "0"
         }
-        if(m < 10) {
+        if (m < 10) {
             return "0${minor}"
         }
         return minor
@@ -37,7 +37,10 @@ android {
     def getHotfix = { ->
         String hotfix = versionProperties['v.hotfix']
         var h = Integer.valueOf(hotfix)
-        if(h < 10) {
+        if (h == 0) {
+            return "0"
+        }
+        if (h < 10) {
             return "${hotfix}0"
         }
         return hotfix
@@ -53,14 +56,14 @@ android {
     }
 
     def getVersionName = { ->
-        String major  = versionProperties['v.major']
-        String minor  = getMinor()
+        String major = versionProperties['v.major']
+        String minor = getMinor()
         String hotfix = getHotfix()
         String result = "${major.toString()}.${minor.toString()}.${hotfix.toString()}"
         return result
     }
 
-    /*afterEvaluate {
+    afterEvaluate {
         publishing {
 
             repositories {
@@ -68,8 +71,10 @@ android {
                     name = "GitHubPackages"
                     url = uri("https://maven.pkg.github.com/rjsuzuki/billingz")
                     credentials {
-                        username = System.getenv('GPR_USER')    ?: githubProperties['gpr.usr'] // GPR_USER is a CI Environment Variable
-                        password = System.getenv('GPR_API_KEY') ?: githubProperties['gpr.key'] // GPR_API_KEY is a CI Environment Variable
+                        username = System.getenv('GPR_USER') ?: githubProperties['gpr.usr']
+                        // GPR_USER is a CI Environment Variable
+                        password = System.getenv('GPR_API_KEY') ?: githubProperties['gpr.key']
+                        // GPR_API_KEY is a CI Environment Variable
                     }
                 }
             }
@@ -94,7 +99,7 @@ android {
                 }
             }
         }
-    }*/
+    }
     compileSdk LibraryInfo.compileSDK
     buildToolsVersion LibraryInfo.buildTools
 

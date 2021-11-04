@@ -18,7 +18,7 @@ android {
     def versionProperties = new Properties()
     rootProject.file("version.properties").withInputStream { versionProperties.load(it) }
     def getArtifactId = { ->
-        return  "billingz-google"
+        return  "google"
     }
 
     //always two digits
@@ -37,6 +37,9 @@ android {
     def getHotfix = { ->
         String hotfix = versionProperties['v.hotfix']
         var h = Integer.valueOf(hotfix)
+        if(h == 0) {
+            return "0"
+        }
         if(h < 10) {
             return "${hotfix}0"
         }
