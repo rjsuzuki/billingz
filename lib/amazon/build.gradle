@@ -60,7 +60,7 @@ android {
         return result
     }
 
-    afterEvaluate {
+    /*afterEvaluate {
         publishing {
 
             repositories {
@@ -94,7 +94,7 @@ android {
                 }
             }
         }
-    }
+    }*/
     compileSdk LibraryInfo.compileSDK
     buildToolsVersion LibraryInfo.buildTools
 
