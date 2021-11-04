@@ -20,7 +20,7 @@ android {
     def versionProperties = new Properties()
     rootProject.file("version.properties").withInputStream { versionProperties.load(it) }
     def getArtifactId = { ->
-        return  "core"
+        return  "billingz-core"
     }
 
     //always two digits
