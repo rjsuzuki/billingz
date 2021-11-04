@@ -104,12 +104,13 @@ class GoogleStore internal constructor() : Storez {
 
     override fun resume() {
         LogUtilz.log.v(TAG, "resuming...")
-        client.checkConnection()
         if (client.isReady())
             sales.refreshQueries()
         else if (!client.initialized()) {
             client.init(context, connectionListener)
             client.connect()
+        } else {
+            client.checkConnection()
         }
     }
 
@@ -139,7 +140,6 @@ class GoogleStore internal constructor() : Storez {
 
         override fun getState(): LiveData<Clientz.ConnectionStatus> {
             LogUtilz.log.v(TAG, "isBillingClientReady: ${client.isReady()}")
-            client.checkConnection()
             return client.connectionState
         }
 
