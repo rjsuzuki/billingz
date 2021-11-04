@@ -82,9 +82,9 @@ android {
                 // Creates a Maven publication called "release".
                 release(MavenPublication) {
                     groupId = 'com.zuko.billingz.android'
-                    artifactId = getArtifactId()
+                    artifactId = "${getArtifactId()}-release"
                     version = getVersionName()
-                    artifact("$buildDir/outputs/aar/${artifactId}-release.aar")
+                    artifact("$buildDir/outputs/aar/${artifactId}.aar")
                 }
 
                 // Creates a Maven publication called "debug".
@@ -92,9 +92,9 @@ android {
                     // Applies the component for the debug build variant
                     // from components.debug
                     groupId = 'com.zuko.billingz.android'
-                    artifactId = getArtifactId()
+                    artifactId = "${getArtifactId()}-debug"
                     version = getVersionName()
-                    artifact("$buildDir/outputs/aar/${getArtifactId()}-debug.aar")
+                    artifact("$buildDir/outputs/aar/${artifactId}.aar")
                 }
             }
         }
