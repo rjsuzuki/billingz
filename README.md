@@ -11,7 +11,7 @@ Currently supports up to:
 
 ## Documentation
 
-[Click here to view full documentation](https://rjsuzuki.github.io/billingz-dokka/)
+[Click here to view full documentation](https://rjsuzuki.github.io/billingz/)
 
 ## How to add module to your project
 
