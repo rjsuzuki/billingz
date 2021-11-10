@@ -72,9 +72,11 @@ class GoogleInventory(private val client: GoogleClient) : Inventoryz {
         }
     }
 
-    private fun handleQueryResult(result: BillingResult?,
-                                  skuDetailsList: List<SkuDetails>?,
-                                  type: Productz.Type) {
+    private fun handleQueryResult(
+        result: BillingResult?,
+        skuDetailsList: List<SkuDetails>?,
+        type: Productz.Type
+    ) {
         LogUtilz.log.d(
             TAG,
             "Processing inventory query result ->" +
@@ -114,8 +116,9 @@ class GoogleInventory(private val client: GoogleClient) : Inventoryz {
             .build()
 
         client.getBillingClient()?.querySkuDetails(params)?.let { result ->
-            if(result.billingResult.responseCode == BillingClient.BillingResponseCode.OK &&
-                !result.skuDetailsList.isNullOrEmpty()) {
+            if (result.billingResult.responseCode == BillingClient.BillingResponseCode.OK &&
+                !result.skuDetailsList.isNullOrEmpty()
+            ) {
                 GoogleProduct(skuDetails = result.skuDetailsList!!.first(), type = type)
             } else {
                 null

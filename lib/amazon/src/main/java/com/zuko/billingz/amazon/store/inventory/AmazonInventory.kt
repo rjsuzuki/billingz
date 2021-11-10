@@ -42,7 +42,6 @@ class AmazonInventory : Inventoryz {
         throw NotImplementedError()
     }
 
-
     override fun queryInventory(products: Map<String, Productz.Type>): LiveData<Map<String, Productz>> {
         // Call this method to retrieve item data for a set of SKUs to display in your app.
         // Call getProductData in the OnResume method.
