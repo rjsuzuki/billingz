@@ -41,7 +41,7 @@ android {
             return "0"
         }
         if(h < 10) {
-            return "${hotfix}0"
+            return "0${hotfix}"
         }
         return hotfix
     }
