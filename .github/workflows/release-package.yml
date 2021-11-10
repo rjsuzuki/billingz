@@ -2,6 +2,9 @@ name: build_and_publish
 
 # trigger with tag
 on:
+  push:
+    tags:
+      - '*'
   release:
     types: [created]
 
