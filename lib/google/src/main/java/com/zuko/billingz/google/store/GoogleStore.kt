@@ -56,6 +56,7 @@ import com.zuko.billingz.google.store.inventory.GoogleInventory
 import com.zuko.billingz.google.store.model.GoogleOrder
 import com.zuko.billingz.google.store.sales.GoogleSales
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.flow.Flow
 
 /**
  * @author rjsuzuki
@@ -176,6 +177,14 @@ class GoogleStore internal constructor() : Storez {
         override fun queryOrders(): LiveData<Orderz> {
             LogUtilz.log.v(TAG, "queryOrders")
             return sales.queryOrders()
+        }
+
+        override suspend fun queryProduct(sku: String, type: Productz.Type): Productz? {
+            return inventory.queryProduct(sku, type)
+        }
+
+        override fun queryProductFlow(sku: String, type: Productz.Type): Flow<Productz> {
+            return inventory.queryProductFlow(sku, type)
         }
 
         override fun queryReceipts(type: Productz.Type?): LiveData<ArrayMap<String, Receiptz>> {

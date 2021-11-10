@@ -24,6 +24,7 @@ import com.amazon.device.iap.PurchasingService
 import com.zuko.billingz.core.LogUtilz
 import com.zuko.billingz.core.store.inventory.Inventoryz
 import com.zuko.billingz.core.store.model.Productz
+import kotlinx.coroutines.flow.Flow
 
 class AmazonInventory : Inventoryz {
 
@@ -32,6 +33,15 @@ class AmazonInventory : Inventoryz {
     override var nonConsumables: Map<String, Productz> = HashMap()
     override var subscriptions: Map<String, Productz> = HashMap()
     override var requestedProducts: MutableLiveData<Map<String, Productz>> = MutableLiveData()
+
+    override suspend fun queryProduct(sku: String, type: Productz.Type): Productz? {
+        throw NotImplementedError()
+    }
+
+    override fun queryProductFlow(sku: String, type: Productz.Type): Flow<Productz> {
+        throw NotImplementedError()
+    }
+
 
     override fun queryInventory(products: Map<String, Productz.Type>): LiveData<Map<String, Productz>> {
         // Call this method to retrieve item data for a set of SKUs to display in your app.

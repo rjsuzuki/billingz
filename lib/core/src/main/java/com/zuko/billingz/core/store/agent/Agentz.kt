@@ -26,6 +26,7 @@ import com.zuko.billingz.core.store.model.Orderz
 import com.zuko.billingz.core.store.model.Productz
 import com.zuko.billingz.core.store.model.Receiptz
 import com.zuko.billingz.core.store.sales.Salez
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Facade pattern - a simple interface for interacting with the main features of
@@ -87,6 +88,13 @@ interface Agentz {
      */
     @UiThread
     fun queryOrders(): LiveData<Orderz>
+
+    suspend fun queryProduct(sku: String, type: Productz.Type): Productz?
+
+    /**
+     * Experimental
+     */
+    fun queryProductFlow(sku: String, type: Productz.Type): Flow<Productz>
 
     /**
      * Queries database for matching product ids and loads them into the inventory.

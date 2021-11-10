@@ -20,6 +20,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.zuko.billingz.core.misc.CleanUpz
 import com.zuko.billingz.core.store.model.Productz
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Blueprint for managing a store's (your applications) entire collection of available products (inventory)
@@ -51,6 +52,18 @@ interface Inventoryz : CleanUpz {
      * May or may not be filtered by product type.
      */
     var requestedProducts: MutableLiveData<Map<String, Productz>>
+
+    /**
+     * kotlin coroutine function for querying a specific product
+     */
+    suspend fun queryProduct(sku: String, type: Productz.Type): Productz?
+
+    /**
+     * Query a specific sku against the client, and kotlin Flow will emit a successfully found product.
+     * Experimental Coroutine
+     */
+
+    fun queryProductFlow(sku: String, type: Productz.Type): Flow<Productz>
 
     /**
      *

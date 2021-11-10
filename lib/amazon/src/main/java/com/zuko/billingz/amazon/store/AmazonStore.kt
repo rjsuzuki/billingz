@@ -35,6 +35,7 @@ import com.zuko.billingz.core.store.model.Receiptz
 import com.zuko.billingz.core.store.sales.Salez
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.Flow
 
 class AmazonStore private constructor() : Storez {
 
@@ -125,6 +126,14 @@ class AmazonStore private constructor() : Storez {
         override fun queryOrders(): LiveData<Orderz> {
             LogUtilz.log.v(TAG, "queryOrders")
             return sales.queryOrders()
+        }
+
+        override suspend fun queryProduct(sku: String, type: Productz.Type): Productz? {
+            throw NotImplementedError()
+        }
+
+        override fun queryProductFlow(sku: String, type: Productz.Type): Flow<Productz> {
+            throw NotImplementedError()
         }
 
         override fun queryReceipts(type: Productz.Type?): LiveData<ArrayMap<String, Receiptz>> {
