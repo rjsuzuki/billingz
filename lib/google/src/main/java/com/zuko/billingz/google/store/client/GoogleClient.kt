@@ -45,7 +45,7 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
 
     override var connectionState = MutableLiveData<Clientz.ConnectionStatus>()
         get() {
-            field.value = getConnectionState()
+            field.postValue(getConnectionState())
             return field
         }
 
