@@ -16,38 +16,23 @@
  */
 package com.zuko.billingz.core.store.security
 
-import javax.crypto.Cipher
-import javax.crypto.KeyGenerator
-import javax.crypto.SecretKey
+import java.security.MessageDigest
 
 object Securityz {
-
-    fun encrypt(data: String): ByteArray {
-        val key: SecretKey = keygen()
-        val cipher = cipher(key)
-        cipher.init(Cipher.ENCRYPT_MODE, key)
-        val plaintext: ByteArray = data.toByteArray()
-        val ciphertext: ByteArray = cipher.doFinal(plaintext)
-        val iv = cipher.iv
-        return ciphertext
-    }
-
-    fun decrypt(encryptedData: ByteArray): String {
-        val key: SecretKey = keygen()
-        val cipher = cipher(key)
-        cipher.init(Cipher.DECRYPT_MODE, key)
-        return cipher.doFinal(encryptedData).decodeToString()
-    }
-
-    private fun keygen(): SecretKey {
-        val keygen = KeyGenerator.getInstance("AES")
-        keygen.init(256)
-        return keygen.generateKey()
-    }
-
-    private fun cipher(key: SecretKey): Cipher {
-        val cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING")
-
-        return cipher
+    /**
+     * This will return an hex representation of the hashed data using sha-256
+     */
+    fun sha256(data: String, salt: String?): String{
+        val stringBuilder = StringBuilder()
+        val digest = MessageDigest.getInstance("SHA-256")
+        val bytes = data.toByteArray()
+        salt?.let{
+            digest.update(it.toByteArray())
+        }
+        digest.update(bytes)
+        for (b in digest.digest()) {
+            stringBuilder.append(String.format("%02X", b))
+        }
+        return stringBuilder.toString().lowercase()
     }
 }
