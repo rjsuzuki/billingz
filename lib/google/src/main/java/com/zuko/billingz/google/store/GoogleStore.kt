@@ -234,7 +234,7 @@ class GoogleStore internal constructor() : Storez {
          * Specify a salt to use when obfuscating account id or profile id
          * @param - a string to use as salt for the hashing of identifiers
          */
-        fun setObfuscatingHashingSalt(salt: String?){
+        fun setObfuscatingHashingSalt(salt: String?) {
             hashingSalt = salt
         }
 

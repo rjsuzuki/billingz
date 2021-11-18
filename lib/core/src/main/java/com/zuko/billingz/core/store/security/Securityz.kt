@@ -22,11 +22,11 @@ object Securityz {
     /**
      * This will return an hex representation of the hashed data using sha-256
      */
-    fun sha256(data: String, salt: String?): String{
+    fun sha256(data: String, salt: String?): String {
         val stringBuilder = StringBuilder()
         val digest = MessageDigest.getInstance("SHA-256")
         val bytes = data.toByteArray()
-        salt?.let{
+        salt?.let {
             digest.update(it.toByteArray())
         }
         digest.update(bytes)
