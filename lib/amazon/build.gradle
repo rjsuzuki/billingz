@@ -3,6 +3,7 @@ plugins {
     id "maven-publish"
     id "kotlin-android"
     id "kotlin-kapt"
+    id 'kotlin-parcelize'
     id "org.jetbrains.dokka"
 }
 
@@ -131,8 +132,8 @@ android {
 
 dependencies {
     api project(':lib:core')
-    api files("libs/in-app-purchasing-2.0.76.jar")
-    api "androidx.core:core-ktx:1.6.0"
+    api files("libs/in-app-purchasing-${Dependencies.amazon_iap}.jar")
+    api "androidx.core:core-ktx:${Dependencies.androidx_core}"
 }
 
 dokkaHtml.configure {
