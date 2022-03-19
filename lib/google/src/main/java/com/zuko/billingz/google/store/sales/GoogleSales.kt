@@ -68,7 +68,7 @@ class GoogleSales(
     private var obfuscatedAccountId: String? = null
     private var obfuscatedProfileId: String? = null
 
-    override var currentReceipt = MutableLiveData<Receiptz>() // todo - unused
+    override var currentReceipt = MutableLiveData<Receiptz>() // todo - unused - consider deprecating
     override var orderHistory: MutableLiveData<ArrayMap<String, Receiptz>> = MutableLiveData()
     override var orderUpdaterListener: Salez.OrderUpdaterListener? = null
     override var orderValidatorListener: Salez.OrderValidatorListener? = null
@@ -193,7 +193,7 @@ class GoogleSales(
 
     override fun cancelOrder(order: Orderz) {
         LogUtilz.log.v(TAG, "cancel order: $order")
-        // todo - maybe remove
+        // todo - consider deprecating this
         orderUpdaterListener?.onError(order)
     }
 
@@ -710,7 +710,7 @@ class GoogleSales(
 
     override fun destroy() {
         LogUtilz.log.v(TAG, "destroy")
-        isQueriedOrders = false // todo - verify behavior
+        isQueriedOrders = false // todo - consider deprecating this
     }
 
     companion object {

@@ -25,7 +25,7 @@ import com.zuko.billingz.core.store.model.Productz
  * @param oldList
  * @param newList
  */
-class ProductDiffCallbackz(private val oldList: MutableList<Productz>, private val newList: MutableList<Productz>) : DiffUtil.Callback() {
+class ProductDiffCallback(private val oldList: MutableList<Productz>, private val newList: MutableList<Productz>) : DiffUtil.Callback() {
 
     override fun getOldListSize(): Int {
         return oldList.size
@@ -41,11 +41,9 @@ class ProductDiffCallbackz(private val oldList: MutableList<Productz>, private v
 
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
         return oldList[oldItemPosition].description == newList[newItemPosition].description &&
-            // oldList[oldItemPosition].details == newList[newItemPosition].details &&
             oldList[oldItemPosition].title == newList[newItemPosition].title &&
             oldList[oldItemPosition].price == newList[newItemPosition].price &&
             oldList[oldItemPosition].sku == newList[newItemPosition].sku &&
-            // oldList[oldItemPosition].skuType == newList[newItemPosition].skuType &&
             oldList[oldItemPosition].type == newList[newItemPosition].type
     }
 }

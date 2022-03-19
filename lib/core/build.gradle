@@ -133,6 +133,7 @@ android {
 }
 
 dependencies {
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Dependencies.kotlin_coroutines}"
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Dependencies.kotlin_coroutines}"
     api "org.jetbrains.kotlin:kotlin-stdlib:${Dependencies.kotlin}"
 

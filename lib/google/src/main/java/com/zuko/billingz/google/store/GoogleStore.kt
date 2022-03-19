@@ -40,14 +40,15 @@ import com.zuko.billingz.google.store.inventory.GoogleInventory
 import com.zuko.billingz.google.store.model.GoogleOrder
 import com.zuko.billingz.google.store.sales.GoogleSales
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 
 /**
  * @author rjsuzuki
  */
+@Suppress("unused")
 class GoogleStore internal constructor() : Storez {
 
-    private val mainScope = MainScope()
     private val purchasesUpdatedListener: PurchasesUpdatedListener =
         PurchasesUpdatedListener { billingResult, purchases ->
             (sales as GoogleSales).processUpdatedPurchases(
@@ -60,6 +61,7 @@ class GoogleStore internal constructor() : Storez {
             sales.refreshQueries()
         }
     }
+    private val mainScope by lazy { MainScope() }
     private var context: Context? = null
     private val client: Clientz = GoogleClient(purchasesUpdatedListener)
     private val inventory: Inventoryz = GoogleInventory(client as GoogleClient)
@@ -105,6 +107,7 @@ class GoogleStore internal constructor() : Storez {
 
     override fun stop() {
         LogUtilz.log.v(TAG, "stopping...")
+        mainScope.cancel()
     }
 
     override fun destroy() {
@@ -205,7 +208,8 @@ class GoogleStore internal constructor() : Storez {
     /**
      * Builder Pattern - create an instance of GoogleStore
      */
-    class Builder {
+    @Suppress("unused")
+    class Builder : Storez.Builder {
         private lateinit var instance: GoogleStore
         private lateinit var updaterListener: Salez.OrderUpdaterListener
         private lateinit var validatorListener: Salez.OrderValidatorListener
@@ -214,18 +218,12 @@ class GoogleStore internal constructor() : Storez {
         private var hashingSalt: String? = null
         private lateinit var products: ArrayMap<String, Productz.Type>
 
-        /**
-         * @param listener - Required to be set for proper functionality
-         */
-        fun setOrderUpdater(listener: Salez.OrderUpdaterListener): Builder {
+        override fun setOrderUpdater(listener: Salez.OrderUpdaterListener): Builder {
             updaterListener = listener
             return this
         }
 
-        /**
-         * @param listener - Required to be set for proper functionality
-         */
-        fun setOrderValidator(listener: Salez.OrderValidatorListener): Builder {
+        override fun setOrderValidator(listener: Salez.OrderValidatorListener): Builder {
             validatorListener = listener
             return this
         }
@@ -238,13 +236,7 @@ class GoogleStore internal constructor() : Storez {
             hashingSalt = salt
         }
 
-        /**
-         * Google Play can use it to detect irregular activity, such as many devices
-         * making purchases on the same account in a short period of time.
-         * @param - unique identifier for the user's account (64 character limit)
-         * The account ID is obfuscated using SHA-256 encryption before being cached and used.
-         */
-        fun setAccountId(id: String?): Builder {
+        override fun setAccountId(id: String?): Builder {
             if (!id.isNullOrBlank()) {
                 obfuscatedAccountId = Securityz.sha256(id, hashingSalt)
             }
@@ -264,15 +256,12 @@ class GoogleStore internal constructor() : Storez {
             return this
         }
 
-        fun setProducts(products: ArrayMap<String, Productz.Type>): Builder {
+        override fun setProducts(products: ArrayMap<String, Productz.Type>): Builder {
             this.products = products
             return this
         }
 
-        /**
-         * Return an instance of the GoogleStore
-         */
-        fun build(context: Context?): GoogleStore {
+        override fun build(context: Context?): GoogleStore {
             instance = GoogleStore()
             instance.sales.apply {
                 orderUpdaterListener = updaterListener

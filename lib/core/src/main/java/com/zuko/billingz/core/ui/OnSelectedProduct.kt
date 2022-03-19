@@ -21,7 +21,7 @@ import com.zuko.billingz.core.store.model.Productz
 /**
  * Listen to different events related to a selected product
  */
-interface OnSelectedProductz {
+interface OnSelectedProduct {
 
     /**
      * Enables you to respond to the event of a purchase request (of a product).

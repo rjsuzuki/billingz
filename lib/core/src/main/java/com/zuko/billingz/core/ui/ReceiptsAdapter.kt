@@ -31,7 +31,7 @@ import java.util.Locale
  * @constructor
  * @param list
  */
-class ReceiptzAdapterz(private val list: MutableList<Receiptz>) : RecyclerView.Adapter<ReceiptzAdapterz.HistoryRecordViewHolder>() {
+class ReceiptsAdapter(private val list: MutableList<Receiptz>) : RecyclerView.Adapter<ReceiptsAdapter.HistoryRecordViewHolder>() {
 
     inner class HistoryRecordViewHolder(val binding: ListItemHistoryRecordBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -50,13 +50,6 @@ class ReceiptzAdapterz(private val list: MutableList<Receiptz>) : RecyclerView.A
             ).format(date)
             holder.binding.recordTime.text = time
         }
-        // item.sku
-        // item.signature
-        // item.purchaseTime
-        // item.purchaseToken
-        // item.developerPayload
-        // item.originalJson
-
         holder.binding.root.animation = AnimationUtils.loadAnimation(holder.binding.root.context, R.anim.product_item_anim)
     }
 

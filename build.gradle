@@ -8,10 +8,10 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.3'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.31"
-        classpath 'com.diffplug.spotless:spotless-plugin-gradle:5.14.1'
-        classpath "org.jetbrains.dokka:dokka-gradle-plugin:1.5.30"
+        classpath "com.android.tools.build:gradle:${Dependencies.android_gradle}"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${Dependencies.kotlin_gradle}"
+        classpath "com.diffplug.spotless:spotless-plugin-gradle:${Dependencies.spotless_gradle}"
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:${Dependencies.dokka_gradle}"
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -22,7 +22,6 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        maven { url "https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven" }
     }
 }
 

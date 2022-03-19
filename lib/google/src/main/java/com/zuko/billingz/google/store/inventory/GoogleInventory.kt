@@ -30,7 +30,6 @@ import com.zuko.billingz.core.store.model.Productz
 import com.zuko.billingz.google.store.client.GoogleClient
 import com.zuko.billingz.google.store.model.GoogleProduct
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -40,7 +39,7 @@ import kotlinx.coroutines.withContext
 
 class GoogleInventory(private val client: GoogleClient) : Inventoryz {
 
-    override var allProducts: Map<String, Productz.Type> = ArrayMap() // todo remove
+    override var allProducts: Map<String, Productz.Type> = ArrayMap() // todo: usage uncertain - consider deprecating this
 
     override var consumables: Map<String, Productz> = ArrayMap()
     override var nonConsumables: Map<String, Productz> = ArrayMap()
@@ -126,7 +125,6 @@ class GoogleInventory(private val client: GoogleClient) : Inventoryz {
         }
     }
 
-    @ExperimentalCoroutinesApi
     override fun queryProductFlow(sku: String, type: Productz.Type): Flow<Productz> = channelFlow {
         val skuType = when (type) {
             Productz.Type.CONSUMABLE -> BillingClient.SkuType.INAPP
