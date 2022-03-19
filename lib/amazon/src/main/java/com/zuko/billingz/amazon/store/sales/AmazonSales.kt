@@ -25,6 +25,7 @@ import androidx.lifecycle.MutableLiveData
 import com.amazon.device.iap.PurchasingService
 import com.amazon.device.iap.model.FulfillmentResult
 import com.amazon.device.iap.model.PurchaseResponse
+import com.amazon.device.iap.model.PurchaseUpdatesResponse
 import com.zuko.billingz.amazon.store.model.AmazonOrder
 import com.zuko.billingz.amazon.store.model.AmazonReceipt
 import com.zuko.billingz.core.LogUtilz
@@ -37,12 +38,12 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 
 // https://developer.amazon.com/docs/in-app-purchasing/iap-implement-iap.html#responsereceiver
-class AmazonSales : Salez {
+class AmazonSales : AmazonSalez {
 
     private val mainScope = MainScope()
 
     override var currentReceipt = MutableLiveData<Receiptz>()
-    private var queriedOrder = MutableLiveData<Orderz>()
+    private var queriedOrders = MutableLiveData<Orderz>()
 
     override var orderHistory: MutableLiveData<ArrayMap<String, Receiptz>> = MutableLiveData()
     override var orderUpdaterListener: Salez.OrderUpdaterListener? = null
@@ -80,6 +81,55 @@ class AmazonSales : Salez {
         options: Bundle?
     ) {
         PurchasingService.purchase(product.sku)
+    }
+
+    override fun handlePurchasedOrder(response: PurchaseResponse?) {
+        when (response?.requestStatus) {
+            PurchaseResponse.RequestStatus.SUCCESSFUL -> {
+                LogUtilz.log.d(
+                    TAG,
+                    "Successful purchase request: ${response.requestId}"
+                )
+                // convert to order
+                val order = AmazonOrder(response)
+                validateOrder(order)
+            }
+            PurchaseResponse.RequestStatus.FAILED -> {
+                LogUtilz.log.e(TAG, "Failed purchase request: ${response.requestId}")
+                val order = AmazonOrder(response)
+                failedOrder(order)
+            }
+            PurchaseResponse.RequestStatus.ALREADY_PURCHASED -> {
+                LogUtilz.log.w(
+                    TAG,
+                    "Already purchased product for purchase request: ${response.requestId}"
+                )
+                val order = AmazonOrder(response)
+                failedOrder(order)
+            }
+            PurchaseResponse.RequestStatus.INVALID_SKU -> {
+                LogUtilz.log.w(
+                    TAG,
+                    "Invalid sku id for purchase request: ${response.requestId}"
+                )
+                val order = AmazonOrder(response)
+                failedOrder(order)
+            }
+            PurchaseResponse.RequestStatus.NOT_SUPPORTED -> {
+                LogUtilz.log.wtf(
+                    TAG,
+                    "Unsupported purchase request: ${response.requestId}"
+                )
+                val order = AmazonOrder(response)
+                failedOrder(order)
+            }
+            else -> {
+                LogUtilz.log.w(
+                    TAG,
+                    "Unknown request status: ${response?.requestId}"
+                )
+            }
+        }
     }
 
     // step 2
@@ -129,6 +179,7 @@ class AmazonSales : Salez {
                     Productz.Type.CONSUMABLE -> completeConsumable(order.response)
                     Productz.Type.NON_CONSUMABLE -> completeNonConsumable(order.response)
                     Productz.Type.SUBSCRIPTION -> completeSubscription(order.response)
+                    else -> {}
                 }
                 // successful
                 PurchasingService.notifyFulfillment(order.response.receipt.receiptId, FulfillmentResult.FULFILLED)
@@ -147,7 +198,7 @@ class AmazonSales : Salez {
 
     override fun queryOrders(): LiveData<Orderz> {
         val purchaseUpdatesRequestId = PurchasingService.getPurchaseUpdates(true)
-        Log.d(TAG, "Refresh receipts: $purchaseUpdatesRequestId")
+        Log.d(TAG, "queryOrders \npurchaseUpdatesRequestId: $purchaseUpdatesRequestId")
         // todo - if order is pending still
         // orderUpdaterListener?.onResume(order, updaterCallback)
 
@@ -157,17 +208,55 @@ class AmazonSales : Salez {
         // retrieves only unfulfilled and cancelled consumable purchases. Amazon recommends that you
         // persist the returned PurchaseUpdatesResponse data and query the system only for updates.
         // The response is paginated.
-        Log.d(TAG, "Query receipts: $purchaseUpdatesRequestId")
-        return queriedOrder
+        return queriedOrders
     }
 
     override fun queryReceipts(type: Productz.Type?) {
         val purchaseUpdatesRequestId = PurchasingService.getPurchaseUpdates(true) // sales
-        // todo - user requestID to check
+        LogUtilz.log.d(TAG, "queryReceipts: \npurchaseUpdatesRequestId: $purchaseUpdatesRequestId")
+    }
+
+    override fun handleQueriedOrders(response: PurchaseUpdatesResponse?) {
+        when (response?.requestStatus) {
+            PurchaseUpdatesResponse.RequestStatus.SUCCESSFUL -> {
+                LogUtilz.log.d(
+                    TAG,
+                    "Successful purchase updates request: ${response.requestId}"
+                )
+
+                // convert receipts
+                val map = ArrayMap<String, Receiptz>()
+                for (r in response.receipts) {
+                    val receipt = AmazonReceipt(r)
+                    receipt.userId = response.userData.userId
+                    receipt.marketplace = response.userData.marketplace
+                    map[r.receiptId] = receipt
+                }
+                orderHistory.value = map
+            }
+            PurchaseUpdatesResponse.RequestStatus.FAILED -> {
+                LogUtilz.log.e(
+                    TAG,
+                    "Failed purchase updates request: ${response.requestId}"
+                )
+            }
+            PurchaseUpdatesResponse.RequestStatus.NOT_SUPPORTED -> {
+                LogUtilz.log.wtf(
+                    TAG,
+                    "Unsupported purchase update request: ${response.requestId}"
+                )
+            }
+            else -> {
+                LogUtilz.log.w(
+                    TAG,
+                    "Unknown request status: ${response?.requestId}"
+                )
+            }
+        }
     }
 
     override fun setObfuscatedIdentifiers(accountId: String?, profileId: String?) {
-        // todo
+        LogUtilz.log.w(TAG, "setObfuscatedIdentifiers: is not supported by Amazon IAP.")
     }
 
     private fun completeConsumable(response: PurchaseResponse) {

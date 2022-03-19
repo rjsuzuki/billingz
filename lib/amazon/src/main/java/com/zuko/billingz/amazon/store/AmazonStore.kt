@@ -37,23 +37,22 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 
-class AmazonStore private constructor() : Storez {
-
-    private val mainScope = MainScope()
-    private val inventory = AmazonInventory()
-    private val sales = AmazonSales()
-    private val client = AmazonClient(inventory, sales)
+/**
+ * @author rjsuzuki
+ */
+@Suppress("unused")
+class AmazonStore internal constructor() : Storez {
 
     private val connectionListener = object : Clientz.ConnectionListener {
         override fun connected() {
             sales.refreshQueries()
         }
     }
-
-    /*****************************************************************************************************
-     * Lifecycle events - developer must either add this class to a lifecycleOwner or manually add the events
-     * to their respective parent view
-     *****************************************************************************************************/
+    private val mainScope by lazy { MainScope() }
+    private var context: Context? = null
+    private val inventory = AmazonInventory()
+    private val sales = AmazonSales()
+    private val client = AmazonClient(inventory, sales)
 
     init {
         LogUtilz.log.v(TAG, "instantiating...")
@@ -61,12 +60,16 @@ class AmazonStore private constructor() : Storez {
 
     override fun init(context: Context?) {
         LogUtilz.log.v(TAG, "initializing...")
-        client.init(context, connectionListener)
+        this.context = context
     }
 
     override fun create() {
         LogUtilz.log.v(TAG, "creating...")
-        client.connect()
+        if (!client.initialized()) {
+            client.init(context, connectionListener)
+            client.connect()
+        }
+        client.checkConnection()
     }
 
     override fun start() {
@@ -75,9 +78,13 @@ class AmazonStore private constructor() : Storez {
 
     override fun resume() {
         LogUtilz.log.v(TAG, "resuming...")
-        client.checkConnection()
-        if (client.isReady()) {
+        if (client.isReady())
             sales.refreshQueries()
+        else if (!client.initialized()) {
+            client.init(context, connectionListener)
+            client.connect()
+        } else {
+            client.checkConnection()
         }
     }
 
@@ -98,9 +105,12 @@ class AmazonStore private constructor() : Storez {
     }
 
     private val agent = object : Agentz {
+
         override fun isInventoryReady(): LiveData<Boolean> {
-            // todo
-            return MutableLiveData()
+            val data = MutableLiveData<Boolean>()
+            data.value =
+                client.isReady() && inventory.requestedProducts.value?.isNullOrEmpty() == false
+            return data
         }
 
         override fun getState(): LiveData<Clientz.ConnectionStatus> {
@@ -129,11 +139,11 @@ class AmazonStore private constructor() : Storez {
         }
 
         override suspend fun queryProduct(sku: String, type: Productz.Type): Productz? {
-            throw NotImplementedError()
+            return inventory.queryProduct(sku, type)
         }
 
         override fun queryProductFlow(sku: String, type: Productz.Type): Flow<Productz> {
-            throw NotImplementedError()
+            return inventory.queryProductFlow(sku, type)
         }
 
         override fun queryReceipts(type: Productz.Type?): LiveData<ArrayMap<String, Receiptz>> {
@@ -170,15 +180,17 @@ class AmazonStore private constructor() : Storez {
     /**
      * Builder Pattern - create an instance of AmazonStore
      */
-    class Builder(var context: Context?) {
+    @Suppress("unused")
+    class Builder : Storez.Builder {
         private lateinit var instance: AmazonStore
         private lateinit var updaterListener: Salez.OrderUpdaterListener
         private lateinit var validatorListener: Salez.OrderValidatorListener
-
+        private lateinit var products: ArrayMap<String, Productz.Type>
+        private var accountId: String? = null
         /**
          * @param listener - Required to be set for proper functionality
          */
-        fun setOrderUpdater(listener: Salez.OrderUpdaterListener): Builder {
+        override fun setOrderUpdater(listener: Salez.OrderUpdaterListener): Builder {
             updaterListener = listener
             return this
         }
@@ -186,20 +198,32 @@ class AmazonStore private constructor() : Storez {
         /**
          * @param listener - Required to be set for proper functionality
          */
-        fun setOrderValidator(listener: Salez.OrderValidatorListener): Builder {
+        override fun setOrderValidator(listener: Salez.OrderValidatorListener): Builder {
             validatorListener = listener
             return this
         }
 
-        fun build(): AmazonStore {
-            if (!::instance.isInitialized) {
-                instance = AmazonStore()
-            }
+        override fun setAccountId(id: String?): Storez.Builder {
+            accountId = id
+            return this
+        }
+
+        override fun setProducts(products: ArrayMap<String, Productz.Type>): Builder {
+            this.products = products
+            return this
+        }
+
+        override fun build(context: Context?): AmazonStore {
+            instance = AmazonStore()
             instance.sales.apply {
                 orderUpdaterListener = updaterListener
                 orderValidatorListener = validatorListener
             }
             instance.init(context = context)
+            instance.client.connect()
+            if (::products.isInitialized) {
+                instance.inventory.queryInventory(products = this.products)
+            }
             return instance
         }
     }

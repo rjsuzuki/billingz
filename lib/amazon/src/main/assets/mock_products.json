@@ -1,0 +1,16 @@
+{
+  "com.amazon.sample.iap.consumables.orange":{
+    "itemType": "CONSUMABLE",
+    "price": 10.00,
+    "title": "Orange",
+    "description": "An orange",
+    "smallIconUrl": "http://www.amazon.com/orange.jpg"
+  },
+
+  "com.amazon.sample.iap.entitlements.level2":{
+    "itemType": "ENTITLED",
+    "price": 10.00,
+    "title": "Level 2",
+    "description": "An entitlement to play level 2"
+  }
+}

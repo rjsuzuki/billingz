@@ -21,21 +21,86 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.amazon.device.iap.PurchasingService
+import com.amazon.device.iap.model.ProductDataResponse
+import com.amazon.device.iap.model.ProductType
+import com.zuko.billingz.amazon.store.model.AmazonProduct
 import com.zuko.billingz.core.LogUtilz
-import com.zuko.billingz.core.store.inventory.Inventoryz
 import com.zuko.billingz.core.store.model.Productz
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 
-class AmazonInventory : Inventoryz {
+class AmazonInventory : AmazonInventoryz {
 
-    override var allProducts: Map<String, Productz.Type> = HashMap()
-    override var consumables: Map<String, Productz> = HashMap()
-    override var nonConsumables: Map<String, Productz> = HashMap()
-    override var subscriptions: Map<String, Productz> = HashMap()
+    override var allProducts: Map<String, Productz.Type> = ArrayMap()
+
+    override var consumables: Map<String, Productz> = ArrayMap()
+    override var nonConsumables: Map<String, Productz> = ArrayMap()
+    override var subscriptions: Map<String, Productz> = ArrayMap()
     override var requestedProducts: MutableLiveData<Map<String, Productz>> = MutableLiveData()
 
+    private var queryType: Productz.Type = Productz.Type.UNKNOWN
+    private val mainScope by lazy { MainScope() }
+
     override suspend fun queryProduct(sku: String, type: Productz.Type): Productz? {
-        throw NotImplementedError()
+        val skuType = when (type) {
+            Productz.Type.CONSUMABLE -> ProductType.CONSUMABLE.name
+            Productz.Type.NON_CONSUMABLE -> ProductType.ENTITLED.name
+            Productz.Type.SUBSCRIPTION -> ProductType.SUBSCRIPTION.name
+            else -> Productz.Type.UNKNOWN.name
+        }
+
+        // check if in cache - local
+        // check against server - remote
+        val set = mutableSetOf<String>()
+        set.add(sku)
+        PurchasingService.getProductData(set)
+        queryType = type
+        return null // todo
+    }
+
+    override fun handleQueriedProducts(response: ProductDataResponse?) {
+        when (response?.requestStatus) {
+            ProductDataResponse.RequestStatus.SUCCESSFUL -> {
+                LogUtilz.log.d(
+                    TAG,
+                    "Successful product data request: ${response.requestId}"
+                )
+
+                // convert
+                val productsList = mutableListOf<Productz>()
+                val products = androidx.collection.ArrayMap<String, Productz.Type>()
+                for (r in response.productData) {
+                    val product = AmazonProduct(r.value)
+                    products[r.key] = product.type
+                    productsList.add(product)
+                    LogUtilz.log.v(TAG, "Validated product: $product")
+                }
+                allProducts = products
+                updateInventory(productsList, Productz.Type.UNKNOWN)
+                // cache
+                val unavailableSkusSet = response.unavailableSkus // todo
+            }
+            ProductDataResponse.RequestStatus.FAILED -> {
+                LogUtilz.log.e(
+                    TAG,
+                    "Failed product data request: ${response.requestId}"
+                )
+            }
+            ProductDataResponse.RequestStatus.NOT_SUPPORTED -> {
+                LogUtilz.log.wtf(
+                    TAG,
+                    "Unsupported product data request: ${response.requestId}"
+                )
+            }
+            else -> {
+                LogUtilz.log.w(
+                    TAG,
+                    "Unknown request status: ${response?.requestId}"
+                )
+            }
+        }
+        queryType = Productz.Type.UNKNOWN
     }
 
     override fun queryProductFlow(sku: String, type: Productz.Type): Flow<Productz> {
@@ -53,20 +118,24 @@ class AmazonInventory : Inventoryz {
     override fun updateInventory(products: List<Productz>?, type: Productz.Type) {
         Log.d(TAG, "updateInventory : ${products?.size ?: 0}")
         if (!products.isNullOrEmpty()) {
+            consumables = consumables + products.associateBy { it.sku.toString() }
+            nonConsumables = nonConsumables + products.associateBy { it.sku.toString() }
+            subscriptions = subscriptions + products.associateBy { it.sku.toString() }
+
             when (type) {
                 Productz.Type.CONSUMABLE -> {
-                    consumables = consumables + products.associateBy { it.sku.toString() }
                     requestedProducts.postValue(consumables)
                 }
                 Productz.Type.NON_CONSUMABLE -> {
-                    nonConsumables = nonConsumables + products.associateBy { it.sku.toString() }
                     requestedProducts.postValue(nonConsumables)
                 }
                 Productz.Type.SUBSCRIPTION -> {
-                    subscriptions = subscriptions + products.associateBy { it.sku.toString() }
                     requestedProducts.postValue(subscriptions)
                 }
-                else -> LogUtilz.log.w(TAG, "Unhandled product type: $type")
+                else -> {
+                    requestedProducts.postValue(consumables)
+                    LogUtilz.log.w(TAG, "Unhandled product type: $type. Defauling to consumables.")
+                }
             }
         }
     }
@@ -88,6 +157,8 @@ class AmazonInventory : Inventoryz {
             Productz.Type.SUBSCRIPTION -> {
                 // subscriptions = subscriptions + products.associateBy { it.sku.toString() }
                 requestedProducts.postValue(subscriptions)
+            }
+            else -> {
             }
         }
         return requestedProducts
@@ -153,6 +224,7 @@ class AmazonInventory : Inventoryz {
 
     override fun destroy() {
         LogUtilz.log.v(TAG, "destroy")
+        mainScope.cancel()
     }
 
     companion object {
