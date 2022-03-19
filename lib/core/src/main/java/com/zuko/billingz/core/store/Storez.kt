@@ -16,7 +16,11 @@
  */
 package com.zuko.billingz.core.store
 
+import android.content.Context
+import androidx.collection.ArrayMap
 import com.zuko.billingz.core.store.agent.Agentz
+import com.zuko.billingz.core.store.model.Productz
+import com.zuko.billingz.core.store.sales.Salez
 
 interface Storez : StoreLifecycle {
 
@@ -27,4 +31,35 @@ interface Storez : StoreLifecycle {
      * @return [Agentz]
      */
     fun getAgent(): Agentz
+
+    interface Builder {
+
+        /**
+         * @param listener - Required to be set for proper functionality
+         */
+        fun setOrderUpdater(listener: Salez.OrderUpdaterListener): Builder
+
+        /**
+         * @param listener - Required to be set for proper functionality
+         */
+        fun setOrderValidator(listener: Salez.OrderValidatorListener): Builder
+
+        /**
+         * Google Play can use it to detect irregular activity, such as many devices
+         * making purchases on the same account in a short period of time.
+         * @param - unique identifier for the user's account (64 character limit)
+         * The account ID is obfuscated using SHA-256 encryption before being cached and used.
+         */
+        fun setAccountId(id: String?): Builder
+
+        /**
+         * Set the list of skus to be validated against the billing client's server.
+         */
+        fun setProducts(products: ArrayMap<String, Productz.Type>): Builder
+
+        /**
+         * Return an instance of [Storez] for either Google Play or Amazon Appstore
+         */
+        fun build(context: Context?): Storez
+    }
 }
