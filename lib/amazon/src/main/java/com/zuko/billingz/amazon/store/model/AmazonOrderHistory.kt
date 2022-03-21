@@ -16,26 +16,14 @@
  *  *
  *
  */
+
+
+
 package com.zuko.billingz.amazon.store.model
 
-import com.amazon.device.iap.model.Receipt
-import com.zuko.billingz.core.store.model.Orderz
-import com.zuko.billingz.core.store.model.Receiptz
-import java.util.Date
+import com.zuko.billingz.core.store.model.Historyz
 
-data class AmazonReceipt(
-    var iapReceipt: Receipt,
-    override var userId: String? = null,
-    override var order: Orderz? = null
-) : Receiptz {
-    override var entitlement: String? = iapReceipt.receiptId
-
-    override var orderId: String? = iapReceipt.receiptId
-    override var orderDate: Date? = iapReceipt.purchaseDate
-    override var skus: List<String>? = listOf(iapReceipt.sku)
-
-    override var cancelDate: Date? = iapReceipt.cancelDate
-    override var isCanceled: Boolean = iapReceipt.isCanceled
+data class AmazonOrderHistory(override val receipts: Map<String, AmazonReceipt>) : Historyz {
     override fun isGoogle(): Boolean {
         return false
     }
@@ -43,6 +31,4 @@ data class AmazonReceipt(
     override fun isAmazon(): Boolean {
         return true
     }
-
-    var marketplace: String? = null
 }
