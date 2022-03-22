@@ -17,14 +17,20 @@
  *
  */
 
-package com.zuko.billingz.amazon.store.inventory
 
-import com.amazon.device.iap.model.ProductDataResponse
-import com.zuko.billingz.core.store.inventory.Inventoryz
+package com.zuko.billingz.amazon.store.model
 
-interface AmazonInventoryz : Inventoryz {
-    /**
-     * For internal use only
-     */
-    fun processQueriedProducts(response: ProductDataResponse?)
+import androidx.lifecycle.LiveData
+import com.zuko.billingz.amazon.store.sales.AmazonSales
+import com.zuko.billingz.core.store.model.QueryResult
+import kotlinx.coroutines.flow.StateFlow
+
+class AmazonOrdersHistoryQuery(private val sales: AmazonSales): QueryResult<AmazonOrderHistory> {
+    override fun liveData(): LiveData<AmazonOrderHistory?> {
+        return sales.queryOrderHistoryLiveData()
+    }
+
+    override fun flow(): StateFlow<AmazonOrderHistory?> {
+        return sales.queryOrderHistoryFlow()
+    }
 }

@@ -28,6 +28,7 @@ data class AmazonReceipt(
     override var userId: String? = null,
     override var order: Orderz? = null
 ) : Receiptz {
+
     override var entitlement: String? = iapReceipt.receiptId
 
     override var orderId: String? = iapReceipt.receiptId
@@ -36,6 +37,8 @@ data class AmazonReceipt(
 
     override var cancelDate: Date? = iapReceipt.cancelDate
     override var isCanceled: Boolean = iapReceipt.isCanceled
+    var marketplace: String? = null
+
     override fun isGoogle(): Boolean {
         return false
     }
@@ -44,5 +47,5 @@ data class AmazonReceipt(
         return true
     }
 
-    var marketplace: String? = null
+
 }

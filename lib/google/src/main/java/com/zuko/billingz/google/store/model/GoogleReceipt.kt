@@ -26,7 +26,7 @@ import java.util.Date
 
 /**
  * Google Receipts only are generated if the purchase state is complete (purchased: 1)
- * If Pending, the Order object can be queried so that the user can complete the transaction.
+ * If pending, the Order object can be queried so that the user can complete the transaction.
  */
 data class GoogleReceipt(
     val purchase: Purchase?,

@@ -21,7 +21,7 @@ package com.zuko.billingz.core.store.model
 
 import com.zuko.billingz.core.misc.ModuleIdentifier
 
-interface Historyz: ModuleIdentifier {
+interface OrderHistoryz: ModuleIdentifier {
     /**
      * Collection of available [Receiptz] returned by the active billing library.
      */

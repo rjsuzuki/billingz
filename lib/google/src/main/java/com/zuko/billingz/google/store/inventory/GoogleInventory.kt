@@ -1,50 +1,76 @@
 /*
- * Copyright 2021 rjsuzuki
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  * Copyright 2021 rjsuzuki
+ *  *
+ *  * Licensed under the Apache License, Version 2.0 (the "License");
+ *  * you may not use this file except in compliance with the License.
+ *  * You may obtain a copy of the License at
+ *  *
+ *  * http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing, software
+ *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  * See the License for the specific language governing permissions and
+ *  * limitations under the License.
+ *  *
  *
  */
 package com.zuko.billingz.google.store.inventory
 
-import android.util.ArrayMap
+import androidx.collection.ArrayMap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.SkuDetails
 import com.android.billingclient.api.SkuDetailsParams
-import com.android.billingclient.api.querySkuDetails
 import com.zuko.billingz.core.LogUtilz
+import com.zuko.billingz.core.misc.BillingzDispatcher
+import com.zuko.billingz.core.misc.Dispatcherz
 import com.zuko.billingz.core.store.inventory.Inventoryz
 import com.zuko.billingz.core.store.model.Productz
+import com.zuko.billingz.core.store.model.QueryResult
 import com.zuko.billingz.google.store.client.GoogleClient
+import com.zuko.billingz.google.store.model.GoogleInventoryQuery
 import com.zuko.billingz.google.store.model.GoogleProduct
-import kotlinx.coroutines.Dispatchers
+import com.zuko.billingz.google.store.model.GoogleProductQuery
 import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class GoogleInventory(private val client: GoogleClient) : Inventoryz {
+class GoogleInventory(
+    private val client: GoogleClient,
+    private val dispatcher: Dispatcherz = BillingzDispatcher()
+) : Inventoryz {
 
-    override var allProducts: Map<String, Productz.Type> = ArrayMap() // todo: usage uncertain - consider deprecating this
+    override var allProducts: Map<String, Productz.Type> = ArrayMap()
 
-    override var consumables: Map<String, Productz> = ArrayMap()
-    override var nonConsumables: Map<String, Productz> = ArrayMap()
-    override var subscriptions: Map<String, Productz> = ArrayMap()
-    override var requestedProducts: MutableLiveData<Map<String, Productz>> = MutableLiveData()
+    override var consumables: ArrayMap<String, Productz> = ArrayMap()
+    override var nonConsumables: ArrayMap<String, Productz> = ArrayMap()
+    override var subscriptions: ArrayMap<String, Productz> = ArrayMap()
+
+    private val isReadyLiveData = MutableLiveData<Boolean>()
+    private val isReadyStateFlow = MutableStateFlow(false)
+    private val isReadyState = isReadyStateFlow.asStateFlow()
+
+    private val requestedProductsLiveData: MutableLiveData<ArrayMap<String, Productz>> =
+        MutableLiveData()
+    private val requestedProductsStateFlow: MutableStateFlow<ArrayMap<String, Productz>> by lazy {
+        MutableStateFlow(
+            ArrayMap()
+        )
+    }
+    private val requestedProductsState: StateFlow<ArrayMap<String, Productz>> by lazy { requestedProductsStateFlow.asStateFlow() }
+
+    private val queriedProductLiveData = MutableLiveData<Productz>()
+    private val queriedProductStateFlow: MutableStateFlow<Productz?> = MutableStateFlow(null)
+    private val queriedProductState = queriedProductStateFlow.asStateFlow()
 
     private val mainScope = MainScope()
 
@@ -79,11 +105,11 @@ class GoogleInventory(private val client: GoogleClient) : Inventoryz {
         LogUtilz.log.d(
             TAG,
             "Processing inventory query result ->" +
-                "\n type: $type," +
-                "\n billingResult code: ${result?.responseCode}," +
-                "\n billingResult msg: ${result?.debugMessage ?: "n/a"}," +
-                "\n products: $skuDetailsList" +
-                "\n -----------------------------------"
+                    "\n type: $type," +
+                    "\n billingResult code: ${result?.responseCode}," +
+                    "\n billingResult msg: ${result?.debugMessage ?: "n/a"}," +
+                    "\n products: $skuDetailsList" +
+                    "\n -----------------------------------"
         )
         if (result?.responseCode == BillingClient.BillingResponseCode.OK &&
             !skuDetailsList.isNullOrEmpty()
@@ -99,33 +125,7 @@ class GoogleInventory(private val client: GoogleClient) : Inventoryz {
         }
     }
 
-    override suspend fun queryProduct(sku: String, type: Productz.Type): Productz? = coroutineScope {
-        val skuType = when (type) {
-            Productz.Type.CONSUMABLE -> BillingClient.SkuType.INAPP
-            Productz.Type.NON_CONSUMABLE -> BillingClient.SkuType.INAPP
-            Productz.Type.SUBSCRIPTION -> BillingClient.SkuType.SUBS
-            else -> {
-                BillingClient.SkuType.INAPP
-            }
-        }
-        val builder = SkuDetailsParams.newBuilder()
-        val params = builder
-            .setSkusList(listOf(sku))
-            .setType(skuType)
-            .build()
-
-        client.getBillingClient()?.querySkuDetails(params)?.let { result ->
-            if (result.billingResult.responseCode == BillingClient.BillingResponseCode.OK &&
-                !result.skuDetailsList.isNullOrEmpty()
-            ) {
-                GoogleProduct(skuDetails = result.skuDetailsList!!.first(), type = type)
-            } else {
-                null
-            }
-        }
-    }
-
-    override fun queryProductFlow(sku: String, type: Productz.Type): Flow<Productz> = channelFlow {
+    override fun queryProduct(sku: String, type: Productz.Type): QueryResult<Productz> {
         val skuType = when (type) {
             Productz.Type.CONSUMABLE -> BillingClient.SkuType.INAPP
             Productz.Type.NON_CONSUMABLE -> BillingClient.SkuType.INAPP
@@ -144,19 +144,69 @@ class GoogleInventory(private val client: GoogleClient) : Inventoryz {
                 !skuDetailsList.isNullOrEmpty()
             ) {
                 val product = GoogleProduct(skuDetails = skuDetailsList.first(), type = type)
-                mainScope.launch {
-                    send(product)
+                mainScope.launch(dispatcher.main()) {
+                    queriedProductLiveData.postValue(product)
+                    queriedProductStateFlow.emit(product)
                 }
             }
         }
+        return GoogleProductQuery(sku, type, this)
     }
 
-    override fun queryInventory(products: Map<String, Productz.Type>): LiveData<Map<String, Productz>> {
+    internal fun queryProductLiveData(): LiveData<Productz?> {
+        return queriedProductLiveData
+    }
+
+    internal fun queryProductStateFlow(): StateFlow<Productz?> {
+        return queriedProductState
+    }
+
+    internal fun queryProductFlow(sku: String, type: Productz.Type): Flow<Productz?> =
+        callbackFlow {
+            val stateFlow = MutableStateFlow(null)
+            val state = stateFlow.asStateFlow()
+
+            val skuType = when (type) {
+                Productz.Type.CONSUMABLE -> BillingClient.SkuType.INAPP
+                Productz.Type.NON_CONSUMABLE -> BillingClient.SkuType.INAPP
+                Productz.Type.SUBSCRIPTION -> BillingClient.SkuType.SUBS
+                else -> {
+                    BillingClient.SkuType.INAPP
+                }
+            }
+            val builder = SkuDetailsParams.newBuilder()
+            val params = builder
+                .setSkusList(listOf(sku))
+                .setType(skuType)
+                .build()
+            client.getBillingClient()
+                ?.querySkuDetailsAsync(params) { billingResult, skuDetailsList ->
+                    if (billingResult.responseCode == BillingClient.BillingResponseCode.OK &&
+                        !skuDetailsList.isNullOrEmpty()
+                    ) {
+                        val product =
+                            GoogleProduct(skuDetails = skuDetailsList.first(), type = type)
+                        mainScope.launch(dispatcher.main()) {
+                            trySend(product)
+                        }
+                    }
+                }
+        }
+
+    internal fun queryInventoryLiveData(): LiveData<ArrayMap<String, Productz>?> {
+        return requestedProductsLiveData
+    }
+
+    internal fun queryInventoryStateFlow(): StateFlow<ArrayMap<String, Productz>?> {
+        return requestedProductsState
+    }
+
+    override fun queryInventory(products: Map<String, Productz.Type>): QueryResult<Map<String, Productz>> {
         LogUtilz.log.i(
             TAG,
             "queryInventory(" +
-                "\n products: ${products.size}," +
-                "\n )"
+                    "\n products: ${products.size}," +
+                    "\n )"
         )
         allProducts = products // todo
 
@@ -168,7 +218,7 @@ class GoogleInventory(private val client: GoogleClient) : Inventoryz {
                 val nonConsumables = mutableListOf<String>()
                 val subscriptions = mutableListOf<String>()
 
-                withContext(Dispatchers.IO) {
+                withContext(dispatcher.io()) {
                     products.forEach { entry ->
                         when (entry.value) {
                             Productz.Type.CONSUMABLE -> consumables.add(entry.key)
@@ -180,48 +230,83 @@ class GoogleInventory(private val client: GoogleClient) : Inventoryz {
                         }
                     }
                 }
-                launch(Dispatchers.IO) {
+                launch(dispatcher.io()) {
                     LogUtilz.log.d(TAG, "inventory coroutines consumables queried")
                     queryProducts(skus = consumables, type = Productz.Type.CONSUMABLE)
                 }
-                launch(Dispatchers.IO) {
+                launch(dispatcher.io()) {
                     LogUtilz.log.d(TAG, "inventory coroutines nonConsumables queried")
                     queryProducts(skus = nonConsumables, type = Productz.Type.NON_CONSUMABLE)
                 }
-                launch(Dispatchers.IO) {
+                launch(dispatcher.io()) {
                     LogUtilz.log.d(TAG, "inventory coroutines subscriptions queried")
                     queryProducts(skus = subscriptions, type = Productz.Type.SUBSCRIPTION)
                 }
             }
         }
-        return requestedProducts
+        return GoogleInventoryQuery(products, this)
     }
 
     override fun updateInventory(products: List<Productz>?, type: Productz.Type) {
         LogUtilz.log.i(
             TAG,
             "updateInventory(" +
-                "\n products: ${products?.size ?: 0}," +
-                "\n type: $type," +
-                "\n )"
+                    "\n products: ${products?.size ?: 0}," +
+                    "\n type: $type," +
+                    "\n )"
         )
         if (!products.isNullOrEmpty()) {
-            when (type) {
-                Productz.Type.CONSUMABLE -> {
-                    consumables = consumables + products.associateBy { it.sku.toString() }
-                    requestedProducts.postValue(consumables)
+            mainScope.launch(dispatcher.io()) {
+                for (p in products) {
+                    when (p.type) {
+                        Productz.Type.CONSUMABLE -> {
+                            p.sku?.let { sku ->
+                                consumables.putIfAbsent(sku, p)
+                            }
+                        }
+                        Productz.Type.NON_CONSUMABLE -> {
+                            p.sku?.let { sku ->
+                                nonConsumables.putIfAbsent(sku, p)
+                            }
+
+                        }
+                        Productz.Type.SUBSCRIPTION -> {
+                            p.sku?.let { sku ->
+                                subscriptions.putIfAbsent(sku, p)
+                            }
+                        }
+                        else -> {
+                            LogUtilz.log.w(TAG, "Unhandled product type: ${p.type}.")
+                        }
+                    }
                 }
-                Productz.Type.NON_CONSUMABLE -> {
-                    nonConsumables = nonConsumables + products.associateBy { it.sku.toString() }
-                    requestedProducts.postValue(nonConsumables)
+
+                when (type) {
+                    Productz.Type.CONSUMABLE -> {
+                        requestedProductsLiveData.postValue(consumables)
+                        requestedProductsStateFlow.emit(consumables)
+                    }
+                    Productz.Type.NON_CONSUMABLE -> {
+                        requestedProductsLiveData.postValue(nonConsumables)
+                        requestedProductsStateFlow.emit(nonConsumables)
+                    }
+                    Productz.Type.SUBSCRIPTION -> {
+                        requestedProductsLiveData.postValue(subscriptions)
+                        requestedProductsStateFlow.emit(subscriptions)
+                    }
+                    else -> {
+                        LogUtilz.log.w(TAG, "Unhandled product type: $type")
+                        val unidentifiedProducts: ArrayMap<String, Productz> = ArrayMap()
+                        unidentifiedProducts.putAll(from = consumables)
+                        unidentifiedProducts.putAll(from = nonConsumables)
+                        unidentifiedProducts.putAll(from = subscriptions)
+                        requestedProductsLiveData.postValue(unidentifiedProducts)
+                        requestedProductsStateFlow.emit(unidentifiedProducts)
+                    }
                 }
-                Productz.Type.SUBSCRIPTION -> {
-                    subscriptions = subscriptions + products.associateBy { it.sku.toString() }
-                    requestedProducts.postValue(subscriptions)
-                }
-                else -> {
-                    LogUtilz.log.w(TAG, "Unhandled product type: $type")
-                }
+
+                isReadyLiveData.postValue(true)
+                isReadyStateFlow.emit(true)
             }
         }
     }
@@ -244,8 +329,8 @@ class GoogleInventory(private val client: GoogleClient) : Inventoryz {
         when (type) {
             Productz.Type.CONSUMABLE -> {
                 if (promo != null) {
+                    val promos = ArrayMap<String, Productz>()
                     consumables.forEach { entry ->
-                        val promos = ArrayMap<String, Productz>()
                         if (entry.value.promotion == promo) {
                             promos[entry.key] = entry.value
                         }
@@ -256,8 +341,8 @@ class GoogleInventory(private val client: GoogleClient) : Inventoryz {
             }
             Productz.Type.NON_CONSUMABLE -> {
                 if (promo != null) {
+                    val promos = ArrayMap<String, Productz>()
                     nonConsumables.forEach { entry ->
-                        val promos = ArrayMap<String, Productz>()
                         if (entry.value.promotion == promo) {
                             promos[entry.key] = entry.value
                         }
@@ -268,8 +353,8 @@ class GoogleInventory(private val client: GoogleClient) : Inventoryz {
             }
             Productz.Type.SUBSCRIPTION -> {
                 if (promo != null) {
+                    val promos = ArrayMap<String, Productz>()
                     subscriptions.forEach { entry ->
-                        val promos = ArrayMap<String, Productz>()
                         if (entry.value.promotion == promo) {
                             promos[entry.key] = entry.value
                         }
@@ -280,12 +365,29 @@ class GoogleInventory(private val client: GoogleClient) : Inventoryz {
             }
             else -> {
                 val all = ArrayMap<String, Productz>()
-                all.putAll(consumables)
-                all.putAll(nonConsumables)
-                all.putAll(subscriptions)
+                all.putAll(from = consumables)
+                all.putAll(from = nonConsumables)
+                all.putAll(from = subscriptions)
                 return all
             }
         }
+    }
+
+    override fun isReadyStateFlow(): StateFlow<Boolean> {
+        // we can assume that the requestedProductsLiveData must not be empty
+        // since a successful update of the inventory by the billing library
+        // will always publish updates to it.
+        mainScope.launch {
+            val isCacheReady = !requestedProductsLiveData.value.isNullOrEmpty()
+            LogUtilz.log.d(TAG, "isInventoryCacheReady: $isCacheReady")
+            isReadyStateFlow.emit(isCacheReady)
+        }
+        return isReadyState
+    }
+
+    override fun isReadyLiveData(): LiveData<Boolean> {
+        isReadyLiveData.postValue(!requestedProductsLiveData.value.isNullOrEmpty())
+        return isReadyLiveData
     }
 
     override fun destroy() {

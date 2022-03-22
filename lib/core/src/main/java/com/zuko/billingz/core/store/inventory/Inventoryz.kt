@@ -1,26 +1,29 @@
 /*
- * Copyright 2021 rjsuzuki
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  * Copyright 2021 rjsuzuki
+ *  *
+ *  * Licensed under the Apache License, Version 2.0 (the "License");
+ *  * you may not use this file except in compliance with the License.
+ *  * You may obtain a copy of the License at
+ *  *
+ *  * http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing, software
+ *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  * See the License for the specific language governing permissions and
+ *  * limitations under the License.
+ *  *
  *
  */
 package com.zuko.billingz.core.store.inventory
 
+import androidx.collection.ArrayMap
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.zuko.billingz.core.misc.CleanUpz
 import com.zuko.billingz.core.store.model.Productz
-import kotlinx.coroutines.flow.Flow
+import com.zuko.billingz.core.store.model.QueryResult
+import kotlinx.coroutines.flow.StateFlow
 
 /**
  * Blueprint for managing a store's (your applications) entire collection of available products (inventory)
@@ -28,42 +31,30 @@ import kotlinx.coroutines.flow.Flow
 interface Inventoryz : CleanUpz {
 
     /**
-     * Current cache of all products that is provided by your app/server.
+     * Current cache of all products that is provided by your app/server. This list may include
+     * both verified and unverified skus.
      */
     var allProducts: Map<String, Productz.Type>
 
     /**
      * Current cache of available consumables.
      */
-    var consumables: Map<String, Productz>
+    var consumables: ArrayMap<String, Productz>
 
     /**
      * Current cache of available non-consumables.
      */
-    var nonConsumables: Map<String, Productz>
+    var nonConsumables: ArrayMap<String, Productz>
 
     /**
      * Current cache of available subscriptions.
      */
-    var subscriptions: Map<String, Productz>
-
-    /**
-     * Provides the most recent collection of Products queried.
-     * May or may not be filtered by product type.
-     */
-    var requestedProducts: MutableLiveData<Map<String, Productz>>
+    var subscriptions: ArrayMap<String, Productz>
 
     /**
      * kotlin coroutine function for querying a specific product
      */
-    suspend fun queryProduct(sku: String, type: Productz.Type): Productz?
-
-    /**
-     * Query a specific sku against the client, and kotlin Flow will emit a successfully found product.
-     * Experimental Coroutine
-     */
-
-    fun queryProductFlow(sku: String, type: Productz.Type): Flow<Productz>
+    fun queryProduct(sku: String, type: Productz.Type): QueryResult<Productz>
 
     /**
      *
@@ -71,12 +62,13 @@ interface Inventoryz : CleanUpz {
      * against (validate) the billing client's server for list of available products.
      * @param type
      */
-    fun queryInventory(products: Map<String, Productz.Type>): LiveData<Map<String, Productz>>
+    fun queryInventory(products: Map<String, Productz.Type>): QueryResult<Map<String, Productz>>
 
     /**
      * @param products
      * @param type
-     * Mainly for internal use only
+     * Mainly for internal use only.
+     * Server verified skus will be sorted by type and cached in-memory.
      */
     fun updateInventory(products: List<Productz>?, type: Productz.Type)
 
@@ -97,4 +89,12 @@ interface Inventoryz : CleanUpz {
      *
      */
     fun getProducts(type: Productz.Type?, promo: Productz.Promotion?): Map<String, Productz>
+
+
+    /**
+     * Validates if the inventory has collection of verified skus cached in-memory.
+     */
+    fun isReadyStateFlow(): StateFlow<Boolean>
+
+    fun isReadyLiveData(): LiveData<Boolean>
 }

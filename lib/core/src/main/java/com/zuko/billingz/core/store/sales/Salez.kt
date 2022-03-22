@@ -1,15 +1,36 @@
+/*
+ *
+ *  * Copyright 2021 rjsuzuki
+ *  *
+ *  * Licensed under the Apache License, Version 2.0 (the "License");
+ *  * you may not use this file except in compliance with the License.
+ *  * You may obtain a copy of the License at
+ *  *
+ *  * http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing, software
+ *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  * See the License for the specific language governing permissions and
+ *  * limitations under the License.
+ *  *
+ *
+ */
+
 package com.zuko.billingz.core.store.sales
 
 import android.app.Activity
 import android.os.Bundle
-import androidx.collection.ArrayMap
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.zuko.billingz.core.misc.CleanUpz
 import com.zuko.billingz.core.store.client.Clientz
+import com.zuko.billingz.core.store.model.OrderHistoryz
 import com.zuko.billingz.core.store.model.Orderz
 import com.zuko.billingz.core.store.model.Productz
+import com.zuko.billingz.core.store.model.QueryResult
 import com.zuko.billingz.core.store.model.Receiptz
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 interface Salez : CleanUpz {
     /**
@@ -19,22 +40,23 @@ interface Salez : CleanUpz {
      * Objects can be passed from the normal purchase flow
      * or when the app is verifying a list of queried purchases.
      */
-    var currentReceipt: MutableLiveData<Receiptz>
+    val currentReceipt: MutableLiveData<out Receiptz>
 
     /**
      * Collection of the latest purchases sorted as Key/Value pairs.
      * Key = string value of entitlement id(purchase token for Google, receipt id for Amazon)
      *
      */
-    var orderHistory: MutableLiveData<ArrayMap<String, Receiptz>>
-
+    val orderHistoryLiveData: MutableLiveData<out OrderHistoryz>
+    val orderHistoryStateFlow: MutableStateFlow<out OrderHistoryz?>
+    val orderHistoryState: StateFlow<OrderHistoryz?>
     /**
-     *
+     * Callback method required to be implemented by developer
      */
     var orderUpdaterListener: OrderUpdaterListener?
 
     /**
-     *
+     * Callback method required to be implemented by developer
      */
     var orderValidatorListener: OrderValidatorListener?
 
@@ -96,13 +118,13 @@ interface Salez : CleanUpz {
      * [https://developers.google.com/android-publisher/api-ref/purchases/products/get]
      * [https://developers.google.com/android-publisher/api-ref/purchases/subscriptions/get]
      */
-    fun queryOrders(): LiveData<Orderz>
+    fun queryOrders(): QueryResult<Orderz>
 
     /**
      * Returns the most recent purchase made by the user for each SKU,
      * even if that purchase is expired, canceled, or consumed.
      */
-    fun queryReceipts(type: Productz.Type? = null)
+    fun queryReceipts(type: Productz.Type? = null): QueryResult<OrderHistoryz>
 
     /**
      * @param profileId - Specifies an optional obfuscated string that is
@@ -128,23 +150,6 @@ interface Salez : CleanUpz {
         fun onComplete(receipt: Receiptz)
 
         fun onError(order: Orderz)
-    }
-
-    /**
-     *
-     */
-    interface UpdaterCallback {
-
-        /**
-         * Final step in completing an order. Developers should implement a way to persist their
-         * Receipts prior to calling this method.
-         */
-        fun complete(order: Orderz)
-
-        /**
-         *
-         */
-        fun cancel(order: Orderz)
     }
 
     /**

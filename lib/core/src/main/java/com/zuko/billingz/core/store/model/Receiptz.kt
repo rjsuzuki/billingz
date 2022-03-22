@@ -22,6 +22,10 @@ package com.zuko.billingz.core.store.model
 import com.zuko.billingz.core.misc.ModuleIdentifier
 import java.util.Date
 
+/**
+ * Receipt objects are completed transactions with a final state as
+ * canceled, expired, or consumed.
+ */
 interface Receiptz: ModuleIdentifier {
 
     /**

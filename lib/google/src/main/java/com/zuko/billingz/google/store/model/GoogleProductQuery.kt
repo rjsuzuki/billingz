@@ -19,15 +19,27 @@
 
 package com.zuko.billingz.google.store.model
 
-import androidx.collection.ArrayMap
-import com.zuko.billingz.core.store.model.OrderHistoryz
+import androidx.lifecycle.LiveData
+import com.zuko.billingz.core.store.model.Productz
+import com.zuko.billingz.core.store.model.QueryResult
+import com.zuko.billingz.google.store.inventory.GoogleInventory
+import kotlinx.coroutines.flow.StateFlow
 
-data class GoogleOrderHistory(override val receipts: ArrayMap<String, GoogleReceipt>) : OrderHistoryz {
-    override fun isGoogle(): Boolean {
-        return true
+data class GoogleProductQuery(
+    private val sku: String,
+    private val type: Productz.Type,
+    private val inventory: GoogleInventory
+): QueryResult<Productz> {
+
+    override fun liveData(): LiveData<Productz?> {
+        return inventory.queryProductLiveData()
     }
 
-    override fun isAmazon(): Boolean {
-        return false
+    override fun flow(): StateFlow<Productz?> {
+        return inventory.queryProductStateFlow()
+    }
+
+    companion object {
+        private const val TAG = "GoogleProductQuery"
     }
 }

@@ -17,14 +17,9 @@
  *
  */
 
-package com.zuko.billingz.amazon.store.inventory
+package com.zuko.billingz.amazon.store.client
 
-import com.amazon.device.iap.model.ProductDataResponse
-import com.zuko.billingz.core.store.inventory.Inventoryz
+import com.zuko.billingz.core.store.client.Clientz
 
-interface AmazonInventoryz : Inventoryz {
-    /**
-     * For internal use only
-     */
-    fun processQueriedProducts(response: ProductDataResponse?)
+interface AmazonClientz: Clientz {
 }

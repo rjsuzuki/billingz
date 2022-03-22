@@ -21,6 +21,9 @@ package com.zuko.billingz.core.store.model
 
 import com.zuko.billingz.core.misc.ModuleIdentifier
 
+/**
+ * Order objects are transactions in-progress or incomplete.
+ */
 interface Orderz: ModuleIdentifier {
 
     /**
@@ -72,6 +75,7 @@ interface Orderz: ModuleIdentifier {
         VALIDATING,
         COMPLETE,
         FAILED,
+        CANCELED,
         PENDING
     }
 }

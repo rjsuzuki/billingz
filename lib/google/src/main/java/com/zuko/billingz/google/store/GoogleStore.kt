@@ -1,17 +1,19 @@
 /*
- * Copyright 2021 rjsuzuki
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  * Copyright 2021 rjsuzuki
+ *  *
+ *  * Licensed under the Apache License, Version 2.0 (the "License");
+ *  * you may not use this file except in compliance with the License.
+ *  * You may obtain a copy of the License at
+ *  *
+ *  * http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing, software
+ *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  * See the License for the specific language governing permissions and
+ *  * limitations under the License.
+ *  *
  *
  */
 package com.zuko.billingz.google.store
@@ -30,9 +32,10 @@ import com.zuko.billingz.core.store.Storez
 import com.zuko.billingz.core.store.agent.Agentz
 import com.zuko.billingz.core.store.client.Clientz
 import com.zuko.billingz.core.store.inventory.Inventoryz
+import com.zuko.billingz.core.store.model.OrderHistoryz
 import com.zuko.billingz.core.store.model.Orderz
 import com.zuko.billingz.core.store.model.Productz
-import com.zuko.billingz.core.store.model.Receiptz
+import com.zuko.billingz.core.store.model.QueryResult
 import com.zuko.billingz.core.store.sales.Salez
 import com.zuko.billingz.core.store.security.Securityz
 import com.zuko.billingz.google.store.client.GoogleClient
@@ -41,7 +44,7 @@ import com.zuko.billingz.google.store.model.GoogleOrder
 import com.zuko.billingz.google.store.sales.GoogleSales
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
 /**
  * @author rjsuzuki
@@ -119,11 +122,12 @@ class GoogleStore internal constructor() : Storez {
 
     private val storeAgent = object : Agentz {
 
-        override fun isInventoryReady(): LiveData<Boolean> {
-            val data = MutableLiveData<Boolean>()
-            data.value =
-                client.isReady() && inventory.requestedProducts.value?.isNullOrEmpty() == false
-            return data
+        override fun isInventoryReadyLiveData(): LiveData<Boolean> {
+            return inventory.isReadyLiveData()
+        }
+
+        override fun isInventoryReadyStateFlow(): StateFlow<Boolean> {
+            return inventory.isReadyStateFlow()
         }
 
         override fun getState(): LiveData<Clientz.ConnectionStatus> {
@@ -161,29 +165,23 @@ class GoogleStore internal constructor() : Storez {
             return data
         }
 
-        override fun queryOrders(): LiveData<Orderz> {
+        override fun queryOrders(): QueryResult<Orderz> {
             LogUtilz.log.v(TAG, "queryOrders")
             return sales.queryOrders()
         }
 
-        override suspend fun queryProduct(sku: String, type: Productz.Type): Productz? {
+        override fun queryProduct(sku: String, type: Productz.Type): QueryResult<Productz> {
+            LogUtilz.log.v(TAG, "queryProduct: \nsku: $sku,\ntype: $type")
             return inventory.queryProduct(sku, type)
         }
 
-        override fun queryProductFlow(sku: String, type: Productz.Type): Flow<Productz> {
-            return inventory.queryProductFlow(sku, type)
+        override fun queryReceipts(type: Productz.Type?): QueryResult<OrderHistoryz> {
+            LogUtilz.log.v(TAG, "queryReceipts:\ntype: $type")
+            return sales.queryReceipts(type)
         }
 
-        override fun queryReceipts(type: Productz.Type?): LiveData<ArrayMap<String, Receiptz>> {
-            LogUtilz.log.v(TAG, "getReceipts: $type")
-            if (client is GoogleClient) {
-                sales.queryReceipts(type)
-            }
-            return sales.orderHistory
-        }
-
-        override fun updateInventory(products: Map<String, Productz.Type>): LiveData<Map<String, Productz>> {
-            LogUtilz.log.v(TAG, "updateInventory: ${products.size}")
+        override fun queryInventory(products: Map<String, Productz.Type>): QueryResult<Map<String, Productz>> {
+            LogUtilz.log.v(TAG, "queryInventory:\n products: ${products.size}")
             return inventory.queryInventory(products = products)
         }
 
@@ -261,7 +259,7 @@ class GoogleStore internal constructor() : Storez {
             return this
         }
 
-        override fun build(context: Context?): GoogleStore {
+        override fun build(context: Context?): Storez {
             instance = GoogleStore()
             instance.sales.apply {
                 orderUpdaterListener = updaterListener

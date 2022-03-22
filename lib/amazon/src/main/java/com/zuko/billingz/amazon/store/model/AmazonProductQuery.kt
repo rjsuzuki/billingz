@@ -18,21 +18,25 @@
  */
 
 
-
 package com.zuko.billingz.amazon.store.model
 
-import com.zuko.billingz.core.store.model.OrderHistoryz
+import androidx.lifecycle.LiveData
+import com.zuko.billingz.amazon.store.inventory.AmazonInventory
+import com.zuko.billingz.core.store.model.Productz
+import com.zuko.billingz.core.store.model.QueryResult
+import kotlinx.coroutines.flow.StateFlow
 
-/**
- * Key = Receipt ID
- * Value = IAP Receipt
- */
-data class AmazonOrderHistory(override val receipts: Map<String, AmazonReceipt>) : OrderHistoryz {
-    override fun isGoogle(): Boolean {
-        return false
+class AmazonProductQuery(
+    private val sku: String,
+    private val type: Productz.Type,
+    private val inventory: AmazonInventory
+) :
+    QueryResult<AmazonProduct> {
+    override fun liveData(): LiveData<AmazonProduct?> {
+        return inventory.queryProductLiveData()
     }
 
-    override fun isAmazon(): Boolean {
-        return true
+    override fun flow(): StateFlow<AmazonProduct?> {
+        return inventory.queryProductStateFlow()
     }
 }

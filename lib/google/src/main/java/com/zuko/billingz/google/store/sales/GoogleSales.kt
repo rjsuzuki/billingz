@@ -1,17 +1,19 @@
 /*
- * Copyright 2021 rjsuzuki
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  * Copyright 2021 rjsuzuki
+ *  *
+ *  * Licensed under the Apache License, Version 2.0 (the "License");
+ *  * you may not use this file except in compliance with the License.
+ *  * You may obtain a copy of the License at
+ *  *
+ *  * http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing, software
+ *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  * See the License for the specific language governing permissions and
+ *  * limitations under the License.
+ *  *
  *
  */
 package com.zuko.billingz.google.store.sales
@@ -29,26 +31,34 @@ import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.ConsumeParams
 import com.android.billingclient.api.Purchase
-import com.android.billingclient.api.PurchaseHistoryResponseListener
 import com.android.billingclient.api.PurchasesResponseListener
 import com.android.billingclient.api.SkuDetails
 import com.android.billingclient.api.queryPurchaseHistory
 import com.zuko.billingz.core.LogUtilz
+import com.zuko.billingz.core.misc.BillingzDispatcher
+import com.zuko.billingz.core.misc.Dispatcherz
 import com.zuko.billingz.core.store.client.Clientz
+import com.zuko.billingz.core.store.model.OrderHistoryz
 import com.zuko.billingz.core.store.model.Orderz
 import com.zuko.billingz.core.store.model.Productz
+import com.zuko.billingz.core.store.model.QueryResult
 import com.zuko.billingz.core.store.model.Receiptz
 import com.zuko.billingz.core.store.sales.OrderOptions
 import com.zuko.billingz.core.store.sales.Salez
 import com.zuko.billingz.google.store.client.GoogleClient
 import com.zuko.billingz.google.store.inventory.GoogleInventory
 import com.zuko.billingz.google.store.model.GoogleOrder
+import com.zuko.billingz.google.store.model.GoogleOrderHistory
+import com.zuko.billingz.google.store.model.GoogleOrderHistoryQuery
+import com.zuko.billingz.google.store.model.GoogleOrdersQuery
 import com.zuko.billingz.google.store.model.GoogleProduct
 import com.zuko.billingz.google.store.model.GoogleReceipt
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.Date
 
@@ -60,7 +70,8 @@ import java.util.Date
  */
 class GoogleSales(
     private val inventory: GoogleInventory,
-    private val client: GoogleClient
+    private val client: GoogleClient,
+    private var dispatcher: Dispatcherz = BillingzDispatcher()
 ) : Salez {
 
     private val mainScope = MainScope()
@@ -68,23 +79,38 @@ class GoogleSales(
     private var obfuscatedAccountId: String? = null
     private var obfuscatedProfileId: String? = null
 
-    override var currentReceipt = MutableLiveData<Receiptz>() // todo - unused - consider deprecating
-    override var orderHistory: MutableLiveData<ArrayMap<String, Receiptz>> = MutableLiveData()
+    override val currentReceipt: MutableLiveData<GoogleReceipt> = MutableLiveData<GoogleReceipt>() // todo - unused - consider deprecating
+
+    /**
+     * Purchase history
+     */
+    override var orderHistoryLiveData: MutableLiveData<GoogleOrderHistory> = MutableLiveData()
+    override var orderHistoryStateFlow: MutableStateFlow<GoogleOrderHistory?> = MutableStateFlow(null)
+    override var orderHistoryState = orderHistoryStateFlow.asStateFlow()
+
+    /**
+     * Validation checks
+     */
     override var orderUpdaterListener: Salez.OrderUpdaterListener? = null
     override var orderValidatorListener: Salez.OrderValidatorListener? = null
-
     private var isAlreadyQueried = false // prevents redundant queries
+    @Deprecated("TBD")
     private var isQueriedOrders = false // prevents redundant queries
 
     /**
      * Orders that requires attention, e.g pending orders, waiting for user interaction,
      * incomplete purchase flows from a bad network, etc.
      */
-    private var queriedOrder = MutableLiveData<Orderz>()
-    private var pendingOrders = ArrayMap<String, Orderz>()
+    private var queriedOrderStateFlow: MutableStateFlow<GoogleOrder?> = MutableStateFlow(null)
+    private var queriedOrderState = queriedOrderStateFlow.asStateFlow()
+    private var queriedOrderLiveData: MutableLiveData<GoogleOrder?> = MutableLiveData()
+    private var pendingOrders = ArrayMap<String, GoogleOrder>()
 
-    private var activeSubscriptions = ArrayMap<String, Receiptz>()
-    private var activeInAppProducts = ArrayMap<String, Receiptz>()
+    /**
+     * Entitlements
+     */
+    private var activeSubscriptions = ArrayMap<String, GoogleReceipt>()
+    private var activeInAppProducts = ArrayMap<String, GoogleReceipt>()
 
     override fun setObfuscatedIdentifiers(accountId: String?, profileId: String?) {
         LogUtilz.log.d(
@@ -147,7 +173,7 @@ class GoogleSales(
          * Now, this function immediately proceeds to completeOrder() to consume/acknowledge
          * purchase.
          */
-        order.state = Orderz.State.PROCESSING
+        order.state = Orderz.State.VALIDATING
         completeOrder(order)
     }
 
@@ -164,15 +190,13 @@ class GoogleSales(
                             Productz.Type.SUBSCRIPTION -> {
                                 completeSubscription(
                                     client.getBillingClient(),
-                                    order.purchase,
-                                    mainScope = mainScope
+                                    order.purchase
                                 )
                             }
                             Productz.Type.NON_CONSUMABLE -> {
                                 completeNonConsumable(
                                     client.getBillingClient(),
-                                    order.purchase,
-                                    mainScope = mainScope
+                                    order.purchase
                                 )
                             }
                             Productz.Type.CONSUMABLE -> {
@@ -306,9 +330,8 @@ class GoogleSales(
 
     /**
      * For resolving queried purchases from BillingClient.queryPurchasesAsync().
-     *
      */
-    fun processUpdatedPurchases(
+    internal fun processUpdatedPurchases(
         billingResult: BillingResult?,
         purchases: MutableList<Purchase>?
     ) {
@@ -328,7 +351,7 @@ class GoogleSales(
                         billingResult = null,
                         msg = "Queried Order"
                     )
-                    this.queriedOrder.postValue(order)
+                    this.queriedOrderLiveData.postValue(order)
                 } else {
                     isQueriedOrders = false
                     when (p.purchaseState) {
@@ -396,7 +419,7 @@ class GoogleSales(
                 msg = "pending process..."
             )
             pendingOrders[purchase.orderId] = order
-            queriedOrder.postValue(order)
+            queriedOrderLiveData.postValue(order)
         }
     }
 
@@ -463,8 +486,7 @@ class GoogleSales(
 
     private fun completeNonConsumable(
         billingClient: BillingClient?,
-        purchase: Purchase?,
-        mainScope: CoroutineScope?
+        purchase: Purchase?
     ) {
         LogUtilz.log.v(TAG, "completeNonConsumable: $purchase")
         if (billingClient?.isReady == false) {
@@ -501,7 +523,7 @@ class GoogleSales(
         if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
             if (!purchase.isAcknowledged) {
                 val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder().setPurchaseToken(purchase.purchaseToken)
-                mainScope?.launch(Dispatchers.IO) {
+                mainScope.launch(dispatcher.io()) {
                     billingClient?.acknowledgePurchase(acknowledgePurchaseParams.build(), listener)
                 }
             }
@@ -510,8 +532,7 @@ class GoogleSales(
 
     private fun completeSubscription(
         billingClient: BillingClient?,
-        purchase: Purchase?,
-        mainScope: CoroutineScope?
+        purchase: Purchase?
     ) {
         LogUtilz.log.v(TAG, "completeSubscription: $purchase")
         if (billingClient?.isReady == false) {
@@ -557,35 +578,56 @@ class GoogleSales(
 
     override fun refreshQueries() {
         LogUtilz.log.v(TAG, "refreshQueries")
-        if (isAlreadyQueried) {
+        isAlreadyQueried = if (isAlreadyQueried) {
             LogUtilz.log.d(TAG, "Skipping purchase history refresh.")
             // skip - prevents double queries on initialization
-            isAlreadyQueried = false
+            false
         } else {
             LogUtilz.log.d(TAG, "Refreshing purchase history.")
             queryReceipts()
             queryOrders()
-            isAlreadyQueried = true
+            true
         }
     }
 
-    override fun queryOrders(): LiveData<Orderz> {
+    override fun queryOrders(): QueryResult<Orderz> {
         LogUtilz.log.v(TAG, "queryOrders")
         querySubscriptions()
         queryInAppProducts()
-        return queriedOrder
+        return GoogleOrdersQuery(this)
     }
 
-    override fun queryReceipts(type: Productz.Type?) {
+    internal fun queryOrdersLiveData(): LiveData<GoogleOrder?> {
+        LogUtilz.log.v(TAG, "queryOrdersLiveData")
+        return queriedOrderLiveData
+    }
+
+    internal fun queryOrdersStateFlow(): StateFlow<GoogleOrder?> {
+        LogUtilz.log.v(TAG, "queryOrdersStateFlow")
+        return queriedOrderState
+    }
+
+    override fun queryReceipts(type: Productz.Type?): QueryResult<OrderHistoryz> {
         LogUtilz.log.v(TAG, "queryReceipts: $type")
         if (client.isReady()) {
             LogUtilz.log.i(TAG, "Fetching all $type purchases made by user.")
-            mainScope.launch(Dispatchers.IO) {
+            mainScope.launch(dispatcher.io()) {
                 queryOrderHistory(type)
             }
         } else {
             LogUtilz.log.e(TAG, "Android BillingClient was not ready yet to continue queryPurchases()")
         }
+        return GoogleOrderHistoryQuery(this)
+    }
+
+    internal fun queryReceiptsLiveData(): MutableLiveData<GoogleOrderHistory> {
+        LogUtilz.log.v(TAG, "queryOrders")
+        return orderHistoryLiveData
+    }
+
+    internal fun queryReceiptsStateFlow(): StateFlow<GoogleOrderHistory?> {
+        LogUtilz.log.v(TAG, "queryOrders")
+        return orderHistoryState
     }
 
     suspend fun queryReceiptsAsync(type: Productz.Type?): List<Receiptz> = coroutineScope {
@@ -665,7 +707,6 @@ class GoogleSales(
                     LogUtilz.log.i(TAG, "In-app order history received: $purchases")
                 }
             }
-
         client.getBillingClient()?.queryPurchasesAsync(BillingClient.SkuType.INAPP, purchaseResponseListener)
     }
 
@@ -673,10 +714,18 @@ class GoogleSales(
         LogUtilz.log.v(TAG, "queryOrderHistory: $type")
         val skuType =
             if (type == Productz.Type.SUBSCRIPTION) BillingClient.SkuType.SUBS else BillingClient.SkuType.INAPP
-        val purchaseHistoryResponseListener =
-            PurchaseHistoryResponseListener { billingResult, records ->
-                // handle billingResult
+
+        mainScope.launch(dispatcher.io()) {
+            client.getBillingClient()?.queryPurchaseHistory(skuType)?.let { purchaseHistoryResult ->
+
+                val billingResult = purchaseHistoryResult.billingResult
+                val records = purchaseHistoryResult.purchaseHistoryRecordList
+                // log billingResult
                 GoogleResponse.logResult(billingResult)
+
+                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+
+                }
 
                 if (records.isNullOrEmpty()) {
                     LogUtilz.log.w(TAG, "No receipts found for product type: $type")
@@ -689,7 +738,7 @@ class GoogleSales(
                         activeInAppProducts.clear()
                     }
 
-                    val receipts = ArrayMap<String, Receiptz>()
+                    val receipts = ArrayMap<String, GoogleReceipt>()
                     records.forEach { record ->
                         val receipt = GoogleReceipt(
                             purchase = null
@@ -702,15 +751,19 @@ class GoogleSales(
                         receipt.signature = record.signature
                         receipts[receipt.entitlement] = receipt
                     }
-                    orderHistory.postValue(receipts)
+
+                    val orderHistory = GoogleOrderHistory(receipts = receipts)
+                    orderHistoryLiveData.postValue(orderHistory)
+                    orderHistoryStateFlow.emit(orderHistory)
                 }
             }
-        client.getBillingClient()?.queryPurchaseHistoryAsync(skuType, purchaseHistoryResponseListener)
+        }
     }
 
     override fun destroy() {
         LogUtilz.log.v(TAG, "destroy")
-        isQueriedOrders = false // todo - consider deprecating this
+        isQueriedOrders = false
+        mainScope.cancel()
     }
 
     companion object {

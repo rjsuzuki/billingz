@@ -1,26 +1,29 @@
 /*
- * Copyright 2021 rjsuzuki
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  * Copyright 2021 rjsuzuki
+ *  *
+ *  * Licensed under the Apache License, Version 2.0 (the "License");
+ *  * you may not use this file except in compliance with the License.
+ *  * You may obtain a copy of the License at
+ *  *
+ *  * http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing, software
+ *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  * See the License for the specific language governing permissions and
+ *  * limitations under the License.
+ *  *
  *
  */
 package com.zuko.billingz.core
 
 import android.util.Log
+import com.zuko.billingz.BuildConfig
 
 object LogUtilz {
 
-    private var verbosity: Int = Log.DEBUG
+    private var verbosity: Int = if (BuildConfig.DEBUG) Log.INFO else Log.VERBOSE
 
     /**
      * Public method
@@ -45,17 +48,17 @@ object LogUtilz {
 
         // 2
         fun v(tag: String, msg: String) {
-            if (verbosity >= Log.VERBOSE)
+            if (verbosity == Log.VERBOSE)
                 Log.v(tag, msg)
         }
 
-        // 3
+        // 3 - sensitive information
         fun d(tag: String, msg: String) {
             if (verbosity >= Log.DEBUG)
                 Log.d(tag, msg)
         }
 
-        // 4
+        // 4 - sensitive information
         fun i(tag: String, msg: String) {
             if (verbosity >= Log.INFO)
                 Log.i(tag, msg)

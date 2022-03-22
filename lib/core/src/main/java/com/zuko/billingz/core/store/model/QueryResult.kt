@@ -17,14 +17,25 @@
  *
  */
 
-package com.zuko.billingz.amazon.store.inventory
+package com.zuko.billingz.core.store.model
 
-import com.amazon.device.iap.model.ProductDataResponse
-import com.zuko.billingz.core.store.inventory.Inventoryz
+import androidx.annotation.UiThread
+import androidx.lifecycle.LiveData
+import kotlinx.coroutines.flow.StateFlow
 
-interface AmazonInventoryz : Inventoryz {
+/**
+ * Functionality for query results to be published as android LiveData objects
+ * or kotlin StateFlow objects. Both provide functionality for multiple subscribers.
+ */
+interface QueryResult <out T> {
     /**
-     * For internal use only
+     * Recommended for use-cases related to the ui (activity or fragment)
      */
-    fun processQueriedProducts(response: ProductDataResponse?)
+    @UiThread
+    fun liveData(): LiveData<out T?>
+
+    /**
+     * Recommended for non-ui related use-cases.
+     */
+    fun flow(): StateFlow<T?>
 }

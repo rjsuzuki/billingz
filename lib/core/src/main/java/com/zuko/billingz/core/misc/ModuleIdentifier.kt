@@ -17,14 +17,16 @@
  *
  */
 
-package com.zuko.billingz.amazon.store.inventory
+package com.zuko.billingz.core.misc
 
-import com.amazon.device.iap.model.ProductDataResponse
-import com.zuko.billingz.core.store.inventory.Inventoryz
-
-interface AmazonInventoryz : Inventoryz {
+interface ModuleIdentifier {
     /**
-     * For internal use only
+     * Convenience method to check if object is an instance from the Google module
      */
-    fun processQueriedProducts(response: ProductDataResponse?)
+    fun isGoogle(): Boolean
+
+    /**
+     * Convenience method to check if object is an instance from the Amazon module
+     */
+    fun isAmazon(): Boolean
 }

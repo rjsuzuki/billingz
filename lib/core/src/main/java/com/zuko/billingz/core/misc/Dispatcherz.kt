@@ -17,14 +17,11 @@
  *
  */
 
-package com.zuko.billingz.amazon.store.inventory
+package com.zuko.billingz.core.misc
 
-import com.amazon.device.iap.model.ProductDataResponse
-import com.zuko.billingz.core.store.inventory.Inventoryz
+import kotlinx.coroutines.CoroutineDispatcher
 
-interface AmazonInventoryz : Inventoryz {
-    /**
-     * For internal use only
-     */
-    fun processQueriedProducts(response: ProductDataResponse?)
+interface Dispatcherz {
+    fun main(): CoroutineDispatcher
+    fun io(): CoroutineDispatcher
 }

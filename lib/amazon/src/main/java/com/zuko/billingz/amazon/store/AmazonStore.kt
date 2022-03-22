@@ -1,17 +1,19 @@
 /*
- * Copyright 2021 rjsuzuki
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  * Copyright 2021 rjsuzuki
+ *  *
+ *  * Licensed under the Apache License, Version 2.0 (the "License");
+ *  * you may not use this file except in compliance with the License.
+ *  * You may obtain a copy of the License at
+ *  *
+ *  * http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing, software
+ *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  * See the License for the specific language governing permissions and
+ *  * limitations under the License.
+ *  *
  *
  */
 package com.zuko.billingz.amazon.store
@@ -29,13 +31,14 @@ import com.zuko.billingz.core.LogUtilz
 import com.zuko.billingz.core.store.Storez
 import com.zuko.billingz.core.store.agent.Agentz
 import com.zuko.billingz.core.store.client.Clientz
+import com.zuko.billingz.core.store.model.OrderHistoryz
 import com.zuko.billingz.core.store.model.Orderz
 import com.zuko.billingz.core.store.model.Productz
-import com.zuko.billingz.core.store.model.Receiptz
+import com.zuko.billingz.core.store.model.QueryResult
 import com.zuko.billingz.core.store.sales.Salez
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
 /**
  * @author rjsuzuki
@@ -51,7 +54,7 @@ class AmazonStore internal constructor() : Storez {
     private val mainScope by lazy { MainScope() }
     private var context: Context? = null
     private val inventory = AmazonInventory()
-    private val sales = AmazonSales()
+    private val sales = AmazonSales(inventory)
     private val client = AmazonClient(inventory, sales)
 
     init {
@@ -90,11 +93,11 @@ class AmazonStore internal constructor() : Storez {
 
     override fun pause() {
         LogUtilz.log.v(TAG, "pausing...")
+        client.pause()
     }
 
     override fun stop() {
         LogUtilz.log.v(TAG, "stopping...")
-        mainScope.cancel()
     }
 
     override fun destroy() {
@@ -104,13 +107,14 @@ class AmazonStore internal constructor() : Storez {
         client.destroy()
     }
 
-    private val agent = object : Agentz {
+    private val storeAgent = object : Agentz {
 
-        override fun isInventoryReady(): LiveData<Boolean> {
-            val data = MutableLiveData<Boolean>()
-            data.value =
-                client.isReady() && inventory.requestedProducts.value?.isNullOrEmpty() == false
-            return data
+        override fun isInventoryReadyLiveData(): LiveData<Boolean> {
+            return inventory.isReadyLiveData()
+        }
+
+        override fun isInventoryReadyStateFlow(): StateFlow<Boolean> {
+            return inventory.isReadyStateFlow()
         }
 
         override fun getState(): LiveData<Clientz.ConnectionStatus> {
@@ -133,27 +137,23 @@ class AmazonStore internal constructor() : Storez {
             return data
         }
 
-        override fun queryOrders(): LiveData<Orderz> {
+        override fun queryOrders(): QueryResult<Orderz> {
             LogUtilz.log.v(TAG, "queryOrders")
             return sales.queryOrders()
         }
 
-        override suspend fun queryProduct(sku: String, type: Productz.Type): Productz? {
-            return inventory.queryProduct(sku, type)
-        }
-
-        override fun queryProductFlow(sku: String, type: Productz.Type): Flow<Productz> {
-            return inventory.queryProductFlow(sku, type)
-        }
-
-        override fun queryReceipts(type: Productz.Type?): LiveData<ArrayMap<String, Receiptz>> {
+        override fun queryReceipts(type: Productz.Type?): QueryResult<OrderHistoryz> {
             LogUtilz.log.v(TAG, "getReceipts: $type")
-            return sales.orderHistory
+            return sales.queryReceipts(type)
         }
 
-        override fun updateInventory(products: Map<String, Productz.Type>): LiveData<Map<String, Productz>> {
+        override fun queryInventory(products: Map<String, Productz.Type>): QueryResult<Map<String, Productz>> {
             LogUtilz.log.v(TAG, "updateInventory: ${products.size}")
             return inventory.queryInventory(products = products)
+        }
+
+        override fun queryProduct(sku: String, type: Productz.Type): QueryResult<Productz> {
+            return inventory.queryProduct(sku, type)
         }
 
         override fun getProducts(
@@ -174,7 +174,7 @@ class AmazonStore internal constructor() : Storez {
     }
 
     override fun getAgent(): Agentz {
-        return agent
+        return storeAgent
     }
 
     /**
@@ -203,7 +203,10 @@ class AmazonStore internal constructor() : Storez {
             return this
         }
 
-        override fun setAccountId(id: String?): Storez.Builder {
+        /**
+         * Not used in this implementation
+         */
+        override fun setAccountId(id: String?): Builder {
             accountId = id
             return this
         }
@@ -213,17 +216,14 @@ class AmazonStore internal constructor() : Storez {
             return this
         }
 
-        override fun build(context: Context?): AmazonStore {
+        override fun build(context: Context?): Storez {
             instance = AmazonStore()
             instance.sales.apply {
                 orderUpdaterListener = updaterListener
                 orderValidatorListener = validatorListener
             }
             instance.init(context = context)
-            instance.client.connect()
-            if (::products.isInitialized) {
-                instance.inventory.queryInventory(products = this.products)
-            }
+            instance.create()
             return instance
         }
     }

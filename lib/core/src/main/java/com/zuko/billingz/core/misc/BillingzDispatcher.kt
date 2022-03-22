@@ -16,34 +16,21 @@
  *  *
  *
  */
+
 package com.zuko.billingz.core.misc
 
-/**
- * Simple wrapper class to provide network state management for an object.
- */
-class Responsez<T>
-private constructor(
-    val status: Status,
-    val data: T?,
-    val msg: String?
-) {
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 
-    enum class Status { SUCCESS, ERROR, LOADING }
+data class BillingzDispatcher(
+    private val main: CoroutineDispatcher = Dispatchers.Main,
+    private val io: CoroutineDispatcher = Dispatchers.IO
+): Dispatcherz {
+    override fun main(): CoroutineDispatcher {
+        return main
+    }
 
-    companion object {
-        @JvmStatic
-        fun <T> success(data: T): Responsez<T> {
-            return Responsez(Status.SUCCESS, data, null)
-        }
-
-        @JvmStatic
-        fun <T> error(msg: String?): Responsez<T> {
-            return Responsez(Status.ERROR, null, msg)
-        }
-
-        @JvmStatic
-        fun <T> loading(msg: String?): Responsez<T> {
-            return Responsez(Status.LOADING, null, msg)
-        }
+    override fun io(): CoroutineDispatcher {
+        return io
     }
 }
