@@ -105,11 +105,11 @@ class GoogleInventory(
         LogUtilz.log.d(
             TAG,
             "Processing inventory query result ->" +
-                    "\n type: $type," +
-                    "\n billingResult code: ${result?.responseCode}," +
-                    "\n billingResult msg: ${result?.debugMessage ?: "n/a"}," +
-                    "\n products: $skuDetailsList" +
-                    "\n -----------------------------------"
+                "\n type: $type," +
+                "\n billingResult code: ${result?.responseCode}," +
+                "\n billingResult msg: ${result?.debugMessage ?: "n/a"}," +
+                "\n products: $skuDetailsList" +
+                "\n -----------------------------------"
         )
         if (result?.responseCode == BillingClient.BillingResponseCode.OK &&
             !skuDetailsList.isNullOrEmpty()
@@ -205,8 +205,8 @@ class GoogleInventory(
         LogUtilz.log.i(
             TAG,
             "queryInventory(" +
-                    "\n products: ${products.size}," +
-                    "\n )"
+                "\n products: ${products.size}," +
+                "\n )"
         )
         allProducts = products // todo
 
@@ -251,9 +251,9 @@ class GoogleInventory(
         LogUtilz.log.i(
             TAG,
             "updateInventory(" +
-                    "\n products: ${products?.size ?: 0}," +
-                    "\n type: $type," +
-                    "\n )"
+                "\n products: ${products?.size ?: 0}," +
+                "\n type: $type," +
+                "\n )"
         )
         if (!products.isNullOrEmpty()) {
             mainScope.launch(dispatcher.io()) {
