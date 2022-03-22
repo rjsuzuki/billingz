@@ -57,7 +57,8 @@ import kotlinx.coroutines.launch
  */
 class AmazonSales(
     private val inventory: AmazonInventory,
-    private val dispatcher: Dispatcherz = BillingzDispatcher()): AmazonSalez {
+    private val dispatcher: Dispatcherz = BillingzDispatcher()
+) : AmazonSalez {
 
     private val mainScope = MainScope()
 
@@ -67,13 +68,13 @@ class AmazonSales(
     private var currentOrdersQueryId: RequestId? = null
     private val queriedOrders: ArrayMap<String, AmazonOrder> by lazy { ArrayMap() }
     private var queriedOrdersLiveData: MutableLiveData<AmazonOrder?> = MutableLiveData()
-    private val queriedOrdersStateFlow: MutableStateFlow<AmazonOrder?> by lazy { MutableStateFlow(null)}
+    private val queriedOrdersStateFlow: MutableStateFlow<AmazonOrder?> by lazy { MutableStateFlow(null) }
     private val queriedOrdersState: StateFlow<AmazonOrder?> by lazy { queriedOrdersStateFlow.asStateFlow() }
 
     private var currentHistoryQueryId: RequestId? = null
     private val orderHistory: ArrayMap<String, AmazonReceipt> by lazy { ArrayMap() }
     override var orderHistoryLiveData: MutableLiveData<AmazonOrderHistory> = MutableLiveData()
-    override val orderHistoryStateFlow: MutableStateFlow<AmazonOrderHistory?> by lazy { MutableStateFlow(null)}
+    override val orderHistoryStateFlow: MutableStateFlow<AmazonOrderHistory?> by lazy { MutableStateFlow(null) }
     override val orderHistoryState: StateFlow<AmazonOrderHistory?> by lazy { orderHistoryStateFlow.asStateFlow() }
 
     private var isAlreadyQueried = false // prevents redundant queries
@@ -175,9 +176,12 @@ class AmazonSales(
             if (order is AmazonOrder) {
                 if (order.receipt.isCanceled) {
                     // revoke
-                    LogUtilz.log.wtf(TAG, "AmazonOrder: " +
+                    LogUtilz.log.wtf(
+                        TAG,
+                        "AmazonOrder: " +
                             "\norderId: ${order.orderId}," +
-                            "\nisCanceled: true")
+                            "\nisCanceled: true"
+                    )
                     validatorCallback.invalidated(order)
                     return
                 }

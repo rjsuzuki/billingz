@@ -17,8 +17,6 @@
  *
  */
 
-
-
 package com.zuko.billingz.amazon.store.model
 
 import com.zuko.billingz.core.store.model.OrderHistoryz

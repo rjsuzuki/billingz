@@ -90,7 +90,6 @@ interface Inventoryz : CleanUpz {
      */
     fun getProducts(type: Productz.Type?, promo: Productz.Promotion?): Map<String, Productz>
 
-
     /**
      * Validates if the inventory has collection of verified skus cached in-memory.
      */

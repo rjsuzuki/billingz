@@ -76,11 +76,12 @@ class AmazonInventory(
 
     override fun processQueriedProducts(response: ProductDataResponse?) {
         LogUtilz.log.v(
-            TAG, "handleQueriedProducts:" +
-                    "\nrequest id: ${response?.requestId}," +
-                    "\nstatus: ${response?.requestStatus}," +
-                    "\nunavailableSkus: ${response?.unavailableSkus?.size}," +
-                    "\nproducts: ${response?.productData}"
+            TAG,
+            "handleQueriedProducts:" +
+                "\nrequest id: ${response?.requestId}," +
+                "\nstatus: ${response?.requestStatus}," +
+                "\nunavailableSkus: ${response?.unavailableSkus?.size}," +
+                "\nproducts: ${response?.productData}"
         )
         when (response?.requestStatus) {
             ProductDataResponse.RequestStatus.SUCCESSFUL -> {
@@ -163,10 +164,11 @@ class AmazonInventory(
         val productDataRequestId =
             PurchasingService.getProductData(products.keys.toSet()) // inventory
         LogUtilz.log.i(
-            TAG, "get product data request: $productDataRequestId," +
-                    "products: $products"
+            TAG,
+            "get product data request: $productDataRequestId," +
+                "products: $products"
         )
-        return AmazonInventoryQuery(products, this)
+        return AmazonInventoryQuery(this)
     }
 
     internal fun queryInventoryLiveData(): LiveData<ArrayMap<String, Productz>?> {
@@ -196,7 +198,6 @@ class AmazonInventory(
                             p.sku?.let { sku ->
                                 nonConsumables.putIfAbsent(sku, p)
                             }
-
                         }
                         Productz.Type.SUBSCRIPTION -> {
                             p.sku?.let { sku ->
@@ -228,7 +229,7 @@ class AmazonInventory(
                         val unidentifiedProducts: ArrayMap<String, Productz> = ArrayMap()
                         unidentifiedProducts.putAll(from = consumables)
                         unidentifiedProducts.putAll(from = nonConsumables)
-                        unidentifiedProducts.putAll(from =subscriptions)
+                        unidentifiedProducts.putAll(from = subscriptions)
                         requestedProductsLiveData.postValue(unidentifiedProducts)
                         requestedProductsStateFlow.emit(unidentifiedProducts)
                     }

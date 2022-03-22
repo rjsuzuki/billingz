@@ -26,20 +26,14 @@ import com.zuko.billingz.core.store.model.QueryResult
 import com.zuko.billingz.google.store.inventory.GoogleInventory
 import kotlinx.coroutines.flow.StateFlow
 
-class GoogleInventoryQuery
-constructor(
-    private val products: Map<String, Productz.Type>,
-    private val inventory: GoogleInventory
-) : QueryResult<ArrayMap<String, Productz>> {
+class GoogleInventoryQuery(private val inventory: GoogleInventory) :
+    QueryResult<ArrayMap<String, Productz>> {
 
     override fun liveData(): LiveData<ArrayMap<String, Productz>?> {
-        inventory.queryInventory(products)
         return inventory.queryInventoryLiveData()
     }
 
     override fun flow(): StateFlow<ArrayMap<String, Productz>?> {
-        inventory.queryInventory(products)
         return inventory.queryInventoryStateFlow()
     }
-
 }

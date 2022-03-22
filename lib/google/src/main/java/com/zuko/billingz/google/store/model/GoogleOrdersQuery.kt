@@ -24,7 +24,7 @@ import com.zuko.billingz.core.store.model.QueryResult
 import com.zuko.billingz.google.store.sales.GoogleSales
 import kotlinx.coroutines.flow.StateFlow
 
-class GoogleOrdersQuery(private val sales: GoogleSales): QueryResult<GoogleOrder> {
+class GoogleOrdersQuery(private val sales: GoogleSales) : QueryResult<GoogleOrder> {
     override fun liveData(): LiveData<GoogleOrder?> {
         return sales.queryOrdersLiveData()
     }

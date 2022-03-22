@@ -244,7 +244,7 @@ class GoogleInventory(
                 }
             }
         }
-        return GoogleInventoryQuery(products, this)
+        return GoogleInventoryQuery(this)
     }
 
     override fun updateInventory(products: List<Productz>?, type: Productz.Type) {
@@ -268,7 +268,6 @@ class GoogleInventory(
                             p.sku?.let { sku ->
                                 nonConsumables.putIfAbsent(sku, p)
                             }
-
                         }
                         Productz.Type.SUBSCRIPTION -> {
                             p.sku?.let { sku ->

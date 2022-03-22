@@ -29,7 +29,7 @@ data class GoogleProductQuery(
     private val sku: String,
     private val type: Productz.Type,
     private val inventory: GoogleInventory
-): QueryResult<Productz> {
+) : QueryResult<Productz> {
 
     override fun liveData(): LiveData<Productz?> {
         return inventory.queryProductLiveData()

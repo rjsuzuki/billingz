@@ -25,7 +25,7 @@ import kotlinx.coroutines.Dispatchers
 data class BillingzDispatcher(
     private val main: CoroutineDispatcher = Dispatchers.Main,
     private val io: CoroutineDispatcher = Dispatchers.IO
-): Dispatcherz {
+) : Dispatcherz {
     override fun main(): CoroutineDispatcher {
         return main
     }

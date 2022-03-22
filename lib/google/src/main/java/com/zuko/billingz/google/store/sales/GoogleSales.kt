@@ -724,7 +724,6 @@ class GoogleSales(
                 GoogleResponse.logResult(billingResult)
 
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-
                 }
 
                 if (records.isNullOrEmpty()) {

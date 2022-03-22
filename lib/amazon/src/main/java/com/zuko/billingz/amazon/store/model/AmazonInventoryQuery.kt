@@ -25,16 +25,14 @@ import com.zuko.billingz.core.store.model.Productz
 import com.zuko.billingz.core.store.model.QueryResult
 import kotlinx.coroutines.flow.StateFlow
 
-class AmazonInventoryQuery(
-    private val skus: Map<String, Productz.Type>,
-    private val inventory: AmazonInventory
-) : QueryResult<ArrayMap<String, AmazonProduct>> {
+class AmazonInventoryQuery(private val inventory: AmazonInventory) :
+    QueryResult<ArrayMap<String, Productz>> {
 
-    override fun liveData(): LiveData<ArrayMap<String, AmazonProduct>?> {
+    override fun liveData(): LiveData<ArrayMap<String, Productz>?> {
         return inventory.queryInventoryLiveData()
     }
 
-    override fun flow(): StateFlow<ArrayMap<String, AmazonProduct>?> {
+    override fun flow(): StateFlow<ArrayMap<String, Productz>?> {
         return inventory.queryInventoryStateFlow()
     }
 }

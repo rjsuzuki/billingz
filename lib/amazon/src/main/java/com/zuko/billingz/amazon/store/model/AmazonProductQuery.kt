@@ -17,7 +17,6 @@
  *
  */
 
-
 package com.zuko.billingz.amazon.store.model
 
 import androidx.lifecycle.LiveData

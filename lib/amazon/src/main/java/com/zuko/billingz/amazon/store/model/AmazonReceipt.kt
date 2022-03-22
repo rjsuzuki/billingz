@@ -46,6 +46,4 @@ data class AmazonReceipt(
     override fun isAmazon(): Boolean {
         return true
     }
-
-
 }

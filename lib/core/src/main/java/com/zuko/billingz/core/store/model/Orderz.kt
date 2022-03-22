@@ -24,7 +24,7 @@ import com.zuko.billingz.core.misc.ModuleIdentifier
 /**
  * Order objects are transactions in-progress or incomplete.
  */
-interface Orderz: ModuleIdentifier {
+interface Orderz : ModuleIdentifier {
 
     /**
      * A unique order identifier for the transaction.

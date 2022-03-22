@@ -21,5 +21,4 @@ package com.zuko.billingz.amazon.store.client
 
 import com.zuko.billingz.core.store.client.Clientz
 
-interface AmazonClientz: Clientz {
-}
+interface AmazonClientz : Clientz

@@ -26,7 +26,7 @@ import java.util.Date
  * Receipt objects are completed transactions with a final state as
  * canceled, expired, or consumed.
  */
-interface Receiptz: ModuleIdentifier {
+interface Receiptz : ModuleIdentifier {
 
     /**
      * Unique id for granting entitlement of a product.

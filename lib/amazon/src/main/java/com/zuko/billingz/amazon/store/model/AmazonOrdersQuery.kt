@@ -24,7 +24,7 @@ import com.zuko.billingz.amazon.store.sales.AmazonSales
 import com.zuko.billingz.core.store.model.QueryResult
 import kotlinx.coroutines.flow.StateFlow
 
-class AmazonOrdersQuery(private val sales: AmazonSales): QueryResult<AmazonOrder> {
+class AmazonOrdersQuery(private val sales: AmazonSales) : QueryResult<AmazonOrder> {
     override fun liveData(): LiveData<AmazonOrder?> {
         return sales.queryOrdersLiveData()
     }

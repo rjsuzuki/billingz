@@ -91,7 +91,7 @@ class AmazonClient(val inventory: AmazonInventoryz, val sales: AmazonSalez) : Am
                             LogUtilz.log.d(
                                 TAG,
                                 "Successful user data request: ${response.requestId}" +
-                                        "\nmarketplace: ${response.userData?.marketplace}"
+                                    "\nmarketplace: ${response.userData?.marketplace}"
                             )
                             userDataResponse = response
                             isConnected = true
@@ -154,8 +154,8 @@ class AmazonClient(val inventory: AmazonInventoryz, val sales: AmazonSalez) : Am
         LogUtilz.log.v(
             TAG,
             "checkConnection:" +
-                    "\nSDK_VERSION: ${PurchasingService.SDK_VERSION}" +
-                    "\nIS_SANDBOX_MODE: ${PurchasingService.IS_SANDBOX_MODE}"
+                "\nSDK_VERSION: ${PurchasingService.SDK_VERSION}" +
+                "\nIS_SANDBOX_MODE: ${PurchasingService.IS_SANDBOX_MODE}"
         )
         if (!isReady())
             requestUserData()

@@ -29,7 +29,7 @@ import java.util.Currency
  * In particular, purchases made with promo codes do not generate an orderId.
  *
  */
-interface Productz: ModuleIdentifier {
+interface Productz : ModuleIdentifier {
 
     /**
      * The sku product id that is referenced by your account
