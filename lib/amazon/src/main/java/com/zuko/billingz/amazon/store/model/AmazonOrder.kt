@@ -33,6 +33,7 @@ import org.json.JSONObject
  * @property json will reflect the true origin of the data objects.
  */
 data class AmazonOrder(
+    val requestStatus: String,
     val requestId: RequestId,
     val userData: UserData,
     val receipt: Receipt,

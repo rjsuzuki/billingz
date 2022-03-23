@@ -120,6 +120,7 @@ class AmazonSales(
         response ?: return
 
         val order = AmazonOrder(
+            requestStatus = response.requestStatus.name,
             requestId = response.requestId,
             userData = response.userData,
             receipt = response.receipt,
@@ -346,8 +347,10 @@ class AmazonSales(
                                 }
                             }
                             else -> {
+                                response.requestStatus
                                 // create order
                                 val order = AmazonOrder(
+                                    requestStatus = response.requestStatus.name,
                                     requestId = response.requestId,
                                     userData = response.userData,
                                     receipt = r,
