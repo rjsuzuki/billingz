@@ -26,109 +26,28 @@ plugins {
     id "org.jetbrains.dokka"
 }
 
+apply from: "${project.rootDir}/spotless.gradle"
+apply from: "${project.rootDir}/gradle/version.gradle"
+apply from: "${project.rootDir}/gradle/tasks.gradle"
+apply from: "${project.rootDir}/gradle/publish.gradle"
+
 android {
-    // Github Packages
-    def githubProperties = new Properties()
-    githubProperties.load(new FileInputStream(rootProject.file("github.properties")))
-    githubProperties["gpr.usr"] ?: System.getenv("GPR_USER")
+    namespace = LibraryInfo.namespace
 
-    githubProperties.load(new FileInputStream(rootProject.file("github.properties")))
-    githubProperties["gpr.key"] ?: System.getenv("GPR_API_KEY")
-
-    def versionProperties = new Properties()
-    rootProject.file("version.properties").withInputStream { versionProperties.load(it) }
-    def getArtifactId = { ->
-        return "amazon"
-    }
-
-    //always two digits
-    def getMinor = { ->
-        String minor = versionProperties['v.minor']
-        var m = Integer.valueOf(minor)
-        if (m == 0) {
-            return "0"
-        }
-        if (m < 10) {
-            return "0${minor}"
-        }
-        return minor
-    }
-
-    def getHotfix = { ->
-        String hotfix = versionProperties['v.hotfix']
-        var h = Integer.valueOf(hotfix)
-        if (h == 0) {
-            return "0"
-        }
-        if (h < 10) {
-            return "0${hotfix}"
-        }
-        return hotfix
-    }
-
-    def getDynamicVersionCode = { ->
-        String major = versionProperties['v.major']
-        String minor = getMinor()
-        String hotfix = getHotfix()
-
-        String result = "${major}${minor}${hotfix}"
-        return result.toInteger()
-    }
-
-    def getVersionName = { ->
-        String major = versionProperties['v.major']
-        String minor = getMinor()
-        String hotfix = getHotfix()
-        String result = "${major.toString()}.${minor.toString()}.${hotfix.toString()}"
-        return result
-    }
-
-    afterEvaluate {
-        publishing {
-
-            repositories {
-                maven {
-                    name = "GitHubPackages"
-                    url = uri("https://maven.pkg.github.com/rjsuzuki/billingz")
-                    credentials {
-                        username = System.getenv('GPR_USER') ?: githubProperties['gpr.usr']
-                        // GPR_USER is a CI Environment Variable
-                        password = System.getenv('GPR_API_KEY') ?: githubProperties['gpr.key']
-                        // GPR_API_KEY is a CI Environment Variable
-                    }
-                }
-            }
-
-            publications {
-                // Creates a Maven publication called "release".
-                release(MavenPublication) {
-                    groupId = 'com.zuko.billingz.android'
-                    artifactId = "${getArtifactId()}-release"
-                    version = getVersionName()
-                    artifact("$buildDir/outputs/aar/${artifactId}.aar")
-                }
-
-                // Creates a Maven publication called "debug".
-                debug(MavenPublication) {
-                    // Applies the component for the debug build variant
-                    // from components.debug
-                    groupId = 'com.zuko.billingz.android'
-                    artifactId = "${getArtifactId()}-debug"
-                    version = getVersionName()
-                    artifact("$buildDir/outputs/aar/${artifactId}.aar")
-                }
-            }
-        }
-    }
     compileSdk LibraryInfo.compileSDK
     buildToolsVersion LibraryInfo.buildTools
 
     defaultConfig {
         minSdk LibraryInfo.minSDK
         targetSdk LibraryInfo.targetSDK
-
+        group = LibraryInfo.groupId
+        versionCode 1
+        versionName "${project.ext.get("billingzVersion")}"
+        multiDexEnabled false
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
+
+        setProperty("archivesBaseName", "$group-$versionName")
     }
 
     buildTypes {
@@ -147,16 +66,33 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    buildFeatures {
+        viewBinding true
+    }
+    lintOptions {
+        // set to true to turn off analysis progress reporting by lint
+        quiet false
+        // if true, stop the gradle build if errors are found
+        abortOnError true
+        // set to true to have all release builds run lint on issues with severity=fatal
+        // and abort the build (controlled by abortOnError above) if fatal issues are found
+        checkReleaseBuilds true
+        // Normally lint will analyze all dependencies along with each module; this ensures
+        // that lint can correctly (for example) determine if a resource declared in a library
+        // is unused; checking only the library in isolation would not be able to identify this
+        // problem. However, this leads to quite a bit of extra computation; a library is
+        // analyzed repeatedly, for each module that it is used in.
+        checkDependencies true
+    }
 }
 
 dependencies {
-    api project(':lib:core')
+    implementation project(':lib:core')
 
     //TODO: Appstore will replace IAP in the near future
     //api 'com.amazon.device:amazon-appstore-sdk:3.0.2'
 
     api files("libs/in-app-purchasing-${Dependencies.amazon_iap}.jar")
-    api "androidx.core:core-ktx:${Dependencies.androidx_core}"
 }
 
 dokkaHtml.configure {

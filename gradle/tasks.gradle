@@ -1,3 +1,17 @@
+apply plugin: "com.android.library"
+apply plugin: "kotlin-android"
+apply plugin: "kotlin-kapt"
+println("Loading custom gradle tasks...")
+
+task installGitHook(type: Copy) {
+    println "Installing git hooks..."
+
+    from new File(rootProject.rootDir, "scripts/pre-push")
+    into { new File(rootProject.rootDir, '.git/hooks') }
+
+    fileMode 0775
+}
+
 /*
  *
  *  * Copyright 2021 rjsuzuki
@@ -17,22 +31,5 @@
  *
  */
 
-object LibraryInfo {
-
-    const val versionCode = 1
-
-    const val compileSDK = 31
-    const val buildTools = "32.0.0"
-    const val minSDK = 21
-    const val targetSDK = 30
-
-    const val libraryArtifactId = "billingz"
-    const val coreArtifactId = "core"
-    const val googleArtifactId = "google"
-    const val amazonArtifactId = "amazon"
-
-    const val namespace = "com.zuko.billingz"
-    const val groupId = "com.zuko.billingz.android"
-
-    const val archivesBaseName = groupId
-}
+// Run during the build process
+project.tasks.getByName("preBuild").dependsOn installGitHook
