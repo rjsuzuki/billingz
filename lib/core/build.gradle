@@ -47,7 +47,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
 
-        setProperty("archivesBaseName", "$group-$versionName")
+        setProperty("archivesBaseName", "${project.ext.get("coreArtifact")}")
     }
 
     buildTypes {

@@ -44,8 +44,6 @@ android {
         multiDexEnabled false
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
-
-        setProperty("archivesBaseName", "$group-$versionName")
     }
 
     buildTypes {
@@ -84,6 +82,3 @@ android {
         checkDependencies true
     }
 }
-
-
-

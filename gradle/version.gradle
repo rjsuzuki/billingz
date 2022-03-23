@@ -46,6 +46,9 @@ def getVersionName = { ->
 project.ext {
     billingzVersion = getVersionName().toString()
     billingzArtifact = LibraryInfo.groupId + getVersionName()
+    coreArtifact = LibraryInfo.groupId + "." + LibraryInfo.coreArtifactId + "-" + getVersionName()
+    googleArtifact = LibraryInfo.groupId + "." + LibraryInfo.googleArtifactId + "-" + getVersionName()
+    amazonArtifact = LibraryInfo.groupId + "." + LibraryInfo.amazonArtifactId + "-" + getVersionName()
 }
 
 println("Version configuration finished for: ${getVersionName()}")
