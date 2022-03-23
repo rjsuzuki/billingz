@@ -99,17 +99,7 @@ project.afterEvaluate {
             // Creates a Maven publication called "release".
             release(MavenPublication) {
                 groupId = LibraryInfo.groupId
-                artifactId = "${LibraryInfo.libraryArtifactId}-release"
-                version = "${project.ext.get("billingzVersion")}"
-                artifact("$buildDir/outputs/aar/${project.ext.get("billingzArtifact")}.aar")
-            }
-
-            // Creates a Maven publication called "debug".
-            debug(MavenPublication) {
-                // Applies the component for the debug build variant
-                // from components.debug
-                groupId = LibraryInfo.groupId
-                artifactId = "${LibraryInfo.libraryArtifactId}-debug"
+                artifactId = "${LibraryInfo.libraryArtifactId}"
                 version = "${project.ext.get("billingzVersion")}"
                 artifact("$buildDir/outputs/aar/${project.ext.get("billingzArtifact")}.aar")
             }
