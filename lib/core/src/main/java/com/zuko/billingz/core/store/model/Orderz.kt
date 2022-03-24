@@ -80,7 +80,6 @@ interface Orderz : ModuleIdentifier {
 
     val signature: String?
 
-
     /**
      * Indicates the lifecycle of an order.
      */

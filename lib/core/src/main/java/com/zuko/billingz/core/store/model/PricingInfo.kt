@@ -28,4 +28,4 @@ data class PricingInfo(
     override val introPricePeriod: String?,
     override val billingPeriod: String?,
     override val trialPeriod: String?
-): Productz.Pricing, Parcelable
+) : Productz.Pricing, Parcelable

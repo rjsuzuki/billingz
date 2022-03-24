@@ -36,7 +36,7 @@ data class GoogleOrder(
     val purchase: Purchase?,
     val billingResult: BillingResult?,
 
-    ) : Orderz {
+) : Orderz {
     /**
      * An Order ID is a string that represents a financial transaction
      * on Google Play. This string is included in a receipt that is

@@ -374,7 +374,6 @@ class GoogleSales(
                     }
                 }
             }
-
         }
     }
 
@@ -519,7 +518,7 @@ class GoogleSales(
                     purchase = purchase,
                     billingResult = billingResult
                 )
-                LogUtilz.log.d(TAG,"Non-Consumable successfully acknowledged")
+                LogUtilz.log.d(TAG, "Non-Consumable successfully acknowledged")
                 order.state = Orderz.State.COMPLETE
                 val receipt = GoogleReceipt(
                     purchase = purchase,
@@ -583,7 +582,7 @@ class GoogleSales(
                     purchase = purchase,
                     billingResult = billingResult
                 )
-                LogUtilz.log.d(TAG,"Subscription successfully acknowledged")
+                LogUtilz.log.d(TAG, "Subscription successfully acknowledged")
                 order.state = Orderz.State.COMPLETE
                 val receipt = GoogleReceipt(
                     purchase = purchase,

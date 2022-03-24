@@ -516,9 +516,12 @@ class AmazonSales(
     }
 
     private fun notifyFulfillment(receiptId: String, acknowledge: Boolean) {
-        LogUtilz.log.v(TAG, "notifyFulfillment:" +
+        LogUtilz.log.v(
+            TAG,
+            "notifyFulfillment:" +
                 "\nreceiptId: $receiptId," +
-                "\nacknowledge: $acknowledge")
+                "\nacknowledge: $acknowledge"
+        )
         try {
             val result = if (acknowledge) {
                 FulfillmentResult.FULFILLED
