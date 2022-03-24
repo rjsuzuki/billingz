@@ -35,7 +35,7 @@ def githubUser() {
     }
 
     secretsProperties.load(new FileInputStream(rootProject.file("secrets.properties")))
-    return secretsProperties["gpr.usr"] ?: System.getenv("GPR_USER")
+    return System.getenv("GPR_USER") ?: secretsProperties["gpr.usr"]
 }
 
 def githubKey() {
@@ -46,7 +46,7 @@ def githubKey() {
     }
 
     secretsProperties.load(new FileInputStream(rootProject.file("secrets.properties")))
-    secretsProperties["gpr.key"] ?: System.getenv("GPR_API_KEY")
+    return System.getenv("GPR_API_KEY") ?: secretsProperties["gpr.key"]
 }
 
 repositories {
