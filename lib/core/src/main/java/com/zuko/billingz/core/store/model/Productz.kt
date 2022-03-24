@@ -72,6 +72,12 @@ interface Productz : ModuleIdentifier {
     val promotion: Promotion
 
     /**
+     * Amazon IAP does not support these particular data points, so this object will return null
+     * for the Amazon flavor.
+     */
+    val pricingInfo: PricingInfo?
+
+    /**
      * @return - [Currency] object to represent the ISO 4217 currency code
      * for price and original price
      */
@@ -101,5 +107,15 @@ interface Productz : ModuleIdentifier {
          * A product on sale or a special release of some sort.
          */
         PROMO
+    }
+
+    /**
+     * Supplementary pricing information on a product if available.
+     */
+    interface Pricing {
+        val introPrice: String?
+        val introPricePeriod: String?
+        val billingPeriod: String?
+        val trialPeriod: String?
     }
 }

@@ -33,11 +33,10 @@ import com.zuko.billingz.core.store.model.Productz
  *
  */
 data class GoogleOrder(
-    var purchase: Purchase? = null,
+    val purchase: Purchase?,
     val billingResult: BillingResult?,
-    val msg: String
-) : Orderz {
 
+    ) : Orderz {
     /**
      * An Order ID is a string that represents a financial transaction
      * on Google Play. This string is included in a receipt that is
@@ -75,6 +74,7 @@ data class GoogleOrder(
     var products: Map<String, Productz.Type> = ArrayMap()
 
     override var skus: List<String>? = purchase?.skus
+    override val signature: String? = purchase?.signature
 
     override fun isGoogle(): Boolean {
         return true
@@ -93,4 +93,9 @@ data class GoogleOrder(
         Purchase.PurchaseState.UNSPECIFIED_STATE == purchase?.purchaseState
     override var quantity: Int = purchase?.quantity ?: 1
     override var originalJson: String? = purchase?.originalJson
+
+    override val resultMessage: String =
+        billingResult?.debugMessage ?: "No result message available."
+    override val result: Orderz.Result =
+        if (billingResult != null) Orderz.Result.values()[billingResult.responseCode + 3] else Orderz.Result.NO_RESULT
 }

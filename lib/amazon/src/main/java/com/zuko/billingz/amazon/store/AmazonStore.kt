@@ -23,9 +23,9 @@ import android.content.Context
 import android.os.Bundle
 import androidx.collection.ArrayMap
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.zuko.billingz.amazon.store.client.AmazonClient
 import com.zuko.billingz.amazon.store.inventory.AmazonInventory
+import com.zuko.billingz.amazon.store.model.AmazonOrder
 import com.zuko.billingz.amazon.store.sales.AmazonSales
 import com.zuko.billingz.core.LogUtilz
 import com.zuko.billingz.core.store.Storez
@@ -129,12 +129,23 @@ class AmazonStore internal constructor() : Storez {
             listener: Salez.OrderValidatorListener?
         ): LiveData<Orderz> {
             LogUtilz.log.v(TAG, "Starting order: $productId")
-            val data = MutableLiveData<Orderz>()
+
             val product = inventory.getProduct(productId)
-            product?.let {
+            if (product == null) {
+                val order = AmazonOrder(
+                    resultMessage = "No matching sku found in inventory.",
+                    result = Orderz.Result.INVALID_PRODUCT,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+                )
+                sales.currentOrder.postValue(order)
+            } else {
                 sales.startOrder(activity, product, client)
             }
-            return data
+            return sales.currentOrder
         }
 
         override fun queryOrders(): QueryResult<Orderz> {

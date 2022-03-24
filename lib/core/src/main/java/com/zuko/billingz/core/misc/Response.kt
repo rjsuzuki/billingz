@@ -21,7 +21,7 @@ package com.zuko.billingz.core.misc
 /**
  * Simple wrapper class to provide network state management for an object.
  */
-class Responsez<T>
+class Response<T>
 private constructor(
     val status: Status,
     val data: T?,
@@ -32,18 +32,18 @@ private constructor(
 
     companion object {
         @JvmStatic
-        fun <T> success(data: T): Responsez<T> {
-            return Responsez(Status.SUCCESS, data, null)
+        fun <T> success(data: T): Response<T> {
+            return Response(Status.SUCCESS, data, null)
         }
 
         @JvmStatic
-        fun <T> error(msg: String?): Responsez<T> {
-            return Responsez(Status.ERROR, null, msg)
+        fun <T> error(msg: String?): Response<T> {
+            return Response(Status.ERROR, null, msg)
         }
 
         @JvmStatic
-        fun <T> loading(msg: String?): Responsez<T> {
-            return Responsez(Status.LOADING, null, msg)
+        fun <T> loading(msg: String?): Response<T> {
+            return Response(Status.LOADING, null, msg)
         }
     }
 }

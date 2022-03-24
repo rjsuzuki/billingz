@@ -42,7 +42,6 @@ import com.zuko.billingz.core.store.model.OrderHistoryz
 import com.zuko.billingz.core.store.model.Orderz
 import com.zuko.billingz.core.store.model.Productz
 import com.zuko.billingz.core.store.model.QueryResult
-import com.zuko.billingz.core.store.model.Receiptz
 import com.zuko.billingz.core.store.sales.OrderOptions
 import com.zuko.billingz.core.store.sales.Salez
 import com.zuko.billingz.google.store.client.GoogleClient
@@ -55,7 +54,6 @@ import com.zuko.billingz.google.store.model.GoogleProduct
 import com.zuko.billingz.google.store.model.GoogleReceipt
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -79,6 +77,7 @@ class GoogleSales(
     private var obfuscatedAccountId: String? = null
     private var obfuscatedProfileId: String? = null
 
+    override val currentOrder: MutableLiveData<Orderz> = MutableLiveData<Orderz>()
     override val currentReceipt: MutableLiveData<GoogleReceipt> = MutableLiveData<GoogleReceipt>() // todo - unused - consider deprecating
 
     /**
@@ -147,6 +146,16 @@ class GoogleSales(
                 )
             }
             GoogleResponse.logResult(result)
+            if (result.responseCode != BillingClient.BillingResponseCode.OK) {
+                val order = GoogleOrder(
+                    purchase = null,
+                    billingResult = BillingResult.newBuilder()
+                        .setResponseCode(BillingClient.BillingResponseCode.ERROR)
+                        .setDebugMessage("Can't start purchase flow with null parameters")
+                        .build()
+                )
+                failedOrder(order)
+            }
         }
     }
 
@@ -159,7 +168,7 @@ class GoogleSales(
             }
 
             override fun invalidated(order: Orderz) {
-                failedOrder(order)
+                cancelOrder(order)
             }
         }
         orderValidatorListener?.validate(order, validatorCallback) ?: LogUtilz.log.e(TAG, "Null validator object. Cannot complete order.")
@@ -216,16 +225,17 @@ class GoogleSales(
     }
 
     override fun cancelOrder(order: Orderz) {
-        LogUtilz.log.v(TAG, "cancel order: $order")
-        // todo - consider deprecating this
-        orderUpdaterListener?.onError(order)
+        LogUtilz.log.v(TAG, "externally canceled order: $order")
+        order.state = Orderz.State.CANCELED
+        orderUpdaterListener?.onFailure(order)
+        currentOrder.postValue(order)
     }
 
     override fun failedOrder(order: Orderz) {
-        LogUtilz.log.e(TAG, "failed order: $order")
-        if (order.state == Orderz.State.FAILED) {
-            orderUpdaterListener?.onError(order)
-        }
+        LogUtilz.log.e(TAG, "internally failed order: $order")
+        order.state = Orderz.State.FAILED
+        orderUpdaterListener?.onFailure(order)
+        currentOrder.postValue(order)
     }
 
     /**
@@ -295,7 +305,6 @@ class GoogleSales(
         // UI flow will start
         val result = billingClient.launchBillingFlow(activity, flowParams.build())
         LogUtilz.log.v(TAG, "Purchase flow UI finished with response code: ${result.responseCode}")
-        GoogleResponse.logResult(result)
         return result
     }
 
@@ -329,7 +338,8 @@ class GoogleSales(
     }
 
     /**
-     * For resolving queried purchases from BillingClient.queryPurchasesAsync().
+     * For continuing an order in progress from BillingClient.PurchasesUpdatedListener,
+     * and for resolving queried orders from BillingClient.queryPurchasesAsync()
      */
     internal fun processUpdatedPurchases(
         billingResult: BillingResult?,
@@ -342,25 +352,29 @@ class GoogleSales(
             isQueriedOrders = false
             LogUtilz.log.d(TAG, "No purchases available to resolve from queryPurchasesAsync")
         } else {
-            for (p in purchases) {
-                if (billingResult == null) {
-                    // only queried orders start with a null billingResult
-                    isQueriedOrders = true
-                    val order = GoogleOrder(
-                        purchase = p,
-                        billingResult = null,
-                        msg = "Queried Order"
-                    )
-                    this.queriedOrderLiveData.postValue(order)
-                } else {
-                    isQueriedOrders = false
-                    when (p.purchaseState) {
-                        Purchase.PurchaseState.PURCHASED -> processValidation(p, billingResult)
-                        Purchase.PurchaseState.PENDING -> processPendingTransaction(p, billingResult)
-                        Purchase.PurchaseState.UNSPECIFIED_STATE -> processPurchasingError(p, billingResult)
+            mainScope.launch(dispatcher.io()) {
+                for (p in purchases) {
+                    if (billingResult == null) {
+                        // only queried orders start with a null billingResult
+                        isQueriedOrders = true
+                        val order = GoogleOrder(
+                            purchase = p,
+                            billingResult = null
+                        )
+                        order.state = Orderz.State.PROCESSING
+                        queriedOrderLiveData.postValue(order)
+                        queriedOrderStateFlow.emit(order)
+                    } else {
+                        isQueriedOrders = false
+                        when (p.purchaseState) {
+                            Purchase.PurchaseState.PURCHASED -> processValidation(p, billingResult)
+                            Purchase.PurchaseState.PENDING -> processPendingTransaction(p, billingResult)
+                            Purchase.PurchaseState.UNSPECIFIED_STATE -> processPurchasingError(p, billingResult)
+                        }
                     }
                 }
             }
+
         }
     }
 
@@ -368,17 +382,21 @@ class GoogleSales(
         LogUtilz.log.v(TAG, "processValidation: $purchase")
         GoogleResponse.logResult(billingResult)
 
-        val order = GoogleOrder(
-            purchase = purchase,
-            billingResult = billingResult,
-            msg = "new purchase in progress"
-        )
-        order.state = Orderz.State.PROCESSING
-
         if (isNewPurchase(purchase)) {
+            val order = GoogleOrder(
+                purchase = purchase,
+                billingResult = billingResult
+            )
             validateOrder(order)
         } else {
             LogUtilz.log.e(TAG, "Purchase failed verification. Cannot complete order.")
+            val order = GoogleOrder(
+                purchase = purchase,
+                billingResult = BillingResult.newBuilder()
+                    .setResponseCode(BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED)
+                    .setDebugMessage("Product has already been acknowledged with Google Play.")
+                    .build()
+            )
             failedOrder(order)
         }
     }
@@ -395,7 +413,7 @@ class GoogleSales(
     }
 
     /**
-     *  transactions that require one or more additional steps between when a user initiates
+     *  Transactions that require one or more additional steps between when a user initiates
      *  a purchase and when the payment method for the purchase is processed
      */
     private fun processPendingTransaction(purchase: Purchase, billingResult: BillingResult?) {
@@ -413,13 +431,15 @@ class GoogleSales(
                 "Pending transaction already in processing for orderId: ${purchase.orderId}"
             )
         } else {
-            val order = GoogleOrder(
-                purchase = purchase,
-                billingResult = billingResult,
-                msg = "pending process..."
-            )
-            pendingOrders[purchase.orderId] = order
-            queriedOrderLiveData.postValue(order)
+            mainScope.launch {
+                val order = GoogleOrder(
+                    purchase = purchase,
+                    billingResult = billingResult
+                )
+                pendingOrders[purchase.orderId] = order
+                queriedOrderLiveData.postValue(order)
+                queriedOrderStateFlow.emit(order)
+            }
         }
     }
 
@@ -434,8 +454,7 @@ class GoogleSales(
         GoogleResponse.logResult(billingResult)
         val order = GoogleOrder(
             purchase = purchase,
-            billingResult = billingResult,
-            msg = "Error"
+            billingResult = billingResult
         )
         failedOrder(order)
     }
@@ -457,11 +476,10 @@ class GoogleSales(
             val msg: String
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 msg = "Consumable successfully purchased: $p"
-                LogUtilz.log.d(TAG, "Product successfully purchased and consumed: ${purchase.orderId}")
+                LogUtilz.log.d(TAG, msg)
                 val order = GoogleOrder(
                     purchase = purchase,
-                    billingResult = billingResult,
-                    msg = msg
+                    billingResult = billingResult
                 )
                 order.state = Orderz.State.COMPLETE
                 val receipt = GoogleReceipt(
@@ -471,12 +489,12 @@ class GoogleSales(
                 )
                 currentReceipt.postValue(receipt)
                 orderUpdaterListener?.onComplete(receipt)
+                currentOrder.postValue(order)
             } else {
                 msg = billingResult.debugMessage
                 val order = GoogleOrder(
                     purchase = purchase,
-                    billingResult = billingResult,
-                    msg = msg
+                    billingResult = billingResult
                 )
                 failedOrder(order)
                 LogUtilz.log.e(TAG, "Error purchasing consumable. $msg")
@@ -499,9 +517,9 @@ class GoogleSales(
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 val order = GoogleOrder(
                     purchase = purchase,
-                    billingResult = billingResult,
-                    msg = "Non-Consumable successfully acknowledged"
+                    billingResult = billingResult
                 )
+                LogUtilz.log.d(TAG,"Non-Consumable successfully acknowledged")
                 order.state = Orderz.State.COMPLETE
                 val receipt = GoogleReceipt(
                     purchase = purchase,
@@ -510,11 +528,11 @@ class GoogleSales(
                 )
                 currentReceipt.postValue(receipt)
                 orderUpdaterListener?.onComplete(receipt)
+                currentOrder.postValue(order)
             } else {
                 val order = GoogleOrder(
                     purchase = purchase,
-                    billingResult = billingResult,
-                    msg = "Non-Consumable acknowledgment error"
+                    billingResult = billingResult
                 )
                 failedOrder(order)
             }
@@ -526,7 +544,25 @@ class GoogleSales(
                 mainScope.launch(dispatcher.io()) {
                     billingClient?.acknowledgePurchase(acknowledgePurchaseParams.build(), listener)
                 }
+            } else {
+                val order = GoogleOrder(
+                    purchase = purchase,
+                    billingResult = BillingResult.newBuilder()
+                        .setResponseCode(BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED)
+                        .setDebugMessage("Non-Consumable has already been acknowledged with Google Play.")
+                        .build()
+                )
+                failedOrder(order)
             }
+        } else {
+            val order = GoogleOrder(
+                purchase = purchase,
+                billingResult = BillingResult.newBuilder()
+                    .setResponseCode(BillingClient.BillingResponseCode.ITEM_NOT_OWNED)
+                    .setDebugMessage("Non-Consumable has not been successfully purchased.")
+                    .build()
+            )
+            failedOrder(order)
         }
     }
 
@@ -545,9 +581,9 @@ class GoogleSales(
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 val order = GoogleOrder(
                     purchase = purchase,
-                    billingResult = billingResult,
-                    msg = "Subscription successfully acknowledged"
+                    billingResult = billingResult
                 )
+                LogUtilz.log.d(TAG,"Subscription successfully acknowledged")
                 order.state = Orderz.State.COMPLETE
                 val receipt = GoogleReceipt(
                     purchase = purchase,
@@ -556,23 +592,41 @@ class GoogleSales(
                 )
                 currentReceipt.postValue(receipt)
                 orderUpdaterListener?.onComplete(receipt)
+                currentOrder.postValue(order)
             } else {
                 val order = GoogleOrder(
                     purchase = purchase,
-                    billingResult = billingResult,
-                    msg = "Subscription acknowledgment error"
+                    billingResult = billingResult
                 )
                 failedOrder(order)
             }
         }
 
-        if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
-            if (!purchase.isAcknowledged) {
+        if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) { // redundancy checks
+            if (!purchase.isAcknowledged) { // redundancy checks
                 val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
                     .setPurchaseToken(purchase.purchaseToken)
                 billingClient
                     ?.acknowledgePurchase(acknowledgePurchaseParams.build(), listener)
+            } else {
+                val order = GoogleOrder(
+                    purchase = purchase,
+                    billingResult = BillingResult.newBuilder()
+                        .setResponseCode(BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED)
+                        .setDebugMessage("Subscription has already been acknowledged with Google Play.")
+                        .build()
+                )
+                failedOrder(order)
             }
+        } else {
+            val order = GoogleOrder(
+                purchase = purchase,
+                billingResult = BillingResult.newBuilder()
+                    .setResponseCode(BillingClient.BillingResponseCode.ITEM_NOT_OWNED)
+                    .setDebugMessage("Subscription has not been successfully purchased.")
+                    .build()
+            )
+            failedOrder(order)
         }
     }
 
@@ -628,39 +682,6 @@ class GoogleSales(
     internal fun queryReceiptsStateFlow(): StateFlow<GoogleOrderHistory?> {
         LogUtilz.log.v(TAG, "queryOrders")
         return orderHistoryState
-    }
-
-    suspend fun queryReceiptsAsync(type: Productz.Type?): List<Receiptz> = coroutineScope {
-        LogUtilz.log.v(TAG, "queryReceiptsAsync: $type")
-        if (client.isReady()) {
-            LogUtilz.log.i(TAG, "Fetching all $type purchases made by user.")
-            val skuType =
-                if (type == Productz.Type.SUBSCRIPTION) BillingClient.SkuType.SUBS else BillingClient.SkuType.INAPP
-
-            val purchaseHistoryResult = client.getBillingClient()?.queryPurchaseHistory(skuType)
-            if (purchaseHistoryResult?.purchaseHistoryRecordList.isNullOrEmpty()) {
-                emptyList()
-            } else {
-                // convert records into receipts
-                val receiptsList = mutableListOf<Receiptz>()
-                purchaseHistoryResult?.purchaseHistoryRecordList?.forEach { record ->
-                    val receipt = GoogleReceipt(
-                        purchase = null
-                    )
-                    receipt.entitlement = record.purchaseToken
-                    receipt.orderDate = Date(record.purchaseTime)
-                    receipt.skus = record.skus
-                    receipt.originalJson = record.originalJson
-                    receipt.quantity = record.quantity
-                    receipt.signature = record.signature
-                    receiptsList.add(receipt)
-                }
-                receiptsList
-            }
-        } else {
-            LogUtilz.log.e(TAG, "Android BillingClient was not ready yet to continue queryPurchases()")
-            emptyList()
-        }
     }
 
     private fun querySubscriptions() {

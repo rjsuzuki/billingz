@@ -21,6 +21,7 @@ package com.zuko.billingz.google.store.model
 
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.SkuDetails
+import com.zuko.billingz.core.store.model.PricingInfo
 import com.zuko.billingz.core.store.model.Productz
 import java.util.Currency
 
@@ -45,8 +46,15 @@ data class GoogleProduct(
         skuDetails.introductoryPricePeriod.isNotBlank() -> Productz.Promotion.PROMO
         else -> Productz.Promotion.NONE
     }
+    override val pricingInfo: PricingInfo = PricingInfo(
+        introPrice = skuDetails.introductoryPrice,
+        introPricePeriod = skuDetails.introductoryPricePeriod,
+        billingPeriod = skuDetails.subscriptionPeriod,
+        trialPeriod = skuDetails.freeTrialPeriod
+    )
 
     override fun getCurrency(): Currency {
+        BillingFlowParams.ProrationMode.IMMEDIATE_WITH_TIME_PRORATION
         return Currency.getInstance(skuDetails.priceCurrencyCode)
     }
 
@@ -57,6 +65,7 @@ data class GoogleProduct(
     override fun isGoogle(): Boolean {
         return true
     }
+
     /**
      * Specifies the purchase token of the SKU that the user is upgrading or downgrading from.
      */

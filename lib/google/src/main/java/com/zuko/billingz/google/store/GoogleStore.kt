@@ -23,7 +23,6 @@ import android.content.Context
 import android.os.Bundle
 import androidx.collection.ArrayMap
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.PurchasesUpdatedListener
@@ -144,25 +143,21 @@ class GoogleStore internal constructor() : Storez {
             LogUtilz.log.v(TAG, "Starting order: $productId")
             sales.orderValidatorListener = listener
 
-            val data = MutableLiveData<Orderz>()
             val product = inventory.getProduct(productId)
             product?.let {
                 sales.startOrder(activity, product, client)
-                val order = GoogleOrder(
-                    billingResult = null,
-                    msg = "Processing..."
+            } ?: run {
+                sales.currentOrder.postValue(
+                    GoogleOrder(
+                        purchase = null,
+                        billingResult = BillingResult.newBuilder()
+                            .setDebugMessage("Product: $productId not found.")
+                            .setResponseCode(BillingClient.BillingResponseCode.ITEM_UNAVAILABLE)
+                            .build()
+                    )
                 )
-                data.postValue(order)
-            } ?: data.postValue(
-                GoogleOrder(
-                    billingResult = BillingResult.newBuilder()
-                        .setDebugMessage("Product: $productId not found.")
-                        .setResponseCode(BillingClient.BillingResponseCode.ITEM_UNAVAILABLE)
-                        .build(),
-                    msg = "Product: $productId not found."
-                )
-            )
-            return data
+            }
+            return sales.currentOrder
         }
 
         override fun queryOrders(): QueryResult<Orderz> {
@@ -280,6 +275,6 @@ class GoogleStore internal constructor() : Storez {
     }
 
     companion object {
-        private const val TAG = "BillingzGoogleStore"
+        private const val TAG = "   GoogleStore"
     }
 }

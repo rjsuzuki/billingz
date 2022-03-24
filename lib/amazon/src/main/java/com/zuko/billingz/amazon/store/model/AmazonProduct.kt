@@ -20,6 +20,7 @@ package com.zuko.billingz.amazon.store.model
 
 import com.amazon.device.iap.model.Product
 import com.amazon.device.iap.model.ProductType
+import com.zuko.billingz.core.store.model.PricingInfo
 import com.zuko.billingz.core.store.model.Productz
 import java.util.Currency
 import java.util.Locale
@@ -38,6 +39,7 @@ data class AmazonProduct(var amazonProduct: Product) : Productz {
         else -> Productz.Type.UNKNOWN
     }
     override val promotion: Productz.Promotion = Productz.Promotion.NONE
+    override val pricingInfo: PricingInfo? = null
 
     override fun getCurrency(): Currency {
         return Currency.getInstance(Locale.getDefault())

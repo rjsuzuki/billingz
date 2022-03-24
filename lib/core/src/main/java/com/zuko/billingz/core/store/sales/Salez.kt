@@ -33,6 +33,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 interface Salez : CleanUpz {
+
+    val currentOrder: MutableLiveData<Orderz>
     /**
      * Provides a liveData [Orderz] object for
      * developers to observe and react to on
@@ -149,7 +151,7 @@ interface Salez : CleanUpz {
          */
         fun onComplete(receipt: Receiptz)
 
-        fun onError(order: Orderz)
+        fun onFailure(order: Orderz)
     }
 
     /**

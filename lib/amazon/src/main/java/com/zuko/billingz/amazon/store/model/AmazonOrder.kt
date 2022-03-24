@@ -33,21 +33,24 @@ import org.json.JSONObject
  * @property json will reflect the true origin of the data objects.
  */
 data class AmazonOrder(
-    val requestStatus: String,
-    val requestId: RequestId,
-    val userData: UserData,
-    val receipt: Receipt,
-    val json: JSONObject
+    override val resultMessage: String,
+    override val result: Orderz.Result,
+    val requestStatus: String?,
+    val requestId: RequestId?,
+    val userData: UserData?,
+    val receipt: Receipt?,
+    val json: JSONObject?
 ) : Orderz {
 
     var product: Productz? = null
 
-    override var orderId: String? = receipt.receiptId
-    override var orderTime: Long = receipt.purchaseDate.time
+    override var orderId: String? = receipt?.receiptId
+    override var orderTime: Long = receipt?.purchaseDate?.time ?: 0L
     override var entitlement: String? = null
-    override var skus: List<String>? = listOf(receipt.sku)
+    override var skus: List<String>? = receipt?.sku?.let { listOf(receipt.sku) }
+    override val signature: String? = null
     override var state: Orderz.State = Orderz.State.UNKNOWN
-    override var isCancelled: Boolean = receipt.isCanceled
+    override var isCancelled: Boolean = receipt?.isCanceled ?: false
     override var quantity: Int = 1
     override var originalJson: String? = json.toString()
 

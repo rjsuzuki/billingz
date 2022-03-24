@@ -61,7 +61,7 @@ class AmazonSales(
 ) : AmazonSalez {
 
     private val mainScope = MainScope()
-
+    override val currentOrder: MutableLiveData<Orderz> = MutableLiveData<Orderz>()
     private var currentOrderId: RequestId? = null
     override var currentReceipt = MutableLiveData<AmazonReceipt>()
 
@@ -105,6 +105,16 @@ class AmazonSales(
             currentOrderId = PurchasingService.purchase(product.sku)
         } else {
             LogUtilz.log.e(TAG, "Order cannot start with invalid sku: ${product.sku}")
+            val order = AmazonOrder(
+                resultMessage = "Order cannot start with invalid sku: ${product.sku}",
+                result = Orderz.Result.INVALID_PRODUCT,
+                null,
+                null,
+                null,
+                null,
+                null
+            )
+            failedOrder(order)
         }
     }
 
@@ -116,10 +126,21 @@ class AmazonSales(
         return true
     }
 
+    private fun convertPurchaseStatus(status: PurchaseResponse.RequestStatus): Orderz.Result {
+        return when (status) {
+            PurchaseResponse.RequestStatus.SUCCESSFUL -> Orderz.Result.SUCCESS
+            PurchaseResponse.RequestStatus.FAILED -> Orderz.Result.ERROR
+            PurchaseResponse.RequestStatus.ALREADY_PURCHASED -> Orderz.Result.PRODUCT_ALREADY_OWNED
+            PurchaseResponse.RequestStatus.INVALID_SKU -> Orderz.Result.INVALID_PRODUCT
+            PurchaseResponse.RequestStatus.NOT_SUPPORTED -> Orderz.Result.NOT_SUPPORTED
+        }
+    }
+
     override fun processPurchase(response: PurchaseResponse?) {
         response ?: return
-
         val order = AmazonOrder(
+            resultMessage = response.requestStatus.name,
+            result = convertPurchaseStatus(response.requestStatus),
             requestStatus = response.requestStatus.name,
             requestId = response.requestId,
             userData = response.userData,
@@ -175,7 +196,7 @@ class AmazonSales(
 
         try {
             if (order is AmazonOrder) {
-                if (order.receipt.isCanceled) {
+                if (order.receipt?.isCanceled == true) {
                     // revoke
                     LogUtilz.log.wtf(
                         TAG,
@@ -183,7 +204,7 @@ class AmazonSales(
                             "\norderId: ${order.orderId}," +
                             "\nisCanceled: true"
                     )
-                    validatorCallback.invalidated(order)
+                    cancelOrder(order)
                     return
                 }
                 // Verify the receipts from the purchase by having your back-end server
@@ -195,13 +216,13 @@ class AmazonSales(
             }
         } catch (e: Exception) {
             order.state = Orderz.State.FAILED
+            failedOrder(order)
             LogUtilz.log.e(TAG, e.localizedMessage ?: "error")
         }
     }
 
     // step 3
     override fun processOrder(order: Orderz) {
-        order.state = Orderz.State.PROCESSING
         completeOrder(order)
     }
 
@@ -211,7 +232,7 @@ class AmazonSales(
             if (order is AmazonOrder) {
 
                 // we check if the order is canceled again before completing
-                if (order.receipt.isCanceled) {
+                if (order.receipt?.isCanceled == true) {
                     // revoke
                     cancelOrder(order)
                     LogUtilz.log.wtf(TAG, "isCanceled")
@@ -225,8 +246,11 @@ class AmazonSales(
                     else -> {}
                 }
                 // successful
-                PurchasingService.notifyFulfillment(order.receipt.receiptId, FulfillmentResult.FULFILLED)
+                order.receipt?.receiptId?.let { id ->
+                    notifyFulfillment(id, true)
+                }
                 order.state = Orderz.State.COMPLETE
+                currentOrder.postValue(order)
                 // update history
                 refreshQueries()
             }
@@ -343,13 +367,14 @@ class AmazonSales(
                                 orderHistory.putIfAbsent(r.receiptId, receipt)
 
                                 if (r.isCanceled) {
-                                    PurchasingService.notifyFulfillment(r.receiptId, FulfillmentResult.UNAVAILABLE)
+                                    notifyFulfillment(r.receiptId, false)
                                 }
                             }
                             else -> {
-                                response.requestStatus
                                 // create order
                                 val order = AmazonOrder(
+                                    resultMessage = response.requestStatus.name,
+                                    result = convertPurchaseUpdatesStatus(response.requestStatus),
                                     requestStatus = response.requestStatus.name,
                                     requestId = response.requestId,
                                     userData = response.userData,
@@ -388,9 +413,17 @@ class AmazonSales(
             else -> {
                 LogUtilz.log.w(
                     TAG,
-                    "Unknown request status: ${response?.requestId}"
+                    "Unknown request status: ${response.requestId}"
                 )
             }
+        }
+    }
+
+    private fun convertPurchaseUpdatesStatus(status: PurchaseUpdatesResponse.RequestStatus): Orderz.Result {
+        return when (status) {
+            PurchaseUpdatesResponse.RequestStatus.SUCCESSFUL -> Orderz.Result.SUCCESS
+            PurchaseUpdatesResponse.RequestStatus.FAILED -> Orderz.Result.ERROR
+            PurchaseUpdatesResponse.RequestStatus.NOT_SUPPORTED -> Orderz.Result.NOT_SUPPORTED
         }
     }
 
@@ -429,15 +462,17 @@ class AmazonSales(
         LogUtilz.log.w(TAG, "setObfuscatedIdentifiers: is not supported by Amazon IAP.")
     }
 
-    private fun completeConsumable(receipt: Receipt) {
+    private fun completeConsumable(receipt: Receipt?) {
         LogUtilz.log.v(TAG, "completeConsumable")
+        receipt ?: return
         val amazonReceipt = AmazonReceipt(receipt)
         currentReceipt.postValue(amazonReceipt)
         orderUpdaterListener?.onComplete(amazonReceipt)
     }
 
-    private fun completeNonConsumable(receipt: Receipt) {
+    private fun completeNonConsumable(receipt: Receipt?) {
         LogUtilz.log.v(TAG, "completeNonConsumable")
+        receipt ?: return
         val amazonReceipt = AmazonReceipt(receipt)
         currentReceipt.postValue(amazonReceipt)
         orderUpdaterListener?.onComplete(amazonReceipt)
@@ -448,8 +483,9 @@ class AmazonSales(
      * If the subscription was not continuous, for example, the customer did not auto-renew, let the subscription lapse, and then subscribed again a month later,
      * the app will receive multiple receipts.
      */
-    private fun completeSubscription(receipt: Receipt) {
+    private fun completeSubscription(receipt: Receipt?) {
         LogUtilz.log.v(TAG, "completeSubscription")
+        receipt ?: return
         val amazonReceipt = AmazonReceipt(receipt)
         currentReceipt.postValue(amazonReceipt)
         orderUpdaterListener?.onComplete(amazonReceipt)
@@ -458,22 +494,43 @@ class AmazonSales(
     override fun cancelOrder(order: Orderz) {
         LogUtilz.log.v(TAG, "cancelOrder")
         if (order is AmazonOrder) {
-            PurchasingService.notifyFulfillment(
-                order.receipt.receiptId,
-                FulfillmentResult.UNAVAILABLE
-            )
-            order.state = Orderz.State.CANCELED
+            order.receipt?.receiptId?.let { id ->
+                notifyFulfillment(id, false)
+            }
         }
+        order.state = Orderz.State.CANCELED
+        orderUpdaterListener?.onFailure(order)
+        currentOrder.postValue(order)
     }
 
     override fun failedOrder(order: Orderz) {
         LogUtilz.log.v(TAG, "failedOrder")
         if (order is AmazonOrder) {
-            PurchasingService.notifyFulfillment(
-                order.receipt.receiptId,
+            order.receipt?.receiptId?.let { id ->
+                notifyFulfillment(id, false)
+            }
+        }
+        order.state = Orderz.State.FAILED
+        orderUpdaterListener?.onFailure(order)
+        currentOrder.postValue(order)
+    }
+
+    private fun notifyFulfillment(receiptId: String, acknowledge: Boolean) {
+        LogUtilz.log.v(TAG, "notifyFulfillment:" +
+                "\nreceiptId: $receiptId," +
+                "\nacknowledge: $acknowledge")
+        try {
+            val result = if (acknowledge) {
+                FulfillmentResult.FULFILLED
+            } else {
                 FulfillmentResult.UNAVAILABLE
+            }
+            PurchasingService.notifyFulfillment(
+                receiptId,
+                result
             )
-            order.state = Orderz.State.FAILED
+        } catch (e: Exception) {
+            LogUtilz.log.e(TAG, "Failed to acknowledge order: $e")
         }
     }
 
