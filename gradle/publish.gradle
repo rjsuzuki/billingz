@@ -99,7 +99,7 @@ def publishCore() {
                         groupId = LibraryInfo.groupId
                         artifactId = "${LibraryInfo.namespace}.${LibraryInfo.coreArtifactId}-release"
                         version = "${project.ext.get("billingzVersion")}"
-                        artifact("$buildDir/outputs/aar/${project.ext.get("coreArtifact")}.aar")
+                        artifact("$buildDir/outputs/aar/${artifactId}.aar")
                     }
                 }
             }
@@ -129,7 +129,7 @@ def publishAmazon() {
                         groupId = LibraryInfo.groupId
                         artifactId = "${LibraryInfo.namespace}.${LibraryInfo.amazonArtifactId}-release"
                         version = "${project.ext.get("billingzVersion")}"
-                        artifact("$buildDir/outputs/aar/${project.ext.get("amazonArtifact")}.aar")
+                        artifact("$buildDir/outputs/aar/${artifactId}.aar")
                     }
                 }
             }
@@ -159,7 +159,7 @@ def publishGoogle() {
                         groupId = LibraryInfo.groupId
                         artifactId = "${LibraryInfo.namespace}.${LibraryInfo.googleArtifactId}-release"
                         version = "${project.ext.get("billingzVersion")}"
-                        artifact("$buildDir/outputs/aar/${project.ext.get("googleArtifact")}.aar")
+                        artifact("$buildDir/outputs/aar/${artifactId}.aar")
                     }
                 }
             }
