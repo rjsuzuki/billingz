@@ -22,7 +22,7 @@ apply plugin: "maven-publish"
 apply plugin: "kotlin-android"
 apply plugin: "kotlin-kapt"
 
-println("Loading github publishing settings...")
+println("Loading github publishing settings for: ${project.name}")
 
 
 def githubUser() {
@@ -77,33 +77,96 @@ def generateFile() {
     writer.close()
 }
 
-
-project.afterEvaluate {
-
-    publishing {
-
-
-        repositories {
-            maven {
-                name = "GitHubPackages"
-                url = uri("https://maven.pkg.github.com/rjsuzuki/billingz")
-                credentials {
-                    username = githubUser()
-                    password = githubKey()
+def publishCore() {
+    if (project.name == "core") {
+        println("Configuring core module's publication...")
+        project.afterEvaluate {
+            publishing {
+                repositories {
+                    maven {
+                        name = "GitHubPackages"
+                        url = uri("https://maven.pkg.github.com/rjsuzuki/billingz")
+                        credentials {
+                            username = githubUser()
+                            password = githubKey()
+                        }
+                    }
                 }
-            }
-        }
 
-        publications {
-
-            // Creates a Maven publication called "release".
-            release(MavenPublication) {
-                groupId = LibraryInfo.groupId
-                artifactId = "${LibraryInfo.libraryArtifactId}"
-                version = "${project.ext.get("billingzVersion")}"
-                artifact("$buildDir/outputs/aar/${project.ext.get("billingzArtifact")}.aar")
+                publications {
+                    // Creates a Maven publication called "release".
+                    release(MavenPublication) {
+                        groupId = LibraryInfo.groupId
+                        artifactId = "${LibraryInfo.coreArtifactId}"
+                        version = "${project.ext.get("billingzVersion")}"
+                        artifact("$buildDir/outputs/aar/${project.ext.get("coreArtifact")}.aar")
+                    }
+                }
             }
         }
     }
 }
 
+def publishAmazon() {
+    if (project.name == "amazon") {
+        println("Configuring amazon module's publication...")
+        project.afterEvaluate {
+            publishing {
+                repositories {
+                    maven {
+                        name = "GitHubPackages"
+                        url = uri("https://maven.pkg.github.com/rjsuzuki/billingz")
+                        credentials {
+                            username = githubUser()
+                            password = githubKey()
+                        }
+                    }
+                }
+
+                publications {
+                    // Creates a Maven publication called "release".
+                    release(MavenPublication) {
+                        groupId = LibraryInfo.groupId
+                        artifactId = "${LibraryInfo.amazonArtifactId}"
+                        version = "${project.ext.get("billingzVersion")}"
+                        artifact("$buildDir/outputs/aar/${project.ext.get("amazonArtifact")}.aar")
+                    }
+                }
+            }
+        }
+    }
+}
+
+def publishGoogle() {
+    if (project.name == "google") {
+        println("Configuring google module's publication...")
+        project.afterEvaluate {
+            publishing {
+                repositories {
+                    maven {
+                        name = "GitHubPackages"
+                        url = uri("https://maven.pkg.github.com/rjsuzuki/billingz")
+                        credentials {
+                            username = githubUser()
+                            password = githubKey()
+                        }
+                    }
+                }
+
+                publications {
+                    // Creates a Maven publication called "release".
+                    release(MavenPublication) {
+                        groupId = LibraryInfo.groupId
+                        artifactId = "${LibraryInfo.googleArtifactId}"
+                        version = "${project.ext.get("billingzVersion")}"
+                        artifact("$buildDir/outputs/aar/${project.ext.get("googleArtifact")}.aar")
+                    }
+                }
+            }
+        }
+    }
+}
+
+publishCore()
+publishGoogle()
+publishAmazon()

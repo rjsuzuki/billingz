@@ -17,7 +17,7 @@
  *
  */
 
-println("Loading version configuration...")
+println("Loading version configuration for: ${project.name}")
 
 def versionProperties = new Properties()
 rootProject.file("version.properties").withInputStream { versionProperties.load(it) }
@@ -45,10 +45,15 @@ def getVersionName = { ->
 
 project.ext {
     billingzVersion = getVersionName().toString()
-    billingzArtifact = LibraryInfo.groupId + getVersionName()
+    billingzArtifact = LibraryInfo.groupId + "-" + getVersionName()
     coreArtifact = LibraryInfo.groupId + "." + LibraryInfo.coreArtifactId + "-" + getVersionName()
     googleArtifact = LibraryInfo.groupId + "." + LibraryInfo.googleArtifactId + "-" + getVersionName()
     amazonArtifact = LibraryInfo.groupId + "." + LibraryInfo.amazonArtifactId + "-" + getVersionName()
 }
 
-println("Version configuration finished for: ${getVersionName()}")
+println("Version configuration finished:" +
+        "\nVersion: $billingzVersion," +
+        "\nArtifact: $billingzArtifact," +
+        "\nCoreArtifact: $coreArtifact," +
+        "\nGoogleArtifact: $googleArtifact," +
+        "\nAmazonArtifact: $amazonArtifact")

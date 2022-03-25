@@ -1,7 +1,7 @@
 apply plugin: "com.android.library"
 apply plugin: "kotlin-android"
 apply plugin: "kotlin-kapt"
-println("Loading custom gradle tasks...")
+println("Loading custom gradle tasks for: ${project.name}")
 
 task installGitHook(type: Copy) {
     println "Installing git hooks..."
