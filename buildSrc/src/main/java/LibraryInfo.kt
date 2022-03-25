@@ -32,7 +32,7 @@ object LibraryInfo {
     const val amazonArtifactId = "amazon"
 
     const val namespace = "com.zuko.billingz"
-    const val groupId = "com.zuko.billingz"
+    const val groupId = "com.zuko.billingz.android"
 
     const val archivesBaseName = groupId
 }

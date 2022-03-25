@@ -97,7 +97,7 @@ def publishCore() {
                     // Creates a Maven publication called "release".
                     release(MavenPublication) {
                         groupId = LibraryInfo.groupId
-                        artifactId = "${LibraryInfo.coreArtifactId}"
+                        artifactId = "${LibraryInfo.namespace}.${LibraryInfo.coreArtifactId}"
                         version = "${project.ext.get("billingzVersion")}"
                         artifact("$buildDir/outputs/aar/${project.ext.get("coreArtifact")}.aar")
                     }
@@ -127,7 +127,7 @@ def publishAmazon() {
                     // Creates a Maven publication called "release".
                     release(MavenPublication) {
                         groupId = LibraryInfo.groupId
-                        artifactId = "${LibraryInfo.amazonArtifactId}"
+                        artifactId = "${LibraryInfo.namespace}.${LibraryInfo.amazonArtifactId}"
                         version = "${project.ext.get("billingzVersion")}"
                         artifact("$buildDir/outputs/aar/${project.ext.get("amazonArtifact")}.aar")
                     }
@@ -157,7 +157,7 @@ def publishGoogle() {
                     // Creates a Maven publication called "release".
                     release(MavenPublication) {
                         groupId = LibraryInfo.groupId
-                        artifactId = "${LibraryInfo.googleArtifactId}"
+                        artifactId = "${LibraryInfo.namespace}.${LibraryInfo.googleArtifactId}"
                         version = "${project.ext.get("billingzVersion")}"
                         artifact("$buildDir/outputs/aar/${project.ext.get("googleArtifact")}.aar")
                     }
