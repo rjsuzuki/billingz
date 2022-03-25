@@ -32,9 +32,9 @@ jobs:
         if: env.GPR_USER == 'rjsuzuki'
         run: |
           echo "You sir, are qualified."
-          touch github.properties
-          echo gpr.usr=$GPR_USER > github.properties
-          echo gpr.key=$GPR_API_KEY >> github.properties
+          touch secrets.properties
+          echo gpr.usr=$GPR_USER > secrets.properties
+          echo gpr.key=$GPR_API_KEY >> secrets.properties
 
       - name: Clean, Build, and Publish AAR
         shell: bash
