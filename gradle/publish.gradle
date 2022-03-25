@@ -94,12 +94,11 @@ def publishCore() {
                 }
 
                 publications {
-                    // Creates a Maven publication called "release".
                     release(MavenPublication) {
                         groupId = LibraryInfo.groupId
-                        artifactId = "${LibraryInfo.namespace}.${LibraryInfo.coreArtifactId}-release"
+                        artifactId = "${LibraryInfo.coreArtifactId}-${project.ext.get("billingzVersion")}"
                         version = "${project.ext.get("billingzVersion")}"
-                        artifact("$buildDir/outputs/aar/${artifactId}.aar")
+                        artifact("$buildDir/outputs/aar/${project.ext.get("coreArtifact")}-debug.aar")
                     }
                 }
             }
@@ -124,12 +123,11 @@ def publishAmazon() {
                 }
 
                 publications {
-                    // Creates a Maven publication called "release".
                     release(MavenPublication) {
                         groupId = LibraryInfo.groupId
-                        artifactId = "${LibraryInfo.namespace}.${LibraryInfo.amazonArtifactId}-release"
+                        artifactId = "${LibraryInfo.amazonArtifactId}-${project.ext.get("billingzVersion")}"
                         version = "${project.ext.get("billingzVersion")}"
-                        artifact("$buildDir/outputs/aar/${artifactId}.aar")
+                        artifact("$buildDir/outputs/aar/${project.ext.get("amazonArtifact")}-debug.aar")
                     }
                 }
             }
@@ -154,12 +152,12 @@ def publishGoogle() {
                 }
 
                 publications {
-                    // Creates a Maven publication called "release".
+                    // Creates a Maven publication called "debug".
                     release(MavenPublication) {
                         groupId = LibraryInfo.groupId
-                        artifactId = "${LibraryInfo.namespace}.${LibraryInfo.googleArtifactId}-release"
+                        artifactId = "${LibraryInfo.googleArtifactId}-${project.ext.get("billingzVersion")}"
                         version = "${project.ext.get("billingzVersion")}"
-                        artifact("$buildDir/outputs/aar/${artifactId}.aar")
+                        artifact("$buildDir/outputs/aar/${project.ext.get("googleArtifact")}-debug.aar")
                     }
                 }
             }
