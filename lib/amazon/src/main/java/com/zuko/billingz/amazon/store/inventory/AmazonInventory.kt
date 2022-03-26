@@ -69,7 +69,7 @@ class AmazonInventory(
      * Cached list of invalid skus to prevent your app's users from being able
      * to purchase these products.
      */
-    internal var unavailableSkus: Set<String>? = null
+    override var unavailableSkus: Set<String>? = null
 
     private var queryType: Productz.Type = Productz.Type.UNKNOWN
     private val mainScope by lazy { MainScope() }

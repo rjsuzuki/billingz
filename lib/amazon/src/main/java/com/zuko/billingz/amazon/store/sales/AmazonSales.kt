@@ -30,7 +30,7 @@ import com.amazon.device.iap.model.PurchaseResponse
 import com.amazon.device.iap.model.PurchaseUpdatesResponse
 import com.amazon.device.iap.model.Receipt
 import com.amazon.device.iap.model.RequestId
-import com.zuko.billingz.amazon.store.inventory.AmazonInventory
+import com.zuko.billingz.amazon.store.inventory.AmazonInventoryz
 import com.zuko.billingz.amazon.store.model.AmazonOrder
 import com.zuko.billingz.amazon.store.model.AmazonOrderHistory
 import com.zuko.billingz.amazon.store.model.AmazonOrdersHistoryQuery
@@ -56,7 +56,7 @@ import kotlinx.coroutines.launch
  * [IAP Docs](https://developer.amazon.com/docs/in-app-purchasing/iap-implement-iap.html#responsereceiver)
  */
 class AmazonSales(
-    private val inventory: AmazonInventory,
+    private val inventory: AmazonInventoryz,
     private val dispatcher: Dispatcherz = BillingzDispatcher()
 ) : AmazonSalez {
 
@@ -85,7 +85,7 @@ class AmazonSales(
     private val validatorCallback: Salez.ValidatorCallback = object : Salez.ValidatorCallback {
         override fun validated(order: Orderz) {
             LogUtilz.log.d(TAG, "validated order: ${order.orderId}")
-            processOrder(order)
+            completeOrder(order)
         }
 
         override fun invalidated(order: Orderz) {
@@ -190,7 +190,7 @@ class AmazonSales(
         }
     }
 
-    // step 2
+    // step 2a
     override fun validateOrder(order: Orderz) {
         order.state = Orderz.State.VALIDATING
 
@@ -221,12 +221,18 @@ class AmazonSales(
         }
     }
 
-    // step 3
+    // step 2b
     override fun processOrder(order: Orderz) {
-        completeOrder(order)
+        if (order is AmazonOrder) {
+            mainScope.launch {
+                queriedOrdersStateFlow.emit(order)
+                queriedOrdersLiveData.postValue(order)
+                validateOrder(order)
+            }
+        }
     }
 
-    // step 4
+    // step 3
     override fun completeOrder(order: Orderz) {
         try {
             if (order is AmazonOrder) {
@@ -238,17 +244,17 @@ class AmazonSales(
                     LogUtilz.log.wtf(TAG, "isCanceled")
                     return
                 }
-
+                // successful
+                order.receipt?.receiptId?.let { id ->
+                    notifyFulfillment(id, true)
+                }
                 when (order.product?.type) {
                     Productz.Type.CONSUMABLE -> completeConsumable(order.receipt)
                     Productz.Type.NON_CONSUMABLE -> completeNonConsumable(order.receipt)
                     Productz.Type.SUBSCRIPTION -> completeSubscription(order.receipt)
                     else -> {}
                 }
-                // successful
-                order.receipt?.receiptId?.let { id ->
-                    notifyFulfillment(id, true)
-                }
+
                 order.state = Orderz.State.COMPLETE
                 currentOrder.postValue(order)
                 // update history
@@ -382,8 +388,7 @@ class AmazonSales(
                                     json = response.toJSON()
                                 )
                                 queriedOrders.putIfAbsent(r.receiptId, order)
-                                queriedOrdersStateFlow.emit(order)
-                                queriedOrdersLiveData.postValue(order)
+                                processOrder(order)
                             }
                         }
                     }

@@ -188,6 +188,14 @@ class GoogleStore internal constructor() : Storez {
             return inventory.getProducts(type = type, promo = promo)
         }
 
+        override fun completeOrder(order: Orderz) {
+            sales.completeOrder(order)
+        }
+
+        override fun cancelOrder(order: Orderz) {
+            sales.cancelOrder(order)
+        }
+
         override fun getProduct(sku: String?): Productz? {
             LogUtilz.log.v(TAG, "getProduct: $sku")
             return inventory.getProduct(sku = sku)

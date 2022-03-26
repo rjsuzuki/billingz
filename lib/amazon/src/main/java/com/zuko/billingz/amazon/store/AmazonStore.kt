@@ -178,6 +178,14 @@ class AmazonStore internal constructor() : Storez {
             )
         }
 
+        override fun completeOrder(order: Orderz) {
+            sales.completeOrder(order)
+        }
+
+        override fun cancelOrder(order: Orderz) {
+            sales.cancelOrder(order)
+        }
+
         override fun getProduct(sku: String?): Productz? {
             LogUtilz.log.v(TAG, "getProduct: $sku")
             return inventory.getProduct(sku = sku)

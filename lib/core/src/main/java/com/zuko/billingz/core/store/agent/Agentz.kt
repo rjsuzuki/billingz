@@ -125,4 +125,15 @@ interface Agentz {
      */
     @Deprecated("Will be removed in a future release")
     fun getProducts(type: Productz.Type?, promo: Productz.Promotion?): Map<String, Productz>
+
+    /**
+     * A manual option to complete an existing Order. This will call the respective function to
+     * consume, acknowledge, and/or fulfill a product.
+     */
+    fun completeOrder(order: Orderz)
+
+    /**
+     *  A manual option to explicitly cancel an order
+     */
+    fun cancelOrder(order: Orderz)
 }

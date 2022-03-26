@@ -159,12 +159,12 @@ class GoogleSales(
         }
     }
 
-    // step 2
+    // step 2a
     override fun validateOrder(order: Orderz) {
         order.state = Orderz.State.VALIDATING
         val validatorCallback: Salez.ValidatorCallback = object : Salez.ValidatorCallback {
             override fun validated(order: Orderz) {
-                processOrder(order)
+                completeOrder(order)
             }
 
             override fun invalidated(order: Orderz) {
@@ -174,19 +174,20 @@ class GoogleSales(
         orderValidatorListener?.validate(order, validatorCallback) ?: LogUtilz.log.e(TAG, "Null validator object. Cannot complete order.")
     }
 
-    // step 3
+    // step 2b
     override fun processOrder(order: Orderz) {
         LogUtilz.log.v(TAG, "processOrder")
-        /**
-         * Another validation check point was originally here, but deemed unnecessary.
-         * Now, this function immediately proceeds to completeOrder() to consume/acknowledge
-         * purchase.
-         */
-        order.state = Orderz.State.VALIDATING
-        completeOrder(order)
+        order.state = Orderz.State.PROCESSING
+        if (order is GoogleOrder) {
+            mainScope.launch {
+                queriedOrderLiveData.postValue(order)
+                queriedOrderStateFlow.emit(order)
+                validateOrder(order)
+            }
+        }
     }
 
-    // step 4
+    // step 3
     override fun completeOrder(order: Orderz) {
         LogUtilz.log.v(TAG, "completeOrder")
 
@@ -361,9 +362,7 @@ class GoogleSales(
                             purchase = p,
                             billingResult = null
                         )
-                        order.state = Orderz.State.PROCESSING
-                        queriedOrderLiveData.postValue(order)
-                        queriedOrderStateFlow.emit(order)
+                        processOrder(order)
                     } else {
                         isQueriedOrders = false
                         when (p.purchaseState) {
