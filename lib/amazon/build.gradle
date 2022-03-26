@@ -32,7 +32,7 @@ apply from: "${project.rootDir}/gradle/tasks.gradle"
 apply from: "${project.rootDir}/gradle/publish.gradle"
 
 android {
-    namespace = LibraryInfo.namespace
+    namespace = "${LibraryInfo.namespace}.amazon"
 
     compileSdk LibraryInfo.compileSDK
     buildToolsVersion LibraryInfo.buildTools
