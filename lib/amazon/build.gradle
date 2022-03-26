@@ -88,11 +88,7 @@ android {
 
 dependencies {
     api project(':lib:core')
-
-    //TODO: Appstore will replace IAP in the near future
-    //api 'com.amazon.device:amazon-appstore-sdk:3.0.2'
-
-    api files("libs/in-app-purchasing-${Dependencies.amazon_iap}.jar")
+    api "com.amazon.device:amazon-appstore-sdk:${Dependencies.amazon_iap}"
 }
 
 dokkaHtml.configure {

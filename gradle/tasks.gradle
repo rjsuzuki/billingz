@@ -1,17 +1,3 @@
-apply plugin: "com.android.library"
-apply plugin: "kotlin-android"
-apply plugin: "kotlin-kapt"
-println("Loading custom gradle tasks for: ${project.name}")
-
-task installGitHook(type: Copy) {
-    println "Installing git hooks..."
-
-    from new File(rootProject.rootDir, "scripts/pre-push")
-    into { new File(rootProject.rootDir, '.git/hooks') }
-
-    fileMode 0775
-}
-
 /*
  *
  *  * Copyright 2021 rjsuzuki
@@ -30,6 +16,19 @@ task installGitHook(type: Copy) {
  *  *
  *
  */
+apply plugin: "com.android.library"
+apply plugin: "kotlin-android"
+apply plugin: "kotlin-kapt"
+println("Loading custom gradle tasks for: ${project.name}")
+
+task installGitHook(type: Copy) {
+    println "Installing git hooks..."
+
+    from new File(rootProject.rootDir, "scripts/pre-push")
+    into { new File(rootProject.rootDir, '.git/hooks') }
+
+    fileMode 0775
+}
 
 // Run during the build process
 project.tasks.getByName("preBuild").dependsOn installGitHook
