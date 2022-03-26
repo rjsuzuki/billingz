@@ -20,6 +20,7 @@ package com.zuko.billingz.amazon.store.client
 
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
+import com.amazon.device.drm.LicensingService
 import com.amazon.device.iap.PurchasingListener
 import com.amazon.device.iap.PurchasingService
 import com.amazon.device.iap.model.ProductDataResponse
@@ -52,6 +53,9 @@ class AmazonClient(val inventory: AmazonInventoryz, val sales: AmazonSalez) : Am
     override fun init(context: Context?, connectionListener: Clientz.ConnectionListener) {
         LogUtilz.log.v(TAG, "Initializing AmazonClient")
         this.context = context
+        LicensingService.verifyLicense(context) { response ->
+            LogUtilz.log.d(TAG, "License Status: ${response.requestStatus.name}")
+        }
         isInitialized = true
     }
 
@@ -155,7 +159,7 @@ class AmazonClient(val inventory: AmazonInventoryz, val sales: AmazonSalez) : Am
             TAG,
             "checkConnection:" +
                 "\nSDK_VERSION: ${PurchasingService.SDK_VERSION}" +
-                "\nIS_SANDBOX_MODE: ${PurchasingService.IS_SANDBOX_MODE}"
+                "\nSDK_MODE: ${LicensingService.getAppstoreSDKMode()}"
         )
         if (!isReady())
             requestUserData()
