@@ -19,7 +19,6 @@
 package com.zuko.billingz.core
 
 import android.util.Log
-import com.zuko.billingz.BuildConfig
 
 object LogUtilz {
 

@@ -1,17 +1,19 @@
 /*
- * Copyright 2021 rjsuzuki
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  * Copyright 2021 rjsuzuki
+ *  *
+ *  * Licensed under the Apache License, Version 2.0 (the "License");
+ *  * you may not use this file except in compliance with the License.
+ *  * You may obtain a copy of the License at
+ *  *
+ *  * http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing, software
+ *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  * See the License for the specific language governing permissions and
+ *  * limitations under the License.
+ *  *
  *
  */
 package com.zuko.billingz.core.ui
@@ -25,10 +27,10 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.lottie.LottieAnimationView
-import com.zuko.billingz.R
 import com.zuko.billingz.core.LogUtilz
+import com.zuko.billingz.core.R
+import com.zuko.billingz.core.databinding.ListItemProductBinding
 import com.zuko.billingz.core.store.model.Productz
-import com.zuko.billingz.databinding.ListItemProductBinding
 
 /**
  * RecyclerView Adapter for a mutable list of [Productz] objects.
