@@ -1,6 +1,9 @@
 # Billingz
 
-A simple/convenience library for implementing Android's Billing Library. [![build_and_publish](https://github.com/rjsuzuki/billingz/actions/workflows/release-package.yml/badge.svg)](https://github.com/rjsuzuki/billingz/actions/workflows/release-package.yml) [![](https://jitpack.io/v/rjsuzuki/billingz.svg)](https://jitpack.io/#rjsuzuki/billingz)
+This is an opinionated, but convenient library for implementing Android's Google Play Billing Library and/or Amazon Appstore's In-App Purchasing API.
+Through a combination of Adapter and Facade design patterns, this library allows a project to integrate both billing libraries without explicit references to either, reduces the amount of needed code for integration, and speeds up development environments.
+
+[![build_and_publish](https://github.com/rjsuzuki/billingz/actions/workflows/release-package.yml/badge.svg)](https://github.com/rjsuzuki/billingz/actions/workflows/release-package.yml) [![](https://jitpack.io/v/rjsuzuki/billingz.svg)](https://jitpack.io/#rjsuzuki/billingz)
 
 
 Currently supports up to: 
@@ -12,51 +15,16 @@ Currently supports up to:
 
 ## Documentation
 
-[Click here to view the wiki](https://github.com/rjsuzuki/billingz/wiki)
-[Click here to view full documentation](https://rjsuzuki.github.io/billingz/)
-
-## How to add module to your project
-
-1. Clone or download project
-2. Open Android Studio > open project you want to install the library into.
-
-Next, choose one of the available methods:
-
-3. File > New > New Module
-4. Import .JAR/.AAR Package > click Next
-   
-or,
-
-3. File > New > Import Module
-4. Enter the location of the library module directory then click Finish
-
-continue.
-
-5. Make sure the library is listed at the top of your settings.gradle file,
-as shown here for a library named "my-library-module":
-`include ':app', ':my-library-module'`
-6. Open the app module's build.gradle file and add a new line to the dependencies:
-```
-dependencies {
-    implementation project(":my-library-module")
-}
-```
-7. Sync project with gradle files.
-[Android Reference](https://developer.android.com/studio/projects/android-library)
-
-8. Initialize the Manager class in Activity class's `onCreate()` method:
-```
-override fun onCreate(savedInstanceState: Bundle?) {
-  val manager = Manager()
-  manager.init(context)
-  lifecycle.addObserver(manager)
-}
-```
+- [Click here to view the wiki](https://github.com/rjsuzuki/billingz/wiki)
+- [Click here to view the documentation](https://rjsuzuki.github.io/billingz/)
 
 ## Requirements
 
-- minSdk = 21
-- This is an opinionated design to be used with Android's LiveData and Lifecycle components, and Kotlin coroutines.
+- minSdk     = 21
+- compileSdk = 31
+- targetSdk  = 30
+- Android's LiveData and Lifecycle components 
+- Kotlin Coroutines and Flow
 
 ## Testing your integration
 1. Review the Android documentation for testing in-app billing [here](https://developer.android.com/google/play/billing/test#testing-purchases)
@@ -67,8 +35,8 @@ override fun onCreate(savedInstanceState: Bundle?) {
 
 Declared permissions in the AndroidManifest file.
 
-- com.android.vending.BILLING
-- android.permission.ACCESS_NETWORK_STATE
+- `com.android.vending.BILLING` (only for Google Play)
+- `android.permission.ACCESS_NETWORK_STATE`
 
 ## Changelog
 
@@ -79,7 +47,8 @@ Declared permissions in the AndroidManifest file.
 - Create an Issue through the repository's github Issues page.
 
 ## Special Acknowledgements
-- [TextMe, Inc.](www.textmeinc.com)
+
+- [TextMe, Inc.](https://www.textmeinc.com)
 
 ## Licensing
 
