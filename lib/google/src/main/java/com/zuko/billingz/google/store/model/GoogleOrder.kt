@@ -1,17 +1,19 @@
 /*
- * Copyright 2021 rjsuzuki
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  * Copyright 2021 rjsuzuki
+ *  *
+ *  * Licensed under the Apache License, Version 2.0 (the "License");
+ *  * you may not use this file except in compliance with the License.
+ *  * You may obtain a copy of the License at
+ *  *
+ *  * http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing, software
+ *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  * See the License for the specific language governing permissions and
+ *  * limitations under the License.
+ *  *
  *
  */
 package com.zuko.billingz.google.store.model
@@ -31,11 +33,10 @@ import com.zuko.billingz.core.store.model.Productz
  *
  */
 data class GoogleOrder(
-    var purchase: Purchase? = null,
+    val purchase: Purchase?,
     val billingResult: BillingResult?,
-    val msg: String
-) : Orderz {
 
+) : Orderz {
     /**
      * An Order ID is a string that represents a financial transaction
      * on Google Play. This string is included in a receipt that is
@@ -69,9 +70,20 @@ data class GoogleOrder(
      */
     override var entitlement: String? = purchase?.purchaseToken
 
+    // TODO: verify usage
     var products: Map<String, Productz.Type> = ArrayMap()
 
     override var skus: List<String>? = purchase?.skus
+    override val signature: String? = purchase?.signature
+
+    override fun isGoogle(): Boolean {
+        return true
+    }
+
+    override fun isAmazon(): Boolean {
+        return false
+    }
+
     override var state: Orderz.State = when (purchase?.purchaseState) {
         Purchase.PurchaseState.PURCHASED -> Orderz.State.PROCESSING
         Purchase.PurchaseState.PENDING -> Orderz.State.PENDING
@@ -81,4 +93,9 @@ data class GoogleOrder(
         Purchase.PurchaseState.UNSPECIFIED_STATE == purchase?.purchaseState
     override var quantity: Int = purchase?.quantity ?: 1
     override var originalJson: String? = purchase?.originalJson
+
+    override val resultMessage: String =
+        billingResult?.debugMessage ?: "No result message available."
+    override val result: Orderz.Result =
+        if (billingResult != null) Orderz.Result.values()[billingResult.responseCode + 3] else Orderz.Result.NO_RESULT
 }

@@ -1,43 +1,100 @@
+<!--
+  ~ /*
+  ~  * Copyright 2021 rjsuzuki
+  ~  *
+  ~  * Licensed under the Apache License, Version 2.0 (the "License");
+  ~  * you may not use this file except in compliance with the License.
+  ~  * You may obtain a copy of the License at
+  ~  *
+  ~  * http://www.apache.org/licenses/LICENSE-2.0
+  ~  *
+  ~  * Unless required by applicable law or agreed to in writing, software
+  ~  * distributed under the License is distributed on an "AS IS" BASIS,
+  ~  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  * See the License for the specific language governing permissions and
+  ~  * limitations under the License.
+  ~  *
+  ~  */
+  -->
+
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
     <title>AmazonReceipt</title>
-</head><body><link href="../../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../../";</script><script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async></script><link href="../../../styles/style.css" rel="Stylesheet"><link href="../../../styles/logo-styles.css" rel="Stylesheet"><link href="../../../styles/jetbrains-mono.css" rel="Stylesheet"><link href="../../../styles/main.css" rel="Stylesheet"><script type="text/javascript" src="../../../scripts/clipboard.js" async></script><script type="text/javascript" src="../../../scripts/navigation-loader.js" async></script><script type="text/javascript" src="../../../scripts/platform-content-handler.js" async></script><script type="text/javascript" src="../../../scripts/main.js" async></script>
+</head><body><link href="../../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../../";</script>
+    <script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async></script><link href="../../../styles/style.css" rel="Stylesheet"><link href="../../../styles/jetbrains-mono.css" rel="Stylesheet"><link href="../../../styles/main.css" rel="Stylesheet"><link href="../../../styles/prism.css" rel="Stylesheet"><link href="../../../styles/logo-styles.css" rel="Stylesheet"><script type="text/javascript" src="../../../scripts/clipboard.js" async></script><script type="text/javascript" src="../../../scripts/navigation-loader.js" async></script><script type="text/javascript" src="../../../scripts/platform-content-handler.js" async></script><script type="text/javascript" src="../../../scripts/main.js" defer></script><script type="text/javascript" src="../../../scripts/prism.js" async></script><script>const storage = localStorage.getItem("dokka-dark-mode")
+const savedDarkMode = storage ? JSON.parse(storage) : false
+if(savedDarkMode === true){
+    document.getElementsByTagName("html")[0].classList.add("theme-dark")
+}</script>
+
   
+    <div class="navigation-wrapper" id="navigation-wrapper">
+      <div id="leftToggler"><span class="icon-toggler"></span></div>
+      <div class="library-name"><a href="../../../index.html"><span>lib</span></a></div>
+      <div></div>
+      <div class="pull-right d-flex"><button id="theme-toggle-button"><span id="theme-toggle"></span></button>
+        <div id="searchBar"></div>
+      </div>
+    </div>
     <div id="container">
-      <div id="leftColumn"><a href="../../../index.html">
-            <div id="logo"></div>
-          </a>
-        <div id="paneSearch"></div>
+      <div id="leftColumn">
         <div id="sideMenu"></div>
       </div>
       <div id="main">
-        <script type="text/javascript" src="../../../scripts/main.js"></script><div id="leftToggler"><span class="icon-toggler"></span></div>
-
         <div class="main-content" id="content" pageids="amazon::com.zuko.billingz.amazon.store.model/AmazonReceipt///PointingToDeclaration//-2039526950">
-          <div class="navigation-wrapper" id="navigation-wrapper">
-            <div class="breadcrumbs"><a href="../../index.html">amazon</a>/<a href="../index.html">com.zuko.billingz.amazon.store.model</a>/<a href="index.html">AmazonReceipt</a></div>
-            <div class="pull-right d-flex">
-              <div id="searchBar"></div>
-            </div>
-          </div>
+          <div class="breadcrumbs"><a href="../../index.html">amazon</a>/<a href="../index.html">com.zuko.billingz.amazon.store.model</a>/<a href="index.html">AmazonReceipt</a></div>
           <div class="cover ">
             <h1 class="cover"><span>Amazon</span><wbr><span><span>Receipt</span></span></h1>
-            <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:amazon:dokkaHtmlPartial/release"><div class="symbol monospace">data class <a href="index.html">AmazonReceipt</a>(iapReceipt: <span data-unresolved-link="com.amazon.device.iap.model/Receipt///PointingToDeclaration/">Receipt</span>, userId: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>?, order: <a href="../../../core/com.zuko.billingz.core.store.model/-orderz/index.html">Orderz</a>?) : <a href="../../../core/com.zuko.billingz.core.store.model/-receiptz/index.html">Receiptz</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+            <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:amazon:dokkaHtmlPartial/release"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="index.html">AmazonReceipt</a><span class="token punctuation">(</span>iapReceipt<span class="token operator">: </span><span data-unresolved-link="com.amazon.device.iap.model/Receipt///PointingToDeclaration/">Receipt</span><span class="token punctuation">, </span>userId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token punctuation">, </span>order<span class="token operator">: </span><a href="../../../core/com.zuko.billingz.core.store.model/-orderz/index.html">Orderz</a><span class="token operator">?</span><span class="token punctuation">)</span> : <a href="../../../core/com.zuko.billingz.core.store.model/-receiptz/index.html">Receiptz</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
           </div>
           <div class="tabbedcontent">
-            <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="Properties">Properties</button></div>
+            <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="Functions">Functions</button><button class="section-tab" data-togglable="Properties">Properties</button></div>
             <div class="tabs-section-body">
-              <h2 class="">Properties</h2>
-              <div class="table" data-togglable="Properties"><a data-name="1544879978%2FProperties%2F-2039526950" anchor-label="cancelDate" id="1544879978%2FProperties%2F-2039526950" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release"></a>
+              <h2 class="">Functions</h2>
+              <div class="table" data-togglable="Functions"><a data-name="-776075036%2FFunctions%2F-2039526950" anchor-label="isAmazon" id="-776075036%2FFunctions%2F-2039526950" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release"></a>
                 <div class="table-row" data-filterable-current=":lib:amazon:dokkaHtmlPartial/release" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="cancel-date.html">cancelDate</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1544879978%2FProperties%2F-2039526950"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="is-amazon.html"><span>is</span><wbr><span><span>Amazon</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-776075036%2FFunctions%2F-2039526950"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
                       <div class="title">
-                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:amazon:dokkaHtmlPartial/release"><a data-name="1544879978%2FProperties%2F-2039526950" anchor-label="cancelDate" id="1544879978%2FProperties%2F-2039526950" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release"></a><div class="symbol monospace">open override var <a href="cancel-date.html">cancelDate</a>: <a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a>?<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:amazon:dokkaHtmlPartial/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="is-amazon.html"><span class="token function">isAmazon</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="-154147249%2FFunctions%2F-2039526950" anchor-label="isGoogle" id="-154147249%2FFunctions%2F-2039526950" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release"></a>
+                <div class="table-row" data-filterable-current=":lib:amazon:dokkaHtmlPartial/release" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex">
+                        <div><a href="is-google.html"><span>is</span><wbr><span><span>Google</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-154147249%2FFunctions%2F-2039526950"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:amazon:dokkaHtmlPartial/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="is-google.html"><span class="token function">isGoogle</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <h2 class="">Properties</h2>
+              <div class="table" data-togglable="Properties"><a data-name="1544879978%2FProperties%2F-2039526950" anchor-label="cancelDate" id="1544879978%2FProperties%2F-2039526950" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release"></a>
+                <div class="table-row" data-filterable-current=":lib:amazon:dokkaHtmlPartial/release" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex">
+                        <div><a href="cancel-date.html">cancelDate</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1544879978%2FProperties%2F-2039526950"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:amazon:dokkaHtmlPartial/release"><a data-name="1544879978%2FProperties%2F-2039526950" anchor-label="cancelDate" id="1544879978%2FProperties%2F-2039526950" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release"></a><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">var </span><a href="cancel-date.html">cancelDate</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a><span class="token operator">?</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
                       </div>
                     </div>
                   </div>
@@ -45,12 +102,14 @@
 <a data-name="-243576357%2FProperties%2F-2039526950" anchor-label="entitlement" id="-243576357%2FProperties%2F-2039526950" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release"></a>
                 <div class="table-row" data-filterable-current=":lib:amazon:dokkaHtmlPartial/release" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="entitlement.html">entitlement</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-243576357%2FProperties%2F-2039526950"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="entitlement.html">entitlement</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-243576357%2FProperties%2F-2039526950"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
                       <div class="title">
-                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:amazon:dokkaHtmlPartial/release"><a data-name="-243576357%2FProperties%2F-2039526950" anchor-label="entitlement" id="-243576357%2FProperties%2F-2039526950" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release"></a><div class="symbol monospace">open override var <a href="entitlement.html">entitlement</a>: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>?<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:amazon:dokkaHtmlPartial/release"><a data-name="-243576357%2FProperties%2F-2039526950" anchor-label="entitlement" id="-243576357%2FProperties%2F-2039526950" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release"></a><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">var </span><a href="entitlement.html">entitlement</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
                       </div>
                     </div>
                   </div>
@@ -58,12 +117,14 @@
 <a data-name="-1075905806%2FProperties%2F-2039526950" anchor-label="iapReceipt" id="-1075905806%2FProperties%2F-2039526950" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release"></a>
                 <div class="table-row" data-filterable-current=":lib:amazon:dokkaHtmlPartial/release" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="iap-receipt.html">iapReceipt</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1075905806%2FProperties%2F-2039526950"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="iap-receipt.html">iapReceipt</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1075905806%2FProperties%2F-2039526950"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
                       <div class="title">
-                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:amazon:dokkaHtmlPartial/release"><a data-name="-1075905806%2FProperties%2F-2039526950" anchor-label="iapReceipt" id="-1075905806%2FProperties%2F-2039526950" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release"></a><div class="symbol monospace">var <a href="iap-receipt.html">iapReceipt</a>: <span data-unresolved-link="com.amazon.device.iap.model/Receipt///PointingToDeclaration/">Receipt</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:amazon:dokkaHtmlPartial/release"><a data-name="-1075905806%2FProperties%2F-2039526950" anchor-label="iapReceipt" id="-1075905806%2FProperties%2F-2039526950" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">var </span><a href="iap-receipt.html">iapReceipt</a><span class="token operator">: </span><span data-unresolved-link="com.amazon.device.iap.model/Receipt///PointingToDeclaration/">Receipt</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
                       </div>
                     </div>
                   </div>
@@ -71,12 +132,14 @@
 <a data-name="-493638353%2FProperties%2F-2039526950" anchor-label="isCanceled" id="-493638353%2FProperties%2F-2039526950" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release"></a>
                 <div class="table-row" data-filterable-current=":lib:amazon:dokkaHtmlPartial/release" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="is-canceled.html">isCanceled</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-493638353%2FProperties%2F-2039526950"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="is-canceled.html">isCanceled</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-493638353%2FProperties%2F-2039526950"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
                       <div class="title">
-                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:amazon:dokkaHtmlPartial/release"><a data-name="-493638353%2FProperties%2F-2039526950" anchor-label="isCanceled" id="-493638353%2FProperties%2F-2039526950" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release"></a><div class="symbol monospace">open override var <a href="is-canceled.html">isCanceled</a>: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:amazon:dokkaHtmlPartial/release"><a data-name="-493638353%2FProperties%2F-2039526950" anchor-label="isCanceled" id="-493638353%2FProperties%2F-2039526950" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release"></a><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">var </span><a href="is-canceled.html">isCanceled</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
                       </div>
                     </div>
                   </div>
@@ -84,12 +147,14 @@
 <a data-name="284529277%2FProperties%2F-2039526950" anchor-label="marketplace" id="284529277%2FProperties%2F-2039526950" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release"></a>
                 <div class="table-row" data-filterable-current=":lib:amazon:dokkaHtmlPartial/release" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="marketplace.html">marketplace</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="284529277%2FProperties%2F-2039526950"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="marketplace.html">marketplace</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="284529277%2FProperties%2F-2039526950"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
                       <div class="title">
-                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:amazon:dokkaHtmlPartial/release"><a data-name="284529277%2FProperties%2F-2039526950" anchor-label="marketplace" id="284529277%2FProperties%2F-2039526950" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release"></a><div class="symbol monospace">var <a href="marketplace.html">marketplace</a>: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>? = null<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:amazon:dokkaHtmlPartial/release"><a data-name="284529277%2FProperties%2F-2039526950" anchor-label="marketplace" id="284529277%2FProperties%2F-2039526950" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">var </span><a href="marketplace.html">marketplace</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
                       </div>
                     </div>
                   </div>
@@ -97,12 +162,14 @@
 <a data-name="619793178%2FProperties%2F-2039526950" anchor-label="order" id="619793178%2FProperties%2F-2039526950" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release"></a>
                 <div class="table-row" data-filterable-current=":lib:amazon:dokkaHtmlPartial/release" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="order.html">order</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="619793178%2FProperties%2F-2039526950"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="order.html">order</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="619793178%2FProperties%2F-2039526950"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
                       <div class="title">
-                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:amazon:dokkaHtmlPartial/release"><a data-name="619793178%2FProperties%2F-2039526950" anchor-label="order" id="619793178%2FProperties%2F-2039526950" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release"></a><div class="symbol monospace">open override var <a href="order.html">order</a>: <a href="../../../core/com.zuko.billingz.core.store.model/-orderz/index.html">Orderz</a>? = null<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:amazon:dokkaHtmlPartial/release"><a data-name="619793178%2FProperties%2F-2039526950" anchor-label="order" id="619793178%2FProperties%2F-2039526950" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release"></a><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">var </span><a href="order.html">order</a><span class="token operator">: </span><a href="../../../core/com.zuko.billingz.core.store.model/-orderz/index.html">Orderz</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
                       </div>
                     </div>
                   </div>
@@ -110,12 +177,14 @@
 <a data-name="315241612%2FProperties%2F-2039526950" anchor-label="orderDate" id="315241612%2FProperties%2F-2039526950" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release"></a>
                 <div class="table-row" data-filterable-current=":lib:amazon:dokkaHtmlPartial/release" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="order-date.html">orderDate</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="315241612%2FProperties%2F-2039526950"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="order-date.html">orderDate</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="315241612%2FProperties%2F-2039526950"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
                       <div class="title">
-                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:amazon:dokkaHtmlPartial/release"><a data-name="315241612%2FProperties%2F-2039526950" anchor-label="orderDate" id="315241612%2FProperties%2F-2039526950" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release"></a><div class="symbol monospace">open override var <a href="order-date.html">orderDate</a>: <a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a>?<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:amazon:dokkaHtmlPartial/release"><a data-name="315241612%2FProperties%2F-2039526950" anchor-label="orderDate" id="315241612%2FProperties%2F-2039526950" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release"></a><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">var </span><a href="order-date.html">orderDate</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a><span class="token operator">?</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
                       </div>
                     </div>
                   </div>
@@ -123,12 +192,14 @@
 <a data-name="-702077185%2FProperties%2F-2039526950" anchor-label="orderId" id="-702077185%2FProperties%2F-2039526950" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release"></a>
                 <div class="table-row" data-filterable-current=":lib:amazon:dokkaHtmlPartial/release" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="order-id.html">orderId</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-702077185%2FProperties%2F-2039526950"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="order-id.html">orderId</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-702077185%2FProperties%2F-2039526950"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
                       <div class="title">
-                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:amazon:dokkaHtmlPartial/release"><a data-name="-702077185%2FProperties%2F-2039526950" anchor-label="orderId" id="-702077185%2FProperties%2F-2039526950" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release"></a><div class="symbol monospace">open override var <a href="order-id.html">orderId</a>: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>?<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:amazon:dokkaHtmlPartial/release"><a data-name="-702077185%2FProperties%2F-2039526950" anchor-label="orderId" id="-702077185%2FProperties%2F-2039526950" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release"></a><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">var </span><a href="order-id.html">orderId</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
                       </div>
                     </div>
                   </div>
@@ -136,12 +207,14 @@
 <a data-name="-1414014660%2FProperties%2F-2039526950" anchor-label="skus" id="-1414014660%2FProperties%2F-2039526950" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release"></a>
                 <div class="table-row" data-filterable-current=":lib:amazon:dokkaHtmlPartial/release" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="skus.html">skus</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1414014660%2FProperties%2F-2039526950"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="skus.html">skus</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1414014660%2FProperties%2F-2039526950"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
                       <div class="title">
-                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:amazon:dokkaHtmlPartial/release"><a data-name="-1414014660%2FProperties%2F-2039526950" anchor-label="skus" id="-1414014660%2FProperties%2F-2039526950" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release"></a><div class="symbol monospace">open override var <a href="skus.html">skus</a>: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a>&lt;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>&gt;?<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:amazon:dokkaHtmlPartial/release"><a data-name="-1414014660%2FProperties%2F-2039526950" anchor-label="skus" id="-1414014660%2FProperties%2F-2039526950" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release"></a><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">var </span><a href="skus.html">skus</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span><span class="token operator">?</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
                       </div>
                     </div>
                   </div>
@@ -149,12 +222,14 @@
 <a data-name="1860850348%2FProperties%2F-2039526950" anchor-label="userId" id="1860850348%2FProperties%2F-2039526950" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release"></a>
                 <div class="table-row" data-filterable-current=":lib:amazon:dokkaHtmlPartial/release" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="user-id.html">userId</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1860850348%2FProperties%2F-2039526950"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="user-id.html">userId</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1860850348%2FProperties%2F-2039526950"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
                       <div class="title">
-                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:amazon:dokkaHtmlPartial/release"><a data-name="1860850348%2FProperties%2F-2039526950" anchor-label="userId" id="1860850348%2FProperties%2F-2039526950" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release"></a><div class="symbol monospace">open override var <a href="user-id.html">userId</a>: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>? = null<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:amazon:dokkaHtmlPartial/release"><a data-name="1860850348%2FProperties%2F-2039526950" anchor-label="userId" id="1860850348%2FProperties%2F-2039526950" data-filterable-set=":lib:amazon:dokkaHtmlPartial/release"></a><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">var </span><a href="user-id.html">userId</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
                       </div>
                     </div>
                   </div>
@@ -163,7 +238,7 @@
             </div>
           </div>
         </div>
-        <div class="footer"><span class="go-to-top-icon"><a href="#content"></a></span><span>© 2021 Copyright</span><span class="pull-right"><span>Generated by </span><a href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span></div>
+        <div class="footer"><span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2022 Copyright</span><span class="pull-right"><span>Generated by </span><a href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span></div>
       </div>
     </div>
   

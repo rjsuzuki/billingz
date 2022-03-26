@@ -4,7 +4,7 @@ name: build_and_publish
 on:
   push:
     tags:
-      - '*'
+      - "v*.*.*"
   release:
     types: [created]
 
@@ -32,13 +32,28 @@ jobs:
         if: env.GPR_USER == 'rjsuzuki'
         run: |
           echo "You sir, are qualified."
-          touch github.properties
-          echo gpr.usr=$GPR_USER > github.properties
-          echo gpr.key=$GPR_API_KEY >> github.properties
+          touch secrets.properties
+          echo gpr.usr=$GPR_USER > secrets.properties
+          echo gpr.key=$GPR_API_KEY >> secrets.properties
 
       - name: Clean, Build, and Publish AAR
         shell: bash
         run: |
           ./gradlew -PciBuild=true clean build -x lint
           ./gradlew publish
-        
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ env.RELEASE_NAME }}
+          body: |
+            What is new :
+              - First Change
+              - Second Change
+          draft: false
+          prerelease: false
+ 

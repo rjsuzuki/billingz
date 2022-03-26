@@ -1,167 +1,234 @@
+<!--
+  ~ /*
+  ~  * Copyright 2021 rjsuzuki
+  ~  *
+  ~  * Licensed under the Apache License, Version 2.0 (the "License");
+  ~  * you may not use this file except in compliance with the License.
+  ~  * You may obtain a copy of the License at
+  ~  *
+  ~  * http://www.apache.org/licenses/LICENSE-2.0
+  ~  *
+  ~  * Unless required by applicable law or agreed to in writing, software
+  ~  * distributed under the License is distributed on an "AS IS" BASIS,
+  ~  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  * See the License for the specific language governing permissions and
+  ~  * limitations under the License.
+  ~  *
+  ~  */
+  -->
+
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
     <title>Agentz</title>
-</head><body><link href="../../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../../";</script><script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async></script><link href="../../../styles/style.css" rel="Stylesheet"><link href="../../../styles/logo-styles.css" rel="Stylesheet"><link href="../../../styles/jetbrains-mono.css" rel="Stylesheet"><link href="../../../styles/main.css" rel="Stylesheet"><script type="text/javascript" src="../../../scripts/clipboard.js" async></script><script type="text/javascript" src="../../../scripts/navigation-loader.js" async></script><script type="text/javascript" src="../../../scripts/platform-content-handler.js" async></script><script type="text/javascript" src="../../../scripts/main.js" async></script>
+</head><body><link href="../../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../../";</script>
+    <script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async></script><link href="../../../styles/style.css" rel="Stylesheet"><link href="../../../styles/jetbrains-mono.css" rel="Stylesheet"><link href="../../../styles/main.css" rel="Stylesheet"><link href="../../../styles/prism.css" rel="Stylesheet"><link href="../../../styles/logo-styles.css" rel="Stylesheet"><script type="text/javascript" src="../../../scripts/clipboard.js" async></script><script type="text/javascript" src="../../../scripts/navigation-loader.js" async></script><script type="text/javascript" src="../../../scripts/platform-content-handler.js" async></script><script type="text/javascript" src="../../../scripts/main.js" defer></script><script type="text/javascript" src="../../../scripts/prism.js" async></script><script>const storage = localStorage.getItem("dokka-dark-mode")
+const savedDarkMode = storage ? JSON.parse(storage) : false
+if(savedDarkMode === true){
+    document.getElementsByTagName("html")[0].classList.add("theme-dark")
+}</script>
+
   
+    <div class="navigation-wrapper" id="navigation-wrapper">
+      <div id="leftToggler"><span class="icon-toggler"></span></div>
+      <div class="library-name"><a href="../../../index.html"><span>lib</span></a></div>
+      <div></div>
+      <div class="pull-right d-flex"><button id="theme-toggle-button"><span id="theme-toggle"></span></button>
+        <div id="searchBar"></div>
+      </div>
+    </div>
     <div id="container">
-      <div id="leftColumn"><a href="../../../index.html">
-            <div id="logo"></div>
-          </a>
-        <div id="paneSearch"></div>
+      <div id="leftColumn">
         <div id="sideMenu"></div>
       </div>
       <div id="main">
-        <script type="text/javascript" src="../../../scripts/main.js"></script><div id="leftToggler"><span class="icon-toggler"></span></div>
-
         <div class="main-content" id="content" pageids="core::com.zuko.billingz.core.store.agent/Agentz///PointingToDeclaration//67432415">
-          <div class="navigation-wrapper" id="navigation-wrapper">
-            <div class="breadcrumbs"><a href="../../index.html">core</a>/<a href="../index.html">com.zuko.billingz.core.store.agent</a>/<a href="index.html">Agentz</a></div>
-            <div class="pull-right d-flex">
-              <div id="searchBar"></div>
-            </div>
-          </div>
+          <div class="breadcrumbs"><a href="../../index.html">core</a>/<a href="../index.html">com.zuko.billingz.core.store.agent</a>/<a href="index.html">Agentz</a></div>
           <div class="cover ">
             <h1 class="cover"><span><span>Agentz</span></span></h1>
-            <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:core:dokkaHtmlPartial/release"><div class="symbol monospace">interface <a href="index.html">Agentz</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><p class="paragraph">Facade pattern - a simple interface for interacting with the main features of the Google Billing Library</p><h4 class="">Author</h4><p class="paragraph">rjsuzuki</p></div></div>
+            <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:core:dokkaHtmlPartial/release"><div class="symbol monospace"><span class="token keyword">interface </span><a href="index.html">Agentz</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><p class="paragraph">Facade pattern - a simple interface for interacting with the main features of the Google Billing Library</p><h4 class="">Author</h4><p class="paragraph">rjsuzuki</p></div></div>
           </div>
           <div class="tabbedcontent">
             <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="Functions">Functions</button></div>
             <div class="tabs-section-body">
               <h2 class="">Functions</h2>
-              <div class="table" data-togglable="Functions"><a data-name="1640500162%2FFunctions%2F67432415" anchor-label="getProduct" id="1640500162%2FFunctions%2F67432415" data-filterable-set=":lib:core:dokkaHtmlPartial/release"></a>
+              <div class="table" data-togglable="Functions"><a data-name="-2090454888%2FFunctions%2F67432415" anchor-label="cancelOrder" id="-2090454888%2FFunctions%2F67432415" data-filterable-set=":lib:core:dokkaHtmlPartial/release"></a>
                 <div class="table-row" data-filterable-current=":lib:core:dokkaHtmlPartial/release" data-filterable-set=":lib:core:dokkaHtmlPartial/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="get-product.html"><span>get</span><wbr><span><span>Product</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1640500162%2FFunctions%2F67432415"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="cancel-order.html"><span>cancel</span><wbr><span><span>Order</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2090454888%2FFunctions%2F67432415"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":lib:core:dokkaHtmlPartial/release" data-filterable-set=":lib:core:dokkaHtmlPartial/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:core:dokkaHtmlPartial/release"><div class="symbol monospace">abstract fun <a href="get-product.html">getProduct</a>(sku: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>?): <a href="../../com.zuko.billingz.core.store.model/-productz/index.html">Productz</a>?<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<div class="brief "><p class="paragraph">Return a product that matches the sku (product id). Null if no matching product exists.</p></div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:core:dokkaHtmlPartial/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="cancel-order.html"><span class="token function">cancelOrder</span></a><span class="token punctuation">(</span>order<span class="token operator">: </span><a href="../../com.zuko.billingz.core.store.model/-orderz/index.html">Orderz</a><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">A manual option to explicitly cancel an order</p></div></div></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="-2084819655%2FFunctions%2F67432415" anchor-label="completeOrder" id="-2084819655%2FFunctions%2F67432415" data-filterable-set=":lib:core:dokkaHtmlPartial/release"></a>
+                <div class="table-row" data-filterable-current=":lib:core:dokkaHtmlPartial/release" data-filterable-set=":lib:core:dokkaHtmlPartial/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex">
+                        <div><a href="complete-order.html"><span>complete</span><wbr><span><span>Order</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2084819655%2FFunctions%2F67432415"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:core:dokkaHtmlPartial/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="complete-order.html"><span class="token function">completeOrder</span></a><span class="token punctuation">(</span>order<span class="token operator">: </span><a href="../../com.zuko.billingz.core.store.model/-orderz/index.html">Orderz</a><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">A manual option to complete an existing Order. This will call the respective function to consume, acknowledge, and/or fulfill a product.</p></div></div></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="1640500162%2FFunctions%2F67432415" anchor-label="getProduct" id="1640500162%2FFunctions%2F67432415" data-filterable-set=":lib:core:dokkaHtmlPartial/release"></a>
+                <div class="table-row" data-filterable-current=":lib:core:dokkaHtmlPartial/release" data-filterable-set=":lib:core:dokkaHtmlPartial/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex">
+                        <div><a href="get-product.html"><span>get</span><wbr><span><span>Product</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1640500162%2FFunctions%2F67432415"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:core:dokkaHtmlPartial/release"><div class="symbol monospace strikethrough"><strike><span class="token keyword">abstract </span></strike><strike><span class="token keyword"></span></strike><strike><span class="token keyword">fun </span></strike><a href="get-product.html"><strike><span class="token function">getProduct</span></strike></a><strike><span class="token punctuation">(</span></strike><strike>sku</strike><strike><span class="token operator">: </span></strike><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><strike><span class="token punctuation">)</span></strike><strike><span class="token operator">: </span></strike><a href="../../com.zuko.billingz.core.store.model/-productz/index.html">Productz</a><span class="token operator">?</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Return a product that matches the sku (product id). Null if no matching product exists.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
 <a data-name="-1524707732%2FFunctions%2F67432415" anchor-label="getProducts" id="-1524707732%2FFunctions%2F67432415" data-filterable-set=":lib:core:dokkaHtmlPartial/release"></a>
                 <div class="table-row" data-filterable-current=":lib:core:dokkaHtmlPartial/release" data-filterable-set=":lib:core:dokkaHtmlPartial/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="get-products.html"><span>get</span><wbr><span><span>Products</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1524707732%2FFunctions%2F67432415"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="get-products.html"><span>get</span><wbr><span><span>Products</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1524707732%2FFunctions%2F67432415"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":lib:core:dokkaHtmlPartial/release" data-filterable-set=":lib:core:dokkaHtmlPartial/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:core:dokkaHtmlPartial/release"><div class="symbol monospace">abstract fun <a href="get-products.html">getProducts</a>(type: <a href="../../com.zuko.billingz.core.store.model/-productz/-type/index.html">Productz.Type</a>?, promo: <a href="../../com.zuko.billingz.core.store.model/-productz/-promotion/index.html">Productz.Promotion</a>?): <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html">Map</a>&lt;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, <a href="../../com.zuko.billingz.core.store.model/-productz/index.html">Productz</a>&gt;<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<div class="brief "><p class="paragraph">Return a list of validated products from the inventory. Narrow your search results by providing both or either parameters.</p></div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:core:dokkaHtmlPartial/release"><div class="symbol monospace strikethrough"><strike><span class="token keyword">abstract </span></strike><strike><span class="token keyword"></span></strike><strike><span class="token keyword">fun </span></strike><a href="get-products.html"><strike><span class="token function">getProducts</span></strike></a><strike><span class="token punctuation">(</span></strike><strike>type</strike><strike><span class="token operator">: </span></strike><a href="../../com.zuko.billingz.core.store.model/-productz/-type/index.html">Productz.Type</a><span class="token operator">?</span><strike><span class="token punctuation">, </span></strike><strike>promo</strike><strike><span class="token operator">: </span></strike><a href="../../com.zuko.billingz.core.store.model/-productz/-promotion/index.html">Productz.Promotion</a><span class="token operator">?</span><strike><span class="token punctuation">)</span></strike><strike><span class="token operator">: </span></strike><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html">Map</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="../../com.zuko.billingz.core.store.model/-productz/index.html">Productz</a><span class="token operator">&gt;</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Return a list of validated products from the inventory. Narrow your search results by providing both or either parameters.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
 <a data-name="114227841%2FFunctions%2F67432415" anchor-label="getState" id="114227841%2FFunctions%2F67432415" data-filterable-set=":lib:core:dokkaHtmlPartial/release"></a>
                 <div class="table-row" data-filterable-current=":lib:core:dokkaHtmlPartial/release" data-filterable-set=":lib:core:dokkaHtmlPartial/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="get-state.html"><span>get</span><wbr><span><span>State</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="114227841%2FFunctions%2F67432415"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="get-state.html"><span>get</span><wbr><span><span>State</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="114227841%2FFunctions%2F67432415"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":lib:core:dokkaHtmlPartial/release" data-filterable-set=":lib:core:dokkaHtmlPartial/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:core:dokkaHtmlPartial/release"><div class="symbol monospace"><div class="block"><div class="block">@<a href="https://developer.android.com/reference/kotlin/androidx/annotation/UiThread.html">UiThread</a></div></div>abstract fun <a href="get-state.html">getState</a>(): <a href="https://developer.android.com/reference/kotlin/androidx/lifecycle/LiveData.html">LiveData</a>&lt;<a href="../../com.zuko.billingz.core.store.client/-clientz/-connection-status/index.html">Clientz.ConnectionStatus</a>&gt;<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<div class="brief "><p class="paragraph">Observe changes to the BillingClient's connection to GooglePlay from the UI thread (in an activity/fragment class). Calling this function automatically checks if client is connected and will attempt to reconnect if need be.</p></div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:core:dokkaHtmlPartial/release"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation">@</span><a href="https://developer.android.com/reference/kotlin/androidx/annotation/UiThread.html"><span class="token annotation">UiThread</span></a></div></div><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="get-state.html"><span class="token function">getState</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/lifecycle/LiveData.html">LiveData</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../com.zuko.billingz.core.store.client/-clientz/-connection-status/index.html">Clientz.ConnectionStatus</a><span class="token operator">&gt;</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Observe changes to the BillingClient's connection to GooglePlay from the UI thread (in an activity/fragment class). Calling this function automatically checks if client is connected and will attempt to reconnect if need be.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
-<a data-name="1098602923%2FFunctions%2F67432415" anchor-label="isInventoryReady" id="1098602923%2FFunctions%2F67432415" data-filterable-set=":lib:core:dokkaHtmlPartial/release"></a>
+<a data-name="743974293%2FFunctions%2F67432415" anchor-label="isInventoryReadyLiveData" id="743974293%2FFunctions%2F67432415" data-filterable-set=":lib:core:dokkaHtmlPartial/release"></a>
                 <div class="table-row" data-filterable-current=":lib:core:dokkaHtmlPartial/release" data-filterable-set=":lib:core:dokkaHtmlPartial/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="is-inventory-ready.html"><span>is</span><wbr><span>Inventory</span><wbr><span><span>Ready</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1098602923%2FFunctions%2F67432415"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="is-inventory-ready-live-data.html"><span>is</span><wbr><span>Inventory</span><wbr><span>Ready</span><wbr><span>Live</span><wbr><span><span>Data</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="743974293%2FFunctions%2F67432415"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":lib:core:dokkaHtmlPartial/release" data-filterable-set=":lib:core:dokkaHtmlPartial/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:core:dokkaHtmlPartial/release"><div class="symbol monospace"><div class="block"><div class="block">@<a href="https://developer.android.com/reference/kotlin/androidx/annotation/UiThread.html">UiThread</a></div></div>abstract fun <a href="is-inventory-ready.html">isInventoryReady</a>(): <a href="https://developer.android.com/reference/kotlin/androidx/lifecycle/LiveData.html">LiveData</a>&lt;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a>&gt;<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<div class="brief "><p class="paragraph">Checks if the billing client has products loaded. if false, use <a href="update-inventory.html">updateInventory</a> to prepare the client for purchases.</p></div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:core:dokkaHtmlPartial/release"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation">@</span><a href="https://developer.android.com/reference/kotlin/androidx/annotation/UiThread.html"><span class="token annotation">UiThread</span></a></div></div><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="is-inventory-ready-live-data.html"><span class="token function">isInventoryReadyLiveData</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/lifecycle/LiveData.html">LiveData</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator">&gt;</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Checks if the billing client has products loaded. if false, use <a href="query-inventory.html">queryInventory</a> to prepare the client for purchases.</p></div></div></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="1006282032%2FFunctions%2F67432415" anchor-label="isInventoryReadyStateFlow" id="1006282032%2FFunctions%2F67432415" data-filterable-set=":lib:core:dokkaHtmlPartial/release"></a>
+                <div class="table-row" data-filterable-current=":lib:core:dokkaHtmlPartial/release" data-filterable-set=":lib:core:dokkaHtmlPartial/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex">
+                        <div><a href="is-inventory-ready-state-flow.html"><span>is</span><wbr><span>Inventory</span><wbr><span>Ready</span><wbr><span>State</span><wbr><span><span>Flow</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1006282032%2FFunctions%2F67432415"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:core:dokkaHtmlPartial/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="is-inventory-ready-state-flow.html"><span class="token function">isInventoryReadyStateFlow</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="kotlinx.coroutines.flow/StateFlow///PointingToDeclaration/">StateFlow</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator">&gt;</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="-1605432057%2FFunctions%2F67432415" anchor-label="queryInventory" id="-1605432057%2FFunctions%2F67432415" data-filterable-set=":lib:core:dokkaHtmlPartial/release"></a>
+                <div class="table-row" data-filterable-current=":lib:core:dokkaHtmlPartial/release" data-filterable-set=":lib:core:dokkaHtmlPartial/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex">
+                        <div><a href="query-inventory.html"><span>query</span><wbr><span><span>Inventory</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1605432057%2FFunctions%2F67432415"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:core:dokkaHtmlPartial/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="query-inventory.html"><span class="token function">queryInventory</span></a><span class="token punctuation">(</span>products<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html">Map</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="../../com.zuko.billingz.core.store.model/-productz/-type/index.html">Productz.Type</a><span class="token operator">&gt;</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.zuko.billingz.core.store.model/-query-result/index.html">QueryResult</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html">Map</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="../../com.zuko.billingz.core.store.model/-productz/index.html">Productz</a><span class="token operator">&gt;</span><span class="token operator">&gt;</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Queries database for matching product ids and loads them into the inventory cache.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
 <a data-name="-1336622863%2FFunctions%2F67432415" anchor-label="queryOrders" id="-1336622863%2FFunctions%2F67432415" data-filterable-set=":lib:core:dokkaHtmlPartial/release"></a>
                 <div class="table-row" data-filterable-current=":lib:core:dokkaHtmlPartial/release" data-filterable-set=":lib:core:dokkaHtmlPartial/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="query-orders.html"><span>query</span><wbr><span><span>Orders</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1336622863%2FFunctions%2F67432415"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="query-orders.html"><span>query</span><wbr><span><span>Orders</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1336622863%2FFunctions%2F67432415"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":lib:core:dokkaHtmlPartial/release" data-filterable-set=":lib:core:dokkaHtmlPartial/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:core:dokkaHtmlPartial/release"><div class="symbol monospace"><div class="block"><div class="block">@<a href="https://developer.android.com/reference/kotlin/androidx/annotation/UiThread.html">UiThread</a></div></div>abstract fun <a href="query-orders.html">queryOrders</a>(): <a href="https://developer.android.com/reference/kotlin/androidx/lifecycle/LiveData.html">LiveData</a>&lt;<a href="../../com.zuko.billingz.core.store.model/-orderz/index.html">Orderz</a>&gt;<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<div class="brief "><p class="paragraph">Handle purchases still remaining from recent history. Observe the liveData object that will emit <a href="../../com.zuko.billingz.core.store.model/-orderz/index.html">Orderz</a> objects that require your attention. These orders/purchases could be purchases made on another device, or when the app is resuming, etc. The provided listeners will enable you to resume the processing of an Order.</p></div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:core:dokkaHtmlPartial/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="query-orders.html"><span class="token function">queryOrders</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.zuko.billingz.core.store.model/-query-result/index.html">QueryResult</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../com.zuko.billingz.core.store.model/-orderz/index.html">Orderz</a><span class="token operator">&gt;</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="2060031751%2FFunctions%2F67432415" anchor-label="queryProduct" id="2060031751%2FFunctions%2F67432415" data-filterable-set=":lib:core:dokkaHtmlPartial/release"></a>
+                <div class="table-row" data-filterable-current=":lib:core:dokkaHtmlPartial/release" data-filterable-set=":lib:core:dokkaHtmlPartial/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex">
+                        <div><a href="query-product.html"><span>query</span><wbr><span><span>Product</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2060031751%2FFunctions%2F67432415"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:core:dokkaHtmlPartial/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="query-product.html"><span class="token function">queryProduct</span></a><span class="token punctuation">(</span>sku<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>type<span class="token operator">: </span><a href="../../com.zuko.billingz.core.store.model/-productz/-type/index.html">Productz.Type</a><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.zuko.billingz.core.store.model/-query-result/index.html">QueryResult</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../com.zuko.billingz.core.store.model/-productz/index.html">Productz</a><span class="token operator">&gt;</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">TODO: Implement cache-first strategy and boolean bypass parameter for it.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
 <a data-name="470785169%2FFunctions%2F67432415" anchor-label="queryReceipts" id="470785169%2FFunctions%2F67432415" data-filterable-set=":lib:core:dokkaHtmlPartial/release"></a>
                 <div class="table-row" data-filterable-current=":lib:core:dokkaHtmlPartial/release" data-filterable-set=":lib:core:dokkaHtmlPartial/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="query-receipts.html"><span>query</span><wbr><span><span>Receipts</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="470785169%2FFunctions%2F67432415"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="query-receipts.html"><span>query</span><wbr><span><span>Receipts</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="470785169%2FFunctions%2F67432415"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":lib:core:dokkaHtmlPartial/release" data-filterable-set=":lib:core:dokkaHtmlPartial/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:core:dokkaHtmlPartial/release"><div class="symbol monospace"><div class="block"><div class="block">@<a href="https://developer.android.com/reference/kotlin/androidx/annotation/UiThread.html">UiThread</a></div></div>abstract fun <a href="query-receipts.html">queryReceipts</a>(type: <a href="../../com.zuko.billingz.core.store.model/-productz/-type/index.html">Productz.Type</a>?): <a href="https://developer.android.com/reference/kotlin/androidx/lifecycle/LiveData.html">LiveData</a>&lt;<a href="https://developer.android.com/reference/kotlin/androidx/collection/ArrayMap.html">ArrayMap</a>&lt;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, <a href="../../com.zuko.billingz.core.store.model/-receiptz/index.html">Receiptz</a>&gt;&gt;<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<div class="brief "><p class="paragraph">Returns the most recent purchase(s) made by the user for each SKU, even if that purchase is expired, canceled, or consumed. Set parameter to null for all products</p></div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:core:dokkaHtmlPartial/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="query-receipts.html"><span class="token function">queryReceipts</span></a><span class="token punctuation">(</span>type<span class="token operator">: </span><a href="../../com.zuko.billingz.core.store.model/-productz/-type/index.html">Productz.Type</a><span class="token operator">?</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.zuko.billingz.core.store.model/-query-result/index.html">QueryResult</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../com.zuko.billingz.core.store.model/-order-historyz/index.html">OrderHistoryz</a><span class="token operator">&gt;</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Returns the available history of 'completed orders' as a mapping of receipt objects. The receipts will list all relevant skus, even if that order is expired, canceled, or consumed. Set parameter to null for all products</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
 <a data-name="2007105671%2FFunctions%2F67432415" anchor-label="startOrder" id="2007105671%2FFunctions%2F67432415" data-filterable-set=":lib:core:dokkaHtmlPartial/release"></a>
                 <div class="table-row" data-filterable-current=":lib:core:dokkaHtmlPartial/release" data-filterable-set=":lib:core:dokkaHtmlPartial/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="start-order.html"><span>start</span><wbr><span><span>Order</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2007105671%2FFunctions%2F67432415"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="start-order.html"><span>start</span><wbr><span><span>Order</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2007105671%2FFunctions%2F67432415"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":lib:core:dokkaHtmlPartial/release" data-filterable-set=":lib:core:dokkaHtmlPartial/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:core:dokkaHtmlPartial/release"><div class="symbol monospace"><div class="block"><div class="block">@<a href="https://developer.android.com/reference/kotlin/androidx/annotation/UiThread.html">UiThread</a></div></div>abstract fun <a href="start-order.html">startOrder</a>(activity: <a href="https://developer.android.com/reference/kotlin/android/app/Activity.html">Activity</a>?, productId: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>?, options: <a href="https://developer.android.com/reference/kotlin/android/os/Bundle.html">Bundle</a>? = null, listener: <a href="../../com.zuko.billingz.core.store.sales/-salez/-order-validator-listener/index.html">Salez.OrderValidatorListener</a>?): <a href="https://developer.android.com/reference/kotlin/androidx/lifecycle/LiveData.html">LiveData</a>&lt;<a href="../../com.zuko.billingz.core.store.model/-orderz/index.html">Orderz</a>&gt;<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<div class="brief "><p class="paragraph">Initiate the purchase flow from the perspective of a user interaction. e.g. a Customer opens your app and selects a product for purchase.</p></div></div>
-</div>
-                    </div>
-                  </div>
-                </div>
-<a data-name="-1825082262%2FFunctions%2F67432415" anchor-label="updateInventory" id="-1825082262%2FFunctions%2F67432415" data-filterable-set=":lib:core:dokkaHtmlPartial/release"></a>
-                <div class="table-row" data-filterable-current=":lib:core:dokkaHtmlPartial/release" data-filterable-set=":lib:core:dokkaHtmlPartial/release">
-                  <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="update-inventory.html"><span>update</span><wbr><span><span>Inventory</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1825082262%2FFunctions%2F67432415"></span>
-                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                        </span></span></div>
-                    <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":lib:core:dokkaHtmlPartial/release" data-filterable-set=":lib:core:dokkaHtmlPartial/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:core:dokkaHtmlPartial/release"><div class="symbol monospace">abstract fun <a href="update-inventory.html">updateInventory</a>(products: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html">Map</a>&lt;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, <a href="../../com.zuko.billingz.core.store.model/-productz/-type/index.html">Productz.Type</a>&gt;): <a href="https://developer.android.com/reference/kotlin/androidx/lifecycle/LiveData.html">LiveData</a>&lt;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html">Map</a>&lt;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, <a href="../../com.zuko.billingz.core.store.model/-productz/index.html">Productz</a>&gt;&gt;<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<div class="brief "><p class="paragraph">Queries database for matching product ids and loads them into the inventory.</p></div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:core:dokkaHtmlPartial/release"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation">@</span><a href="https://developer.android.com/reference/kotlin/androidx/annotation/UiThread.html"><span class="token annotation">UiThread</span></a></div></div><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="start-order.html"><span class="token function">startOrder</span></a><span class="token punctuation">(</span>activity<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/android/app/Activity.html">Activity</a><span class="token operator">?</span><span class="token punctuation">, </span>productId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token punctuation">, </span>options<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/android/os/Bundle.html">Bundle</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span>listener<span class="token operator">: </span><a href="../../com.zuko.billingz.core.store.sales/-salez/-order-validator-listener/index.html">Salez.OrderValidatorListener</a><span class="token operator">?</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/lifecycle/LiveData.html">LiveData</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../com.zuko.billingz.core.store.model/-orderz/index.html">Orderz</a><span class="token operator">&gt;</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Initiate the purchase flow from the perspective of a user interaction. e.g. a Customer opens your app and selects a product for purchase.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -169,7 +236,7 @@
             </div>
           </div>
         </div>
-        <div class="footer"><span class="go-to-top-icon"><a href="#content"></a></span><span>© 2021 Copyright</span><span class="pull-right"><span>Generated by </span><a href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span></div>
+        <div class="footer"><span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2022 Copyright</span><span class="pull-right"><span>Generated by </span><a href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span></div>
       </div>
     </div>
   

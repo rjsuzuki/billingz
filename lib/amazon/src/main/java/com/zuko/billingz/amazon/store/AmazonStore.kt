@@ -1,17 +1,19 @@
 /*
- * Copyright 2021 rjsuzuki
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  * Copyright 2021 rjsuzuki
+ *  *
+ *  * Licensed under the Apache License, Version 2.0 (the "License");
+ *  * you may not use this file except in compliance with the License.
+ *  * You may obtain a copy of the License at
+ *  *
+ *  * http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing, software
+ *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  * See the License for the specific language governing permissions and
+ *  * limitations under the License.
+ *  *
  *
  */
 package com.zuko.billingz.amazon.store
@@ -21,39 +23,39 @@ import android.content.Context
 import android.os.Bundle
 import androidx.collection.ArrayMap
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.zuko.billingz.amazon.store.client.AmazonClient
 import com.zuko.billingz.amazon.store.inventory.AmazonInventory
+import com.zuko.billingz.amazon.store.model.AmazonOrder
 import com.zuko.billingz.amazon.store.sales.AmazonSales
 import com.zuko.billingz.core.LogUtilz
 import com.zuko.billingz.core.store.Storez
 import com.zuko.billingz.core.store.agent.Agentz
 import com.zuko.billingz.core.store.client.Clientz
+import com.zuko.billingz.core.store.model.OrderHistoryz
 import com.zuko.billingz.core.store.model.Orderz
 import com.zuko.billingz.core.store.model.Productz
-import com.zuko.billingz.core.store.model.Receiptz
+import com.zuko.billingz.core.store.model.QueryResult
 import com.zuko.billingz.core.store.sales.Salez
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
-class AmazonStore private constructor() : Storez {
-
-    private val mainScope = MainScope()
-    private val inventory = AmazonInventory()
-    private val sales = AmazonSales()
-    private val client = AmazonClient(inventory, sales)
+/**
+ * @author rjsuzuki
+ */
+@Suppress("unused")
+class AmazonStore internal constructor() : Storez {
 
     private val connectionListener = object : Clientz.ConnectionListener {
         override fun connected() {
             sales.refreshQueries()
         }
     }
-
-    /*****************************************************************************************************
-     * Lifecycle events - developer must either add this class to a lifecycleOwner or manually add the events
-     * to their respective parent view
-     *****************************************************************************************************/
+    private val mainScope by lazy { MainScope() }
+    private var context: Context? = null
+    private val inventory = AmazonInventory()
+    private val sales = AmazonSales(inventory)
+    private val client = AmazonClient(inventory, sales)
 
     init {
         LogUtilz.log.v(TAG, "instantiating...")
@@ -61,12 +63,16 @@ class AmazonStore private constructor() : Storez {
 
     override fun init(context: Context?) {
         LogUtilz.log.v(TAG, "initializing...")
-        client.init(context, connectionListener)
+        this.context = context
     }
 
     override fun create() {
         LogUtilz.log.v(TAG, "creating...")
-        client.connect()
+        if (!client.initialized()) {
+            client.init(context, connectionListener)
+            client.connect()
+        }
+        client.checkConnection()
     }
 
     override fun start() {
@@ -75,19 +81,23 @@ class AmazonStore private constructor() : Storez {
 
     override fun resume() {
         LogUtilz.log.v(TAG, "resuming...")
-        client.checkConnection()
-        if (client.isReady()) {
+        if (client.isReady())
             sales.refreshQueries()
+        else if (!client.initialized()) {
+            client.init(context, connectionListener)
+            client.connect()
+        } else {
+            client.checkConnection()
         }
     }
 
     override fun pause() {
         LogUtilz.log.v(TAG, "pausing...")
+        client.pause()
     }
 
     override fun stop() {
         LogUtilz.log.v(TAG, "stopping...")
-        mainScope.cancel()
     }
 
     override fun destroy() {
@@ -97,10 +107,14 @@ class AmazonStore private constructor() : Storez {
         client.destroy()
     }
 
-    private val agent = object : Agentz {
-        override fun isInventoryReady(): LiveData<Boolean> {
-            // todo
-            return MutableLiveData()
+    private val storeAgent = object : Agentz {
+
+        override fun isInventoryReadyLiveData(): LiveData<Boolean> {
+            return inventory.isReadyLiveData()
+        }
+
+        override fun isInventoryReadyStateFlow(): StateFlow<Boolean> {
+            return inventory.isReadyStateFlow()
         }
 
         override fun getState(): LiveData<Clientz.ConnectionStatus> {
@@ -115,35 +129,42 @@ class AmazonStore private constructor() : Storez {
             listener: Salez.OrderValidatorListener?
         ): LiveData<Orderz> {
             LogUtilz.log.v(TAG, "Starting order: $productId")
-            val data = MutableLiveData<Orderz>()
+
             val product = inventory.getProduct(productId)
-            product?.let {
+            if (product == null) {
+                val order = AmazonOrder(
+                    resultMessage = "No matching sku found in inventory.",
+                    result = Orderz.Result.INVALID_PRODUCT,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+                )
+                sales.currentOrder.postValue(order)
+            } else {
                 sales.startOrder(activity, product, client)
             }
-            return data
+            return sales.currentOrder
         }
 
-        override fun queryOrders(): LiveData<Orderz> {
+        override fun queryOrders(): QueryResult<Orderz> {
             LogUtilz.log.v(TAG, "queryOrders")
             return sales.queryOrders()
         }
 
-        override suspend fun queryProduct(sku: String, type: Productz.Type): Productz? {
-            throw NotImplementedError()
-        }
-
-        override fun queryProductFlow(sku: String, type: Productz.Type): Flow<Productz> {
-            throw NotImplementedError()
-        }
-
-        override fun queryReceipts(type: Productz.Type?): LiveData<ArrayMap<String, Receiptz>> {
+        override fun queryReceipts(type: Productz.Type?): QueryResult<OrderHistoryz> {
             LogUtilz.log.v(TAG, "getReceipts: $type")
-            return sales.orderHistory
+            return sales.queryReceipts(type)
         }
 
-        override fun updateInventory(products: Map<String, Productz.Type>): LiveData<Map<String, Productz>> {
+        override fun queryInventory(products: Map<String, Productz.Type>): QueryResult<Map<String, Productz>> {
             LogUtilz.log.v(TAG, "updateInventory: ${products.size}")
             return inventory.queryInventory(products = products)
+        }
+
+        override fun queryProduct(sku: String, type: Productz.Type): QueryResult<Productz> {
+            return inventory.queryProduct(sku, type)
         }
 
         override fun getProducts(
@@ -157,6 +178,14 @@ class AmazonStore private constructor() : Storez {
             )
         }
 
+        override fun completeOrder(order: Orderz) {
+            sales.completeOrder(order)
+        }
+
+        override fun cancelOrder(order: Orderz) {
+            sales.cancelOrder(order)
+        }
+
         override fun getProduct(sku: String?): Productz? {
             LogUtilz.log.v(TAG, "getProduct: $sku")
             return inventory.getProduct(sku = sku)
@@ -164,21 +193,23 @@ class AmazonStore private constructor() : Storez {
     }
 
     override fun getAgent(): Agentz {
-        return agent
+        return storeAgent
     }
 
     /**
      * Builder Pattern - create an instance of AmazonStore
      */
-    class Builder(var context: Context?) {
+    @Suppress("unused")
+    class Builder : Storez.Builder {
         private lateinit var instance: AmazonStore
         private lateinit var updaterListener: Salez.OrderUpdaterListener
         private lateinit var validatorListener: Salez.OrderValidatorListener
-
+        private lateinit var products: ArrayMap<String, Productz.Type>
+        private var accountId: String? = null
         /**
          * @param listener - Required to be set for proper functionality
          */
-        fun setOrderUpdater(listener: Salez.OrderUpdaterListener): Builder {
+        override fun setOrderUpdater(listener: Salez.OrderUpdaterListener): Builder {
             updaterListener = listener
             return this
         }
@@ -186,20 +217,32 @@ class AmazonStore private constructor() : Storez {
         /**
          * @param listener - Required to be set for proper functionality
          */
-        fun setOrderValidator(listener: Salez.OrderValidatorListener): Builder {
+        override fun setOrderValidator(listener: Salez.OrderValidatorListener): Builder {
             validatorListener = listener
             return this
         }
 
-        fun build(): AmazonStore {
-            if (!::instance.isInitialized) {
-                instance = AmazonStore()
-            }
+        /**
+         * Not used in this implementation
+         */
+        override fun setAccountId(id: String?): Builder {
+            accountId = id
+            return this
+        }
+
+        override fun setProducts(products: ArrayMap<String, Productz.Type>): Builder {
+            this.products = products
+            return this
+        }
+
+        override fun build(context: Context?): Storez {
+            instance = AmazonStore()
             instance.sales.apply {
                 orderUpdaterListener = updaterListener
                 orderValidatorListener = validatorListener
             }
             instance.init(context = context)
+            instance.create()
             return instance
         }
     }
