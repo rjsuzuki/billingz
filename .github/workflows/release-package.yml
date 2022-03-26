@@ -60,8 +60,8 @@ jobs:
       - name: Generate documentation
         shell: bash
         run: |
-          ./gradlew dokkaHtmlMultimodule
-          cp -rF ./lib/build/dokka/htmlMultimodule/ ./docs
+          ./gradlew dokkaHtmlMultiModule
+          cp -r ./lib/build/dokka/htmlMultiModule/ ./docs
 
       - name: Commit files
         id: commit
