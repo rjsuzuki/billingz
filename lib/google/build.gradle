@@ -87,7 +87,7 @@ android {
 }
 
 dependencies {
-    implementation project(':lib:core')
+    api project(':lib:core')
     api "com.android.billingclient:billing-ktx:${Dependencies.google_billing}"
 }
 
