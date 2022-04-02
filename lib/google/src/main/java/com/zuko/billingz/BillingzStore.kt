@@ -17,7 +17,7 @@
  *
  */
 
-package com.zuko.billingz.google
+package com.zuko.billingz
 
 import android.content.Context
 import androidx.collection.ArrayMap
