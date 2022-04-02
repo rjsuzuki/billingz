@@ -12,8 +12,7 @@ Currently supports up to:
    - `amazon appstore sdk: 3.0.2` (v2.1.0)
 ## Version History
 
-- To use the legacy IAP API from Amazon, use `v2.0.6`
-- To use the new Appstore SDK from Amazon, use `v2.1.0+`
+- new Appstore SDK from Amazon starting from: `v2.1.0+`
 
 [Release History and Notes](https://github.com/rjsuzuki/billingz/releases)
 
