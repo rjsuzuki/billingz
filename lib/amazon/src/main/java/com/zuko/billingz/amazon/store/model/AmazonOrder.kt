@@ -53,6 +53,7 @@ data class AmazonOrder(
     override var isCancelled: Boolean = receipt?.isCanceled ?: false
     override var quantity: Int = 1
     override var originalJson: String? = json.toString()
+    override val orderUserId: String? = userData?.userId
 
     override fun isAmazon(): Boolean {
         return true

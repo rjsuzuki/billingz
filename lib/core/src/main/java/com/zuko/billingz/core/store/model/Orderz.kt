@@ -81,6 +81,11 @@ interface Orderz : ModuleIdentifier {
     val signature: String?
 
     /**
+     * Identifier of the user making the order from the Store standpoint
+     */
+    val orderUserId: String?
+
+    /**
      * Indicates the lifecycle of an order.
      */
     enum class State {

@@ -75,6 +75,7 @@ data class GoogleOrder(
 
     override var skus: List<String>? = purchase?.skus
     override val signature: String? = purchase?.signature
+    override val orderUserId: String? = null
 
     override fun isGoogle(): Boolean {
         return true
