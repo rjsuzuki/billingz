@@ -298,9 +298,14 @@ class AmazonSales(
      * to getPurchaseUpdates(). Retrieves the receipts for the user's pending consumable,
      * entitlement, and subscription purchases. Amazon recommends using this approach in most cases.
      */
-    private fun getPurchaseUpdates(reset: Boolean): RequestId {
+    private fun getPurchaseUpdates(reset: Boolean): RequestId? {
         LogUtilz.log.d(TAG, "getPurchaseUpdates \nreset: $reset")
-        return PurchasingService.getPurchaseUpdates(reset)
+        try {
+            PurchasingService.getPurchaseUpdates(reset)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return null
     }
 
     internal fun queryOrderHistoryLiveData(): LiveData<AmazonOrderHistory?> {

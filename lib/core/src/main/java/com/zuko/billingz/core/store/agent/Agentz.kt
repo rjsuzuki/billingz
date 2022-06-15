@@ -82,7 +82,8 @@ interface Agentz {
     fun queryReceipts(type: Productz.Type?): QueryResult<OrderHistoryz>
 
     /**
-     * - Amazon and Google Play use different terminology for similar use-cases,
+     * This function should be called in the onResume lifecycle of the application/view.
+     * Amazon and Google Play use different terminology for similar use-cases,
      * so in order to prevent confusion, this library will always define an Order as a purchase in-progress,
      * and/or incomplete. A receipt will always be a 'completed order' (expired, canceled, or consumed).
      * Handle purchases still remaining from recent history. Observe the liveData object
