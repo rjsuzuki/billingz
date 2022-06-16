@@ -32,30 +32,38 @@ import java.util.Currency
 interface Productz : ModuleIdentifier {
 
     /**
-     * The sku product id that is referenced by your account
+     * The sku (product id) that is referenced by your account's store listing
      */
-    val sku: String?
+    fun getProductId(): String?
 
     /**
-     * A convenience variable to provide the name/title of your product
+     * A convenience variable to provide the name of your product.
+     * Value may be the same as [getTitle].
      */
-    val title: String?
+    fun getName(): String?
+
+    /**
+     * A convenience variable to provide the title of your product
+     * Value may be the same as [getName].
+     */
+    fun getTitle(): String?
 
     /**
      * A convenience variable to provide the price of your product as a String
      * in the local currency
      */
-    val price: String?
+    fun getPrice(): String?
 
     /**
      * A convenience variable to provide a description of your product
      */
-    val description: String?
+    fun getDescription(): String?
 
     /**
-     * The remote path of the products image
+     * The remote path of the products image.
+     * Android Billing Lib v5 does not support this.
      */
-    val iconUrl: String?
+    fun getIconUrl(): String?
 
     /**
      * The product type can be one of the following:
@@ -69,17 +77,18 @@ interface Productz : ModuleIdentifier {
      * The promotion type of the product.
      * NONE is the default.
      */
-    val promotion: Promotion
+    fun getPromotion(): Promotion
 
     /**
      * Amazon IAP does not support these particular data points, so this object will return null
      * for the Amazon flavor.
      */
-    val pricingInfo: PricingInfo?
+    fun getPricingInfo(): PricingInfo?
 
     /**
      * @return - [Currency] object to represent the ISO 4217 currency code
-     * for price and original price
+     * for price and original price.
+     * Defaults to [java.util.Locale]
      */
     fun getCurrency(): Currency
 

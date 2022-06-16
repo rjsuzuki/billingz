@@ -53,10 +53,14 @@ class AmazonClient(val inventory: AmazonInventoryz, val sales: AmazonSalez) : Am
     override fun init(context: Context?, connectionListener: Clientz.ConnectionListener) {
         LogUtilz.log.v(TAG, "Initializing AmazonClient")
         this.context = context
-        LicensingService.verifyLicense(context) { response ->
-            LogUtilz.log.d(TAG, "License Status: ${response.requestStatus.name}")
+        try {
+            LicensingService.verifyLicense(context) { response ->
+                LogUtilz.log.d(TAG, "License Status: ${response.requestStatus.name}")
+            }
+            isInitialized = true
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
-        isInitialized = true
     }
 
     override fun connect() {
@@ -75,77 +79,84 @@ class AmazonClient(val inventory: AmazonInventoryz, val sales: AmazonSalez) : Am
         // currently logged on. For example, if a user switched accounts or if multiple users
         // accessed your app on the same device, this call will help you make sure that the receipts
         // that you retrieve are for the current user account.
-        val userRequestId = PurchasingService.getUserData() // client
-        LogUtilz.log.d(TAG, "UserData request id: $userRequestId")
+        try {
+            val userRequestId = PurchasingService.getUserData() // client
+            LogUtilz.log.d(TAG, "UserData request id: $userRequestId")
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     private fun registerPurchasingListener() {
         LogUtilz.log.v(TAG, "registerListener")
-
-        PurchasingService.registerListener(
-            context,
-            object : PurchasingListener {
-
-                override fun onUserDataResponse(response: UserDataResponse?) {
-                    LogUtilz.log.d(TAG, "onPurchaseUpdatesResponse")
-                    // Invoked after a call to getUserData().
-                    // Determines the UserId and marketplace of the currently logged on user.
-                    when (response?.requestStatus) {
-                        UserDataResponse.RequestStatus.SUCCESSFUL -> {
-                            LogUtilz.log.d(
-                                TAG,
-                                "Successful user data request: ${response.requestId}" +
+        val purchasingListener = object: PurchasingListener {
+            override fun onUserDataResponse(response: UserDataResponse?) {
+                LogUtilz.log.d(TAG, "onPurchaseUpdatesResponse")
+                // Invoked after a call to getUserData().
+                // Determines the UserId and marketplace of the currently logged on user.
+                when (response?.requestStatus) {
+                    UserDataResponse.RequestStatus.SUCCESSFUL -> {
+                        LogUtilz.log.d(
+                            TAG,
+                            "Successful user data request: ${response.requestId}" +
                                     "\nmarketplace: ${response.userData?.marketplace}"
-                            )
-                            userDataResponse = response
-                            isConnected = true
-                            connectionState.postValue(Clientz.ConnectionStatus.CONNECTED)
-                        }
-                        UserDataResponse.RequestStatus.FAILED -> {
-                            LogUtilz.log.e(TAG, "Failed user data request: ${response.requestId}")
-                            isConnected = false
-                            connectionState.postValue(Clientz.ConnectionStatus.DISCONNECTED)
-                        }
-                        UserDataResponse.RequestStatus.NOT_SUPPORTED -> {
-                            LogUtilz.log.wtf(
-                                TAG,
-                                "Unsupported user data request: ${response.requestId}"
-                            )
-                        }
-                        else -> {
-                            LogUtilz.log.w(
-                                TAG,
-                                "Unknown request status: ${response?.requestId}"
-                            )
-                        }
+                        )
+                        userDataResponse = response
+                        isConnected = true
+                        connectionState.postValue(Clientz.ConnectionStatus.CONNECTED)
+                    }
+                    UserDataResponse.RequestStatus.FAILED -> {
+                        LogUtilz.log.e(TAG, "Failed user data request: ${response.requestId}")
+                        isConnected = false
+                        connectionState.postValue(Clientz.ConnectionStatus.DISCONNECTED)
+                    }
+                    UserDataResponse.RequestStatus.NOT_SUPPORTED -> {
+                        LogUtilz.log.wtf(
+                            TAG,
+                            "Unsupported user data request: ${response.requestId}"
+                        )
+                    }
+                    else -> {
+                        LogUtilz.log.w(
+                            TAG,
+                            "Unknown request status: ${response?.requestId}"
+                        )
                     }
                 }
-
-                override fun onProductDataResponse(response: ProductDataResponse?) {
-                    LogUtilz.log.d(TAG, "onProductDataResponse")
-                    // Invoked after a call to getProductDataRequest(java.util.Set skus).
-                    // Retrieves information about SKUs you would like to sell from your app.
-                    // Use the valid SKUs in onPurchaseResponse().
-                    inventory.processQueriedProducts(response)
-                }
-
-                override fun onPurchaseResponse(response: PurchaseResponse?) {
-                    LogUtilz.log.d(TAG, "onPurchaseResponse")
-                    // Invoked after a call to purchase(String sku).
-                    // Used to determine the status of a purchase.
-                    sales.processPurchase(response)
-                }
-
-                override fun onPurchaseUpdatesResponse(response: PurchaseUpdatesResponse?) {
-                    LogUtilz.log.d(TAG, "onPurchaseUpdatesResponse")
-                    // Invoked after a call to getPurchaseUpdates(boolean reset).
-                    // Retrieves the purchase history.
-                    // Amazon recommends that you persist the returned PurchaseUpdatesResponse
-                    // data and query the system only for updates.
-                    sales.processPurchaseUpdates(response)
-                }
             }
-        )
+
+            override fun onProductDataResponse(response: ProductDataResponse?) {
+                LogUtilz.log.d(TAG, "onProductDataResponse")
+                // Invoked after a call to getProductDataRequest(java.util.Set skus).
+                // Retrieves information about SKUs you would like to sell from your app.
+                // Use the valid SKUs in onPurchaseResponse().
+                inventory.processQueriedProducts(response)
+            }
+
+            override fun onPurchaseResponse(response: PurchaseResponse?) {
+                LogUtilz.log.d(TAG, "onPurchaseResponse")
+                // Invoked after a call to purchase(String sku).
+                // Used to determine the status of a purchase.
+                sales.processPurchase(response)
+            }
+
+            override fun onPurchaseUpdatesResponse(response: PurchaseUpdatesResponse?) {
+                LogUtilz.log.d(TAG, "onPurchaseUpdatesResponse")
+                // Invoked after a call to getPurchaseUpdates(boolean reset).
+                // Retrieves the purchase history.
+                // Amazon recommends that you persist the returned PurchaseUpdatesResponse
+                // data and query the system only for updates.
+                sales.processPurchaseUpdates(response)
+            }
+        }
+        try {
+            PurchasingService.registerListener(
+                context,
+                purchasingListener
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     override fun disconnect() {

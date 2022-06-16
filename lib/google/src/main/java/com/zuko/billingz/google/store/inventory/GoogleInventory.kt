@@ -23,6 +23,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingResult
+import com.android.billingclient.api.ProductDetails
+import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.SkuDetails
 import com.android.billingclient.api.SkuDetailsParams
 import com.zuko.billingz.core.LogUtilz
@@ -36,11 +38,9 @@ import com.zuko.billingz.google.store.model.GoogleInventoryQuery
 import com.zuko.billingz.google.store.model.GoogleProduct
 import com.zuko.billingz.google.store.model.GoogleProductQuery
 import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -48,7 +48,7 @@ class GoogleInventory(
     private val client: GoogleClient,
     private val dispatcher: Dispatcherz = BillingzDispatcher()
 ) : Inventoryz {
-
+    override var isNewVersion = false
     override var allProducts: Map<String, Productz.Type> = ArrayMap()
 
     override var consumables: ArrayMap<String, Productz> = ArrayMap()
@@ -59,8 +59,9 @@ class GoogleInventory(
     private val isReadyStateFlow = MutableStateFlow(false)
     private val isReadyState = isReadyStateFlow.asStateFlow()
 
-    private val requestedProductsLiveData: MutableLiveData<ArrayMap<String, Productz>> =
+    private val requestedProductsLiveData: MutableLiveData<ArrayMap<String, Productz>> by lazy {
         MutableLiveData()
+    }
     private val requestedProductsStateFlow: MutableStateFlow<ArrayMap<String, Productz>> by lazy {
         MutableStateFlow(
             ArrayMap()
@@ -73,6 +74,37 @@ class GoogleInventory(
     private val queriedProductState = queriedProductStateFlow.asStateFlow()
 
     private val mainScope = MainScope()
+
+    private fun queryProducts2(skus: List<String>, type: Productz.Type) {
+        val skuType = when (type) {
+            Productz.Type.CONSUMABLE -> BillingClient.ProductType.INAPP
+            Productz.Type.NON_CONSUMABLE -> BillingClient.ProductType.INAPP
+            Productz.Type.SUBSCRIPTION -> BillingClient.ProductType.SUBS
+            else -> {
+                BillingClient.ProductType.INAPP
+            }
+        }
+
+        val builder = QueryProductDetailsParams.newBuilder()
+        val list = skus.map { sku ->
+            QueryProductDetailsParams.Product.newBuilder()
+                .setProductId(sku)
+                .setProductType(skuType)
+                .build()
+        }
+        val params = builder
+            .setProductList(list)
+            .build()
+
+        client.getBillingClient()?.queryProductDetailsAsync(params) { billingResult, productDetailsList ->
+            handleQueryResult(
+                result = billingResult,
+                skuDetailsList = null,
+                productDetailsList = productDetailsList,
+                type = type
+            )
+        }
+    }
 
     private fun queryProducts(skus: List<String>, type: Productz.Type) {
         val skuType = when (type) {
@@ -92,6 +124,7 @@ class GoogleInventory(
             handleQueryResult(
                 result = billingResult,
                 skuDetailsList = skuDetailsList,
+                productDetailsList = null,
                 type = type
             )
         }
@@ -100,6 +133,7 @@ class GoogleInventory(
     private fun handleQueryResult(
         result: BillingResult?,
         skuDetailsList: List<SkuDetails>?,
+        productDetailsList: List<ProductDetails>?,
         type: Productz.Type
     ) {
         LogUtilz.log.d(
@@ -108,16 +142,25 @@ class GoogleInventory(
                 "\n type: $type," +
                 "\n billingResult code: ${result?.responseCode}," +
                 "\n billingResult msg: ${result?.debugMessage ?: "n/a"}," +
-                "\n products: $skuDetailsList" +
+                "\n skuDetails: $skuDetailsList" +
+                "\n producDetails: $productDetailsList" +
                 "\n -----------------------------------"
         )
         if (result?.responseCode == BillingClient.BillingResponseCode.OK &&
-            !skuDetailsList.isNullOrEmpty()
+            (!skuDetailsList.isNullOrEmpty() || !productDetailsList.isNullOrEmpty())
         ) {
             val availableProducts = mutableListOf<Productz>()
-            skuDetailsList.let { skus ->
+
+            skuDetailsList?.let { skus ->
                 for (s in skus) {
                     val product = GoogleProduct(skuDetails = s, type = type)
+                    availableProducts.add(product)
+                }
+            }
+
+            productDetailsList?.let { products ->
+                for (p in products) {
+                    val product = GoogleProduct(productDetails = p, type = type)
                     availableProducts.add(product)
                 }
             }
@@ -125,7 +168,43 @@ class GoogleInventory(
         }
     }
 
+    private fun queryProduct2(sku: String, type: Productz.Type): QueryResult<Productz> {
+        LogUtilz.log.v(TAG, "queryProduct2")
+        val skuType = when (type) {
+            Productz.Type.CONSUMABLE -> BillingClient.ProductType.INAPP
+            Productz.Type.NON_CONSUMABLE -> BillingClient.ProductType.INAPP
+            Productz.Type.SUBSCRIPTION -> BillingClient.ProductType.SUBS
+            else -> {
+                BillingClient.ProductType.INAPP
+            }
+        }
+        val builder = QueryProductDetailsParams.newBuilder()
+        val params = builder
+            .setProductList(listOf(
+                QueryProductDetailsParams.Product.newBuilder()
+                    .setProductId(sku)
+                    .setProductType(skuType)
+                    .build()))
+            .build()
+        client.getBillingClient()?.queryProductDetailsAsync(params) { billingResult, productDetailsList ->
+            if (billingResult.responseCode == BillingClient.BillingResponseCode.OK &&
+                productDetailsList.isNotEmpty()
+            ) {
+                val product = GoogleProduct(productDetails = productDetailsList.first(), type = type)
+                mainScope.launch(dispatcher.main()) {
+                    queriedProductLiveData.postValue(product)
+                    queriedProductStateFlow.emit(product)
+                }
+            }
+        }
+        return GoogleProductQuery(sku, type, this)
+    }
+
     override fun queryProduct(sku: String, type: Productz.Type): QueryResult<Productz> {
+        if (isNewVersion) {
+            return queryProduct2(sku, type)
+        }
+        LogUtilz.log.v(TAG, "queryProduct")
         val skuType = when (type) {
             Productz.Type.CONSUMABLE -> BillingClient.SkuType.INAPP
             Productz.Type.NON_CONSUMABLE -> BillingClient.SkuType.INAPP
@@ -161,38 +240,6 @@ class GoogleInventory(
         return queriedProductState
     }
 
-    internal fun queryProductFlow(sku: String, type: Productz.Type): Flow<Productz?> =
-        callbackFlow {
-            val stateFlow = MutableStateFlow(null)
-            val state = stateFlow.asStateFlow()
-
-            val skuType = when (type) {
-                Productz.Type.CONSUMABLE -> BillingClient.SkuType.INAPP
-                Productz.Type.NON_CONSUMABLE -> BillingClient.SkuType.INAPP
-                Productz.Type.SUBSCRIPTION -> BillingClient.SkuType.SUBS
-                else -> {
-                    BillingClient.SkuType.INAPP
-                }
-            }
-            val builder = SkuDetailsParams.newBuilder()
-            val params = builder
-                .setSkusList(listOf(sku))
-                .setType(skuType)
-                .build()
-            client.getBillingClient()
-                ?.querySkuDetailsAsync(params) { billingResult, skuDetailsList ->
-                    if (billingResult.responseCode == BillingClient.BillingResponseCode.OK &&
-                        !skuDetailsList.isNullOrEmpty()
-                    ) {
-                        val product =
-                            GoogleProduct(skuDetails = skuDetailsList.first(), type = type)
-                        mainScope.launch(dispatcher.main()) {
-                            trySend(product)
-                        }
-                    }
-                }
-        }
-
     internal fun queryInventoryLiveData(): LiveData<ArrayMap<String, Productz>?> {
         return requestedProductsLiveData
     }
@@ -206,9 +253,10 @@ class GoogleInventory(
             TAG,
             "queryInventory(" +
                 "\n products: ${products.size}," +
+                "\n isNewVersion: $isNewVersion," +
                 "\n )"
         )
-        allProducts = products // todo
+        allProducts = products // todo: consider deprecating this as it's purpose is slightly redundant
 
         if (products.isNotEmpty()) {
             mainScope.launch {
@@ -232,15 +280,27 @@ class GoogleInventory(
                 }
                 launch(dispatcher.io()) {
                     LogUtilz.log.d(TAG, "inventory coroutines consumables queried")
-                    queryProducts(skus = consumables, type = Productz.Type.CONSUMABLE)
+                    if (isNewVersion) {
+                        queryProducts2(skus = consumables, type = Productz.Type.CONSUMABLE)
+                    } else {
+                        queryProducts(skus = consumables, type = Productz.Type.CONSUMABLE)
+                    }
                 }
                 launch(dispatcher.io()) {
                     LogUtilz.log.d(TAG, "inventory coroutines nonConsumables queried")
-                    queryProducts(skus = nonConsumables, type = Productz.Type.NON_CONSUMABLE)
+                    if (isNewVersion) {
+                        queryProducts2(skus = nonConsumables, type = Productz.Type.NON_CONSUMABLE)
+                    } else {
+                        queryProducts(skus = nonConsumables, type = Productz.Type.NON_CONSUMABLE)
+                    }
                 }
                 launch(dispatcher.io()) {
                     LogUtilz.log.d(TAG, "inventory coroutines subscriptions queried")
-                    queryProducts(skus = subscriptions, type = Productz.Type.SUBSCRIPTION)
+                    if (isNewVersion) {
+                        queryProducts2(skus = subscriptions, type = Productz.Type.SUBSCRIPTION)
+                    } else {
+                        queryProducts(skus = subscriptions, type = Productz.Type.SUBSCRIPTION)
+                    }
                 }
             }
         }
@@ -260,17 +320,17 @@ class GoogleInventory(
                 for (p in products) {
                     when (p.type) {
                         Productz.Type.CONSUMABLE -> {
-                            p.sku?.let { sku ->
+                            p.getProductId()?.let { sku ->
                                 consumables.putIfAbsent(sku, p)
                             }
                         }
                         Productz.Type.NON_CONSUMABLE -> {
-                            p.sku?.let { sku ->
+                            p.getProductId()?.let { sku ->
                                 nonConsumables.putIfAbsent(sku, p)
                             }
                         }
                         Productz.Type.SUBSCRIPTION -> {
-                            p.sku?.let { sku ->
+                            p.getProductId()?.let { sku ->
                                 subscriptions.putIfAbsent(sku, p)
                             }
                         }
@@ -330,7 +390,7 @@ class GoogleInventory(
                 if (promo != null) {
                     val promos = ArrayMap<String, Productz>()
                     consumables.forEach { entry ->
-                        if (entry.value.promotion == promo) {
+                        if (entry.value.getPromotion() == promo) {
                             promos[entry.key] = entry.value
                         }
                         return promos
@@ -342,7 +402,7 @@ class GoogleInventory(
                 if (promo != null) {
                     val promos = ArrayMap<String, Productz>()
                     nonConsumables.forEach { entry ->
-                        if (entry.value.promotion == promo) {
+                        if (entry.value.getPromotion() == promo) {
                             promos[entry.key] = entry.value
                         }
                         return promos
@@ -354,7 +414,7 @@ class GoogleInventory(
                 if (promo != null) {
                     val promos = ArrayMap<String, Productz>()
                     subscriptions.forEach { entry ->
-                        if (entry.value.promotion == promo) {
+                        if (entry.value.getPromotion() == promo) {
                             promos[entry.key] = entry.value
                         }
                         return promos

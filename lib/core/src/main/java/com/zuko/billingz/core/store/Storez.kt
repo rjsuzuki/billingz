@@ -19,9 +19,7 @@
 package com.zuko.billingz.core.store
 
 import android.content.Context
-import androidx.collection.ArrayMap
 import com.zuko.billingz.core.store.agent.Agentz
-import com.zuko.billingz.core.store.model.Productz
 import com.zuko.billingz.core.store.sales.Salez
 
 interface Storez : StoreLifecycle {
@@ -55,10 +53,12 @@ interface Storez : StoreLifecycle {
         fun setAccountId(id: String?): Builder
 
         /**
-         * Set the list of skus to be validated against the billing client's server.
+         * Toggle between an old and new version of Billingz.
+         * Old versions maintain legacy functionality, and newer versions
+         * use the latest changes from their respetive billing libraries.
+         * Refer to the Billingz documntation to review current version differences in Google and Amazon.
          */
-        @Deprecated("todo")
-        fun setProducts(products: ArrayMap<String, Productz.Type>): Builder
+        fun setNewVersion(enable: Boolean): Builder
 
         /**
          * Return an instance of [Storez] for either Google Play or Amazon Appstore

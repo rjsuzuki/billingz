@@ -43,6 +43,7 @@ class AmazonInventory(
     private val dispatcher: Dispatcherz = BillingzDispatcher()
 ) : AmazonInventoryz {
 
+    override var isNewVersion = false
     override var allProducts: Map<String, Productz.Type> = ArrayMap()
 
     override var consumables: ArrayMap<String, Productz> = ArrayMap()
@@ -93,7 +94,13 @@ class AmazonInventory(
                 val productsList = mutableListOf<Productz>()
                 val products = ArrayMap<String, Productz.Type>()
                 for (r in response.productData) {
-                    val product = AmazonProduct(r.value)
+                    val type = when (r.value.productType) {
+                        ProductType.CONSUMABLE -> Productz.Type.CONSUMABLE
+                        ProductType.ENTITLED -> Productz.Type.NON_CONSUMABLE
+                        ProductType.SUBSCRIPTION -> Productz.Type.SUBSCRIPTION
+                        else -> Productz.Type.UNKNOWN
+                    }
+                    val product = AmazonProduct(r.value, type)
                     LogUtilz.log.d(TAG, "Converted AmazonProduct: $product")
                     products[r.key] = product.type
                     productsList.add(product)
@@ -143,15 +150,19 @@ class AmazonInventory(
                 Productz.Type.CONSUMABLE -> ProductType.CONSUMABLE.name
                 Productz.Type.NON_CONSUMABLE -> ProductType.ENTITLED.name
                 Productz.Type.SUBSCRIPTION -> ProductType.SUBSCRIPTION.name
-                else -> Productz.Type.UNKNOWN.name
+                else -> ProductType.SUBSCRIPTION.name
             }
 
             // check if in cache - local
             // check against server - remote
             val set = mutableSetOf<String>()
-            set.add(sku)
-            PurchasingService.getProductData(set)
+            set.add(skuType)
             queryType = type
+            try {
+                PurchasingService.getProductData(set)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
 
         return AmazonProductQuery(sku, type, this)
@@ -161,13 +172,18 @@ class AmazonInventory(
         LogUtilz.log.v(TAG, "queryInventory")
         // Call this method to retrieve item data for a set of SKUs to display in your app.
         // Call getProductData in the OnResume method.
-        val productDataRequestId =
-            PurchasingService.getProductData(products.keys.toSet()) // inventory
-        LogUtilz.log.i(
-            TAG,
-            "get product data request: $productDataRequestId," +
-                "products: $products"
-        )
+        try {
+            val productDataRequestId =
+                PurchasingService.getProductData(products.keys.toSet()) // inventory
+            LogUtilz.log.i(
+                TAG,
+                "get product data request: $productDataRequestId," +
+                        "products: $products"
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
         return AmazonInventoryQuery(this)
     }
 
@@ -190,17 +206,17 @@ class AmazonInventory(
                 for (p in products) {
                     when (p.type) {
                         Productz.Type.CONSUMABLE -> {
-                            p.sku?.let { sku ->
+                            p.getProductId()?.let { sku ->
                                 consumables.putIfAbsent(sku, p)
                             }
                         }
                         Productz.Type.NON_CONSUMABLE -> {
-                            p.sku?.let { sku ->
+                            p.getProductId()?.let { sku ->
                                 nonConsumables.putIfAbsent(sku, p)
                             }
                         }
                         Productz.Type.SUBSCRIPTION -> {
-                            p.sku?.let { sku ->
+                            p.getProductId()?.let { sku ->
                                 subscriptions.putIfAbsent(sku, p)
                             }
                         }
@@ -257,7 +273,7 @@ class AmazonInventory(
                 if (promo != null) {
                     consumables.forEach { entry ->
                         val promos = ArrayMap<String, Productz>()
-                        if (entry.value.promotion == promo) {
+                        if (entry.value.getPromotion() == promo) {
                             promos[entry.key] = entry.value
                         }
                         return promos
@@ -269,7 +285,7 @@ class AmazonInventory(
                 if (promo != null) {
                     nonConsumables.forEach { entry ->
                         val promos = ArrayMap<String, Productz>()
-                        if (entry.value.promotion == promo) {
+                        if (entry.value.getPromotion() == promo) {
                             promos[entry.key] = entry.value
                         }
                         return promos
@@ -281,7 +297,7 @@ class AmazonInventory(
                 if (promo != null) {
                     subscriptions.forEach { entry ->
                         val promos = ArrayMap<String, Productz>()
-                        if (entry.value.promotion == promo) {
+                        if (entry.value.getPromotion() == promo) {
                             promos[entry.key] = entry.value
                         }
                         return promos

@@ -22,11 +22,11 @@ object Dependencies {
     /**
      * Project-level dependencies
      */
-    const val android_gradle = "7.2.0"
-    const val kotlin_gradle = "1.7.0"
+    const val android_gradle = "7.2.1"
+    const val kotlin_gradle = "1.6.21"
     const val spotless_gradle = "6.7.2"
     const val dokka_gradle = "1.6.10"
-    const val jet_compose = "1.0.0"
+    const val jet_compose = "1.2.0-beta03"
 
     /**
      * Core libs
@@ -51,7 +51,7 @@ object Dependencies {
     /**
      * Kotlin libs
      */
-    const val kotlin = "1.7.0"
+    const val kotlin = "1.6.21"
     const val kotlin_coroutines = "1.6.2"
 
     /**

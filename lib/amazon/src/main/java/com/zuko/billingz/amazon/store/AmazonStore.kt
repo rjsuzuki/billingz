@@ -125,8 +125,7 @@ class AmazonStore internal constructor() : Storez {
         override fun startOrder(
             activity: Activity?,
             productId: String?,
-            options: Bundle?,
-            listener: Salez.OrderValidatorListener?
+            options: Bundle?
         ): LiveData<Orderz> {
             LogUtilz.log.v(TAG, "Starting order: $productId")
 
@@ -206,6 +205,7 @@ class AmazonStore internal constructor() : Storez {
         private lateinit var validatorListener: Salez.OrderValidatorListener
         private lateinit var products: ArrayMap<String, Productz.Type>
         private var accountId: String? = null
+        private var isNewVersion = false
         /**
          * @param listener - Required to be set for proper functionality
          */
@@ -230,8 +230,8 @@ class AmazonStore internal constructor() : Storez {
             return this
         }
 
-        override fun setProducts(products: ArrayMap<String, Productz.Type>): Builder {
-            this.products = products
+        override fun setNewVersion(enable: Boolean): Storez.Builder {
+            isNewVersion = enable
             return this
         }
 
@@ -241,6 +241,8 @@ class AmazonStore internal constructor() : Storez {
                 orderUpdaterListener = updaterListener
                 orderValidatorListener = validatorListener
             }
+            instance.inventory.isNewVersion = isNewVersion
+            instance.sales.isNewVersion = isNewVersion
             instance.init(context = context)
             instance.create()
             return instance

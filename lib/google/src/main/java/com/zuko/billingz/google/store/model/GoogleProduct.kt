@@ -19,43 +19,163 @@
 
 package com.zuko.billingz.google.store.model
 
-import com.android.billingclient.api.BillingFlowParams
+import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.SkuDetails
 import com.zuko.billingz.core.store.model.PricingInfo
 import com.zuko.billingz.core.store.model.Productz
 import java.util.Currency
+import java.util.Locale
 
 /**
  * https://developer.android.com/reference/com/android/billingclient/api/SkuDetails
  */
 data class GoogleProduct(
-    val skuDetails: SkuDetails,
     override val type: Productz.Type
 ) : Productz {
 
+    /** database id **/
     var id: Int = -1
-    override val sku: String = skuDetails.sku
-    override val title: String = skuDetails.title
-    override val price: String = skuDetails.price
-    override val description: String = skuDetails.description
-    override val iconUrl: String = skuDetails.iconUrl
+    private var productId: String? = null
+    private var name: String? = null
+    private var title: String? = null
+    private var description: String? = null
+    private var price: String? = null
+    private var iconUrl: String? = null
+    private var currency: Currency = Currency.getInstance(Locale.getDefault())
+    private var pricingInfo: PricingInfo? = null
+    private var promotion: Productz.Promotion = Productz.Promotion.NONE
+    private var productDetails: ProductDetails? = null
+    private var skuDetails: SkuDetails? = null
 
-    override val promotion: Productz.Promotion = when {
-        skuDetails.freeTrialPeriod.isNotBlank() -> Productz.Promotion.FREE
-        skuDetails.introductoryPrice.isNotBlank() -> Productz.Promotion.PROMO
-        skuDetails.introductoryPricePeriod.isNotBlank() -> Productz.Promotion.PROMO
-        else -> Productz.Promotion.NONE
+    @Suppress("unused")
+    constructor(
+        productId: String?,
+        name: String?,
+        title: String?,
+        description: String?,
+        price: String?,
+        iconUrl: String?,
+        currency: Currency,
+        pricingInfo: PricingInfo?,
+        promotion: Productz.Promotion,
+        type: Productz.Type
+    ) : this(type) {
+        this.productId = productId
+        this.name = name
+        this.title = title
+        this.description = description
+        this.price = price
+        this.iconUrl = iconUrl
+        this.currency = currency
+        this.pricingInfo = pricingInfo
+        this.promotion = promotion
     }
-    override val pricingInfo: PricingInfo = PricingInfo(
-        introPrice = skuDetails.introductoryPrice,
-        introPricePeriod = skuDetails.introductoryPricePeriod,
-        billingPeriod = skuDetails.subscriptionPeriod,
-        trialPeriod = skuDetails.freeTrialPeriod
-    )
+
+    /**
+     * Android Billing Lib v4-
+     */
+    constructor(skuDetails: SkuDetails, type: Productz.Type) : this(type) {
+        this.skuDetails = skuDetails
+        productId = skuDetails.sku
+        name = skuDetails.title
+        title = skuDetails.title
+        description = skuDetails.description
+        price = skuDetails.price
+        iconUrl = skuDetails.iconUrl
+
+        if (type == Productz.Type.SUBSCRIPTION) {
+            pricingInfo = PricingInfo(
+                introPrice = skuDetails.introductoryPrice,
+                introPricePeriod = skuDetails.introductoryPricePeriod,
+                billingPeriod = skuDetails.subscriptionPeriod,
+                trialPeriod = skuDetails.freeTrialPeriod
+            )
+        }
+
+        promotion = when {
+            skuDetails.freeTrialPeriod.isNotBlank() -> Productz.Promotion.FREE
+            skuDetails.introductoryPrice.isNotBlank() -> Productz.Promotion.PROMO
+            skuDetails.introductoryPricePeriod.isNotBlank() -> Productz.Promotion.PROMO
+            else -> Productz.Promotion.NONE
+        }
+
+    }
+
+    /**
+     * Android Billing Lib v5+
+     */
+    constructor(productDetails: ProductDetails, type: Productz.Type) : this(type) {
+        this.productDetails = productDetails
+        productId = productDetails.productId
+        name = productDetails.title
+        title = productDetails.title
+        description = productDetails.description
+
+        if (type == Productz.Type.SUBSCRIPTION) {
+            price =
+                productDetails.subscriptionOfferDetails?.firstOrNull()?.pricingPhases?.pricingPhaseList?.firstOrNull()?.formattedPrice
+            currency =
+                Currency.getInstance(productDetails.subscriptionOfferDetails?.firstOrNull()?.pricingPhases?.pricingPhaseList?.firstOrNull()?.priceCurrencyCode)
+
+            productDetails.subscriptionOfferDetails?.forEach { offerDetails ->
+                offerDetails.offerToken
+                offerDetails.offerTags
+                offerDetails.pricingPhases.pricingPhaseList.forEach { pricingPhase ->
+                    pricingPhase.billingPeriod
+                    pricingPhase.formattedPrice
+                    pricingPhase.priceCurrencyCode
+                    pricingPhase.recurrenceMode
+                    pricingPhase.billingCycleCount
+                    pricingPhase.priceAmountMicros
+                }
+            }
+            pricingInfo = PricingInfo(
+                introPrice = null,
+                introPricePeriod = null,
+                billingPeriod = productDetails.subscriptionOfferDetails?.firstOrNull()?.pricingPhases?.pricingPhaseList?.firstOrNull()?.billingPeriod,
+                trialPeriod = null
+            )
+        } else {
+            price = productDetails.oneTimePurchaseOfferDetails?.formattedPrice
+            currency =
+                Currency.getInstance(productDetails.oneTimePurchaseOfferDetails?.priceCurrencyCode)
+        }
+    }
+
+    override fun getProductId(): String? {
+        return productId
+    }
+
+    override fun getName(): String? {
+        return name
+    }
+
+    override fun getTitle(): String? {
+        return title
+    }
+
+    override fun getPrice(): String? {
+        return price
+    }
+
+    override fun getDescription(): String? {
+        return description
+    }
+
+    override fun getIconUrl(): String? {
+        return iconUrl
+    }
+
+    override fun getPromotion(): Productz.Promotion {
+        return promotion
+    }
+
+    override fun getPricingInfo(): PricingInfo? {
+        return pricingInfo
+    }
 
     override fun getCurrency(): Currency {
-        BillingFlowParams.ProrationMode.IMMEDIATE_WITH_TIME_PRORATION
-        return Currency.getInstance(skuDetails.priceCurrencyCode)
+        return currency
     }
 
     override fun isAmazon(): Boolean {
@@ -67,21 +187,20 @@ data class GoogleProduct(
     }
 
     /**
-     * Specifies the purchase token of the SKU that the user is upgrading or downgrading from.
+     * Convenience method to fetch original [ProductDetails] object.
+     * Object is only available when returned from a library call.
      */
-    private var oldSkuPurchaseToken: String? = null
+    @Suppress("unused")
+    fun getProductDetails(): ProductDetails? {
+        return productDetails
+    }
 
     /**
-     * Specifies the mode of proration during subscription upgrade/downgrade.
+     * Convenience method to fetch original [SkuDetails] object.
+     * Object is only available when returned from a library call.
      */
-    private var replaceSkusProrationMode: Int = BillingFlowParams.ProrationMode.DEFERRED
-
-    enum class SubscriptionLifecycle(val summary: String) {
-        ACTIVE("User is in good standing and has access to the subscription"),
-        CANCELLED(" User has cancelled but still has access until expiration"),
-        IN_GRACE_PERIOD("User experienced a payment issue, but still has access while Google is retrying the payment method"),
-        ON_HOLD("User experienced a payment issue, and no longer has access while Google is retrying the payment method"),
-        PAUSED("User paused their access, and does not have access until they resume"),
-        EXPIRED("User has cancelled and lost access to the subscription. The user is considered churned at expiration")
+    @Suppress("unused")
+    fun getSkuDetails(): SkuDetails? {
+        return skuDetails
     }
 }

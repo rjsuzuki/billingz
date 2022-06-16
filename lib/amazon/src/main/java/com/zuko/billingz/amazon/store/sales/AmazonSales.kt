@@ -59,7 +59,7 @@ class AmazonSales(
     private val inventory: AmazonInventoryz,
     private val dispatcher: Dispatcherz = BillingzDispatcher()
 ) : AmazonSalez {
-
+    override var isNewVersion = false
     private val mainScope = MainScope()
     override val currentOrder: MutableLiveData<Orderz> = MutableLiveData<Orderz>()
     private var currentOrderId: RequestId? = null
@@ -67,7 +67,7 @@ class AmazonSales(
 
     private var currentOrdersQueryId: RequestId? = null
     private val queriedOrders: ArrayMap<String, AmazonOrder> by lazy { ArrayMap() }
-    private var queriedOrdersLiveData: MutableLiveData<AmazonOrder?> = MutableLiveData()
+    private val queriedOrdersLiveData: MutableLiveData<AmazonOrder?> by lazy { MutableLiveData() }
     private val queriedOrdersStateFlow: MutableStateFlow<AmazonOrder?> by lazy { MutableStateFlow(null) }
     private val queriedOrdersState: StateFlow<AmazonOrder?> by lazy { queriedOrdersStateFlow.asStateFlow() }
 
@@ -102,11 +102,25 @@ class AmazonSales(
         options: Bundle?
     ) {
         if (isProductValid(product)) {
-            currentOrderId = PurchasingService.purchase(product.sku)
+            try {
+                currentOrderId = PurchasingService.purchase(product.getProductId())
+            } catch (e: Exception) {
+                e.printStackTrace()
+                val order = AmazonOrder(
+                    resultMessage = "PurchasingService is unavailable.",
+                    result = Orderz.Result.SERVICE_UNAVAILABLE,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+                )
+                failedOrder(order)
+            }
         } else {
-            LogUtilz.log.e(TAG, "Order cannot start with invalid sku: ${product.sku}")
+            LogUtilz.log.e(TAG, "Order cannot start with invalid sku: ${product.getProductId()}")
             val order = AmazonOrder(
-                resultMessage = "Order cannot start with invalid sku: ${product.sku}",
+                resultMessage = "Order cannot start with invalid sku: ${product.getProductId()}",
                 result = Orderz.Result.INVALID_PRODUCT,
                 null,
                 null,
@@ -119,7 +133,7 @@ class AmazonSales(
     }
 
     private fun isProductValid(product: Productz): Boolean {
-        if (inventory.unavailableSkus?.contains(product.sku) == true) {
+        if (inventory.unavailableSkus?.contains(product.getProductId()) == true) {
             return false
         }
         // TODO - add pre-purchase validation checks here
@@ -226,7 +240,7 @@ class AmazonSales(
         if (order is AmazonOrder) {
             mainScope.launch {
                 queriedOrdersStateFlow.emit(order)
-                queriedOrdersLiveData.postValue(order)
+                queriedOrdersLiveData.value = order
                 validateOrder(order)
             }
         }
