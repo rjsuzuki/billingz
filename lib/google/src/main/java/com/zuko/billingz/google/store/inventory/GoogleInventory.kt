@@ -247,6 +247,21 @@ class GoogleInventory(
         return GoogleInventoryQuery(this)
     }
 
+    @Synchronized
+    fun updateConsumableInventory(sku: String, p: Productz) {
+        consumables.putIfAbsent(sku, p)
+    }
+
+    @Synchronized
+    private fun updateNonConsumableInventory(sku: String, p: Productz) {
+        nonConsumables.putIfAbsent(sku, p)
+    }
+
+    @Synchronized
+    private fun updateSubscriptionInventory(sku: String, p: Productz) {
+        subscriptions.putIfAbsent(sku, p)
+    }
+
     override fun updateInventory(products: List<Productz>?, type: Productz.Type) {
         LogUtilz.log.i(
             TAG,
@@ -261,17 +276,17 @@ class GoogleInventory(
                     when (p.type) {
                         Productz.Type.CONSUMABLE -> {
                             p.sku?.let { sku ->
-                                consumables.putIfAbsent(sku, p)
+                                updateConsumableInventory(sku, p)
                             }
                         }
                         Productz.Type.NON_CONSUMABLE -> {
                             p.sku?.let { sku ->
-                                nonConsumables.putIfAbsent(sku, p)
+                                updateNonConsumableInventory(sku, p)
                             }
                         }
                         Productz.Type.SUBSCRIPTION -> {
                             p.sku?.let { sku ->
-                                subscriptions.putIfAbsent(sku, p)
+                                updateSubscriptionInventory(sku, p)
                             }
                         }
                         else -> {
@@ -310,14 +325,32 @@ class GoogleInventory(
         }
     }
 
+    @Synchronized
+    private fun getConsumableProduct(sku: String?): Productz? {
+        if(consumables.containsKey(sku))
+            return consumables[sku]
+        return null
+    }
+
+    @Synchronized
+    private fun getNonConsumableProduct(sku: String?): Productz? {
+        if(nonConsumables.containsKey(sku))
+            return nonConsumables[sku]
+        return null
+    }
+
+    @Synchronized
+    private fun getSubscriptionProduc(sku: String?): Productz? {
+        if(subscriptions.containsKey(sku))
+            return subscriptions[sku]
+        return null
+    }
+
     override fun getProduct(sku: String?): Productz? {
         LogUtilz.log.v(TAG, "getProduct: $sku")
-        if (consumables.containsKey(sku))
-            return consumables[sku]
-        if (nonConsumables.containsKey(sku))
-            return nonConsumables[sku]
-        if (subscriptions.containsKey(sku))
-            return subscriptions[sku]
+        getConsumableProduct(sku)?.let{ return it }
+        getNonConsumableProduct(sku)?.let{ return it }
+        getSubscriptionProduc(sku)?.let{ return it }
         return null
     }
 
