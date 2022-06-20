@@ -51,8 +51,8 @@ class ProductsAdapter(private val list: MutableList<Productz>, private var liste
     override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
         LogUtilz.log.v(TAG, "onBindViewHolder => position: $position")
         val item = list[position]
-        holder.binding.productTitle.text = item.getProductId ?: ""
-        holder.binding.productDescription.text = item.description ?: ""
+        holder.binding.productTitle.text = item.getProductId() ?: ""
+        holder.binding.productDescription.text = item.getDescription() ?: ""
         holder.binding.productBuyBtn.setOnClickListener {
             listener?.onPurchaseRequested(item)
             (it as LottieAnimationView).playAnimation()
@@ -64,7 +64,7 @@ class ProductsAdapter(private val list: MutableList<Productz>, private var liste
         holder.binding.productRemoveIb.setOnClickListener {
             val dialog = AlertDialog.Builder(it.context, R.style.StudioDialog).create()
             dialog.setTitle(it.resources.getString(R.string.confirm_deletion))
-            dialog.setMessage("${item.getProductId}?")
+            dialog.setMessage("${item.getProductId()}?")
             dialog.setIcon(ResourcesCompat.getDrawable(it.context.resources, R.drawable.ic_baseline_delete_24, it.context.theme))
             dialog.setButton(DialogInterface.BUTTON_NEGATIVE, it.resources.getString(R.string.no)) { d, _ -> d?.cancel() }
             dialog.setButton(DialogInterface.BUTTON_POSITIVE, it.resources.getString(R.string.yes)) { d, _ ->
