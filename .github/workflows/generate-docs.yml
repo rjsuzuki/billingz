@@ -36,24 +36,28 @@ jobs:
           echo gpr.usr=$GPR_USER > secrets.properties
           echo gpr.key=$GPR_API_KEY >> secrets.properties
 
-      - name: Clean, Build, and Publish AAR
+      - name: Generate documentation
         shell: bash
         run: |
-          ./gradlew -PciBuild=true clean build -x lint
-          ./gradlew publish
+          ./gradlew dokkaHtmlMultiModule
+          cp -r ./lib/build/dokka/htmlMultiModule/ ./docs
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Commit files
+        id: commit
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "github-actions"
+          git add --all
+          if [-z "$(git status --porcelain)"]; then
+             echo "::set-output name=push::false"
+          else
+             git commit -m "Add changelog" -a
+             echo "::set-output name=push::true"
+          fi
+        shell: bash
+      - name: Push files
+        if: steps.commit.outputs.push == 'true'
+        uses: ad-m/github-push-action@master
         with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ env.RELEASE_NAME }}
-          body: |
-            What is new :
-              - First Change
-              - Second Change
-          draft: false
-          prerelease: false
- 
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: docs

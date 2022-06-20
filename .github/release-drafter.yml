@@ -1,0 +1,98 @@
+name-template: 'v$RESOLVED_VERSION'
+tag-template: 'v$RESOLVED_VERSION'
+
+# Auto-create labels for PR's
+autolabeler:
+  - label: 'chore'
+    files:
+      - '*.md'
+    branch:
+      - '/docs{0,1}\/.+/'
+      - '/chore\/.+/'
+  - label: 'changed'
+    branch:
+      - '/change/.+/'
+    title:
+        - 'change'
+  - label: 'removed'
+    branch:
+      - '/remove\/.+/'
+    title:
+      - 'remove'
+  - label: 'security'
+    branch:
+      - '/security\/.+/'
+    title:
+      - 'security'
+  - label: 'deprecated'
+    branch:
+      - '/deprecate\/.+/'
+    title:
+        - 'deprecate'
+  - label: 'fixed'
+    branch:
+      - '/fix\/.+/'
+    title:
+      - 'fix'
+  - label: 'added'
+    branch:
+      - '/add\/.+/'
+      - '/feature\/.+/'
+    title:
+      - 'add'
+      - 'feature'
+  - label: 'release'
+    branch:
+      - '/release\/.+/'
+  - label: 'major'
+    title:
+      - '/major\/.+/'
+  - label: 'minor'
+    title:
+      - '/minor\/.+/'
+  - label: 'patch'
+    title:
+      - '/patch\/.+/'
+exclude-labels:
+  - 'release'
+
+  # Sorts the release notes by the PR's label
+categories:
+  - title: '🆕 Added'
+    labels:
+      - 'feature'
+      - 'enhancement'
+      - 'added'
+  - title: '🗑️ Removed'
+    label: 'removed'
+  - title: '⚠️ Deprecated'
+    label: 'deprecated'
+  - title: '🛡️ Security'
+    label: 'security'
+  - title: '🔄 Changed'
+    label: 'changed'
+  - title: '🔧 Fixed'
+    labels:
+      - 'fix'
+      - 'fixed'
+      - 'bugfix'
+      - 'bug'
+  - title: '🧰 Maintenance'
+    label: 'chore'
+
+version-resolver:
+  major:
+    labels:
+      - 'major'
+  minor:
+    labels:
+      - 'minor'
+  patch:
+    labels:
+      - 'patch'
+  default: patch
+template: |
+  ## What’s Changed
+
+  $CHANGES
+

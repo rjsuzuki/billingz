@@ -1,0 +1,28 @@
+name: Git Release
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+  workflow_dispatch:
+jobs:
+  publish-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v2
+      - name: Echo branch
+        run: echo "${{ github.event.base_ref }}"
+      - name: Github Release
+        id: create_release
+        uses: release-drafter/release-drafter@v5
+        with:
+          draft: false
+          prerelease: false
+          publish: true
+          commitish: ${{ github.event.base_ref }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Echo release name and body
+        run: |
+          echo "${{ steps.create_release.outputs.name }}"
+          echo "${{ steps.create_release.outputs.body }}"
