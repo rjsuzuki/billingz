@@ -9,8 +9,11 @@ Through a combination of Adapter and Facade design patterns, this library allows
 
 Currently supports up to: 
    - `google billing: 4.1.0`  
-   - `amazon in-app: 2.0.76`  
+   - `amazon in-app: 2.0.76`  (v2.0.6)
+   - `amazon appstore sdk: 3.0.2` (v2.1.0)
 ## Version History
+
+- new Appstore SDK from Amazon starting from: `v2.1.0+`
 
 [Release History and Notes](https://github.com/rjsuzuki/billingz/releases)
 
