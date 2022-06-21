@@ -84,6 +84,13 @@ android {
         // analyzed repeatedly, for each module that it is used in.
         checkDependencies true
     }
+
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
 }
 
 dependencies {
