@@ -2,7 +2,8 @@
 
 This is an opinionated, but convenient library for implementing Android's Google Play Billing Library and/or Amazon Appstore's In-App Purchasing API.
 Through a combination of Adapter and Facade design patterns, this library allows a project to integrate both billing libraries without explicit references to either, reduces the amount of needed code for integration, and speeds up development environments.
-
+- Supports Android's LiveData and Lifecycle components
+- Supports Kotlin Coroutines and Flow
 [![build_and_publish](https://github.com/rjsuzuki/billingz/actions/workflows/release-package.yml/badge.svg)](https://github.com/rjsuzuki/billingz/actions/workflows/release-package.yml) [![](https://jitpack.io/v/rjsuzuki/billingz.svg)](https://jitpack.io/#rjsuzuki/billingz)
 
 
@@ -25,9 +26,8 @@ Currently supports up to:
 
 - minSdk     = 21
 - compileSdk = 31
-- targetSdk  = 30
-- Android's LiveData and Lifecycle components 
-- Kotlin Coroutines and Flow
+- targetSdk  = 31
+
 
 ## Testing your integration
 1. Review the Android documentation for testing in-app billing [here](https://developer.android.com/google/play/billing/test#testing-purchases)

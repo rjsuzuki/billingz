@@ -31,6 +31,11 @@ import kotlinx.coroutines.flow.StateFlow
 interface Inventoryz : CleanUpz {
 
     /**
+     * For providing version compatability changes
+     */
+    var isNewVersion: Boolean
+
+    /**
      * Current cache of all products that is provided by your app/server. This list may include
      * both verified and unverified skus.
      */
@@ -57,10 +62,8 @@ interface Inventoryz : CleanUpz {
     fun queryProduct(sku: String, type: Productz.Type): QueryResult<Productz>
 
     /**
-     *
-     * @param skuList, a list of string productIds that will try to match
+     * @param products, a map of string productIds with a product type that will try to match
      * against (validate) the billing client's server for list of available products.
-     * @param type
      */
     fun queryInventory(products: Map<String, Productz.Type>): QueryResult<Map<String, Productz>>
 

@@ -36,14 +36,14 @@ class ProductDiffCallback(private val oldList: MutableList<Productz>, private va
     }
 
     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        return oldList[oldItemPosition].sku == newList[newItemPosition].sku
+        return oldList[oldItemPosition].getProductId() == newList[newItemPosition].getProductId()
     }
 
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        return oldList[oldItemPosition].description == newList[newItemPosition].description &&
-            oldList[oldItemPosition].title == newList[newItemPosition].title &&
-            oldList[oldItemPosition].price == newList[newItemPosition].price &&
-            oldList[oldItemPosition].sku == newList[newItemPosition].sku &&
+        return oldList[oldItemPosition].getDescription() == newList[newItemPosition].getDescription() &&
+            oldList[oldItemPosition].getTitle() == newList[newItemPosition].getTitle() &&
+            oldList[oldItemPosition].getPrice() == newList[newItemPosition].getPrice() &&
+            oldList[oldItemPosition].getProductId() == newList[newItemPosition].getProductId() &&
             oldList[oldItemPosition].type == newList[newItemPosition].type
     }
 }

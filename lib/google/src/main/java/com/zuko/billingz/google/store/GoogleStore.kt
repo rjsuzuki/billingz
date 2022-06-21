@@ -137,15 +137,18 @@ class GoogleStore internal constructor() : Storez {
         override fun startOrder(
             activity: Activity?,
             productId: String?,
-            options: Bundle?,
-            listener: Salez.OrderValidatorListener?
+            options: Bundle?
         ): LiveData<Orderz> {
             LogUtilz.log.v(TAG, "Starting order: $productId")
-            sales.orderValidatorListener = listener
 
             val product = inventory.getProduct(productId)
             product?.let {
-                sales.startOrder(activity, product, client)
+                sales.startOrder(
+                    activity = activity,
+                    product = product,
+                    client = client,
+                    options = options
+                )
             } ?: run {
                 sales.currentOrder.postValue(
                     GoogleOrder(
@@ -217,7 +220,7 @@ class GoogleStore internal constructor() : Storez {
         private var obfuscatedAccountId: String? = null
         private var obfuscatedProfileId: String? = null
         private var hashingSalt: String? = null
-        private lateinit var products: ArrayMap<String, Productz.Type>
+        private var isNewVersion = false
 
         override fun setOrderUpdater(listener: Salez.OrderUpdaterListener): Builder {
             updaterListener = listener
@@ -257,8 +260,8 @@ class GoogleStore internal constructor() : Storez {
             return this
         }
 
-        override fun setProducts(products: ArrayMap<String, Productz.Type>): Builder {
-            this.products = products
+        override fun setNewVersion(enable: Boolean): Storez.Builder {
+            isNewVersion = enable
             return this
         }
 
@@ -272,17 +275,15 @@ class GoogleStore internal constructor() : Storez {
                 accountId = obfuscatedAccountId,
                 profileId = obfuscatedProfileId
             )
-
+            instance.sales.isNewVersion = isNewVersion
+            instance.inventory.isNewVersion = isNewVersion
             instance.init(context = context)
             instance.client.connect()
-            if (::products.isInitialized) {
-                instance.inventory.queryInventory(products = this.products)
-            }
             return instance
         }
     }
 
     companion object {
-        private const val TAG = "   GoogleStore"
+        private const val TAG = "GoogleStore"
     }
 }

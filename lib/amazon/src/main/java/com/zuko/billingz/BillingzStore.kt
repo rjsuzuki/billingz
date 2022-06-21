@@ -20,10 +20,8 @@
 package com.zuko.billingz
 
 import android.content.Context
-import androidx.collection.ArrayMap
 import com.zuko.billingz.amazon.store.AmazonStore
 import com.zuko.billingz.core.store.Storez
-import com.zuko.billingz.core.store.model.Productz
 import com.zuko.billingz.core.store.sales.Salez
 
 object BillingzStore {
@@ -32,8 +30,9 @@ object BillingzStore {
         private lateinit var instance: Storez
         private lateinit var updaterListener: Salez.OrderUpdaterListener
         private lateinit var validatorListener: Salez.OrderValidatorListener
-        private lateinit var products: ArrayMap<String, Productz.Type>
         private var accountId: String? = null
+        private var isNewVersion = false
+
         /**
          * @param listener - Required to be set for proper functionality
          */
@@ -58,8 +57,8 @@ object BillingzStore {
             return this
         }
 
-        override fun setProducts(products: ArrayMap<String, Productz.Type>): Storez.Builder {
-            this.products = products
+        override fun setNewVersion(enable: Boolean): Storez.Builder {
+            isNewVersion = enable
             return this
         }
 

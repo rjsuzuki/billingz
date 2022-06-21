@@ -62,7 +62,6 @@ interface Agentz {
      * @return [LiveData<Order>]
      * @param activity - the currently active android Activity class
      * @param productId - the product id that can be found on the GooglePlayConsole
-     * @param listener - @see [Salez.OrderValidatorListener] a callback function to enable customized
      * validation of a customer's purchase order - this allows you to do such things as verifying
      * a purchase with your backend before completing the purchase flow.
      */
@@ -70,8 +69,7 @@ interface Agentz {
     fun startOrder(
         activity: Activity?,
         productId: String?,
-        options: Bundle? = null,
-        listener: Salez.OrderValidatorListener?
+        options: Bundle? = null
     ): LiveData<Orderz>
 
     /**
@@ -82,7 +80,8 @@ interface Agentz {
     fun queryReceipts(type: Productz.Type?): QueryResult<OrderHistoryz>
 
     /**
-     * - Amazon and Google Play use different terminology for similar use-cases,
+     * This function should be called in the onResume lifecycle of the application/view.
+     * Amazon and Google Play use different terminology for similar use-cases,
      * so in order to prevent confusion, this library will always define an Order as a purchase in-progress,
      * and/or incomplete. A receipt will always be a 'completed order' (expired, canceled, or consumed).
      * Handle purchases still remaining from recent history. Observe the liveData object

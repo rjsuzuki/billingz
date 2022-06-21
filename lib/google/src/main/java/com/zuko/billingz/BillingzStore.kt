@@ -17,7 +17,7 @@
  *
  */
 
-package com.zuko.billingz.google
+package com.zuko.billingz
 
 import android.content.Context
 import androidx.collection.ArrayMap
@@ -34,6 +34,7 @@ object BillingzStore {
         private lateinit var validatorListener: Salez.OrderValidatorListener
         private lateinit var products: ArrayMap<String, Productz.Type>
         private var accountId: String? = null
+        private var isNewVersion = false
         /**
          * @param listener - Required to be set for proper functionality
          */
@@ -58,8 +59,8 @@ object BillingzStore {
             return this
         }
 
-        override fun setProducts(products: ArrayMap<String, Productz.Type>): Storez.Builder {
-            this.products = products
+        override fun setNewVersion(enable: Boolean): Storez.Builder {
+            isNewVersion = enable
             return this
         }
 
