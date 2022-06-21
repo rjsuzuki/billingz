@@ -861,7 +861,11 @@ class GoogleSales(
                 )
                 receipt.entitlement = record.purchaseToken
                 receipt.orderDate = Date(record.purchaseTime)
-                receipt.skus = record.products
+                if(isNewVersion) {
+                    receipt.skus = record.products
+                } else {
+                    receipt.skus = record.skus
+                }
                 receipt.originalJson = record.originalJson
                 receipt.quantity = record.quantity
                 receipt.signature = record.signature
