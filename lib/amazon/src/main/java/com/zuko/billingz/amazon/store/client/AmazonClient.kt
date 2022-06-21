@@ -89,7 +89,7 @@ class AmazonClient(val inventory: AmazonInventoryz, val sales: AmazonSalez) : Am
 
     private fun registerPurchasingListener() {
         LogUtilz.log.v(TAG, "registerListener")
-        val purchasingListener = object: PurchasingListener {
+        val purchasingListener = object : PurchasingListener {
             override fun onUserDataResponse(response: UserDataResponse?) {
                 LogUtilz.log.d(TAG, "onPurchaseUpdatesResponse")
                 // Invoked after a call to getUserData().
@@ -99,7 +99,7 @@ class AmazonClient(val inventory: AmazonInventoryz, val sales: AmazonSalez) : Am
                         LogUtilz.log.d(
                             TAG,
                             "Successful user data request: ${response.requestId}" +
-                                    "\nmarketplace: ${response.userData?.marketplace}"
+                                "\nmarketplace: ${response.userData?.marketplace}"
                         )
                         userDataResponse = response
                         isConnected = true

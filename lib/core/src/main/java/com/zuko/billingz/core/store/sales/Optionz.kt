@@ -32,7 +32,7 @@ object Optionz {
      * To modify an active subscription, make sure to set the desired proration mode, the purchase token, and the productId
      * of the relevant subscription.
      */
-    class Builder: OptionBuilder {
+    class Builder : OptionBuilder {
         private var region: Region = Region.NA
         private var isOfferPersonalized = false
         private var prorationMode: Int = -1
@@ -124,8 +124,5 @@ object Optionz {
          * Create [Bundle] object of order options.
          */
         fun build(): Bundle
-
-
-
     }
 }

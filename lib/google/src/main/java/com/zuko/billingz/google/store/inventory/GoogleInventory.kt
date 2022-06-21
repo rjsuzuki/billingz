@@ -180,11 +180,14 @@ class GoogleInventory(
         }
         val builder = QueryProductDetailsParams.newBuilder()
         val params = builder
-            .setProductList(listOf(
-                QueryProductDetailsParams.Product.newBuilder()
-                    .setProductId(sku)
-                    .setProductType(skuType)
-                    .build()))
+            .setProductList(
+                listOf(
+                    QueryProductDetailsParams.Product.newBuilder()
+                        .setProductId(sku)
+                        .setProductType(skuType)
+                        .build()
+                )
+            )
             .build()
         client.getBillingClient()?.queryProductDetailsAsync(params) { billingResult, productDetailsList ->
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK &&

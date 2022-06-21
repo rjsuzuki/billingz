@@ -37,7 +37,6 @@ import com.android.billingclient.api.PurchasesResponseListener
 import com.android.billingclient.api.QueryPurchaseHistoryParams
 import com.android.billingclient.api.QueryPurchasesParams
 import com.android.billingclient.api.SkuDetails
-
 import com.android.billingclient.api.queryPurchaseHistory
 import com.zuko.billingz.core.LogUtilz
 import com.zuko.billingz.core.misc.BillingzDispatcher
@@ -279,7 +278,7 @@ class GoogleSales(
 
         if (skuDetails != null) {
             flowParams.setSkuDetails(skuDetails)
-        } else if (productDetails?.subscriptionOfferDetails != null)   {
+        } else if (productDetails?.subscriptionOfferDetails != null) {
             options?.getInt(Optionz.Type.SELECTED_OFFER_INDEX.name)?.let { selectedOfferIndex ->
                 if (selectedOfferIndex > -1 && selectedOfferIndex < productDetails.subscriptionOfferDetails!!.size) {
                     productDetails.subscriptionOfferDetails?.get(selectedOfferIndex)?.offerToken?.let { offerToken ->
@@ -304,7 +303,7 @@ class GoogleSales(
         }
 
         // We can indefinitely add support for more options since we are utilizing an Android Bundle objects
-        options?.let  {
+        options?.let {
             // for EU personalized pricing disclosure requirements
             val isOfferPersonalized = options.getBoolean(Optionz.Type.IS_PERSONALIZED_OFFER.name, false)
             flowParams.setIsOfferPersonalized(isOfferPersonalized)
@@ -334,9 +333,9 @@ class GoogleSales(
                     LogUtilz.log.d(
                         TAG,
                         "Subscription to replace confirmed:" +
-                                "\n old product id: $oldSubId," +
-                                "\n old purchase token: $oldPurchaseToken," +
-                                "\n new proration mode: $prorationMode"
+                            "\n old product id: $oldSubId," +
+                            "\n old purchase token: $oldPurchaseToken," +
+                            "\n new proration mode: $prorationMode"
                     )
                     val subUpdateParams = BillingFlowParams.SubscriptionUpdateParams.newBuilder()
                         .setReplaceProrationMode(prorationMode)
@@ -861,7 +860,7 @@ class GoogleSales(
                 )
                 receipt.entitlement = record.purchaseToken
                 receipt.orderDate = Date(record.purchaseTime)
-                if(isNewVersion) {
+                if (isNewVersion) {
                     receipt.skus = record.products
                 } else {
                     receipt.skus = record.skus

@@ -178,7 +178,7 @@ class AmazonInventory(
             LogUtilz.log.i(
                 TAG,
                 "get product data request: $productDataRequestId," +
-                        "products: $products"
+                    "products: $products"
             )
         } catch (e: Exception) {
             e.printStackTrace()

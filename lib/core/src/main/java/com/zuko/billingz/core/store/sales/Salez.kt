@@ -37,7 +37,7 @@ interface Salez : CleanUpz {
      * For providing version compatability changes
      */
     var isNewVersion: Boolean
-    
+
     val currentOrder: MutableLiveData<Orderz>
     /**
      * Provides a liveData [Orderz] object for

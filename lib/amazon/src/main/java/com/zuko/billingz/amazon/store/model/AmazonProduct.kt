@@ -25,7 +25,8 @@ import java.util.Currency
 import java.util.Locale
 
 data class AmazonProduct(
-    override val type: Productz.Type) : Productz {
+    override val type: Productz.Type
+) : Productz {
 
     var id: Int = -1
     private var productId: String? = null
@@ -59,7 +60,7 @@ data class AmazonProduct(
         this.promotion = promotion
     }
 
-    constructor(amazonProduct: Product, type: Productz.Type): this(type) {
+    constructor(amazonProduct: Product, type: Productz.Type) : this(type) {
         productId = amazonProduct.sku
         title = amazonProduct.title
         price = amazonProduct.price
@@ -84,7 +85,7 @@ data class AmazonProduct(
     }
 
     override fun getDescription(): String? {
-       return description
+        return description
     }
 
     override fun getIconUrl(): String? {

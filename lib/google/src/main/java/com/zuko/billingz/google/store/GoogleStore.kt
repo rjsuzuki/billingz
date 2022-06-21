@@ -21,7 +21,6 @@ package com.zuko.billingz.google.store
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
-import androidx.collection.ArrayMap
 import androidx.lifecycle.LiveData
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingResult

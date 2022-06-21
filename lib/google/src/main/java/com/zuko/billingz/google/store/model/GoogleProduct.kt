@@ -98,7 +98,6 @@ data class GoogleProduct(
             skuDetails.introductoryPricePeriod.isNotBlank() -> Productz.Promotion.PROMO
             else -> Productz.Promotion.NONE
         }
-
     }
 
     /**
