@@ -1,4 +1,4 @@
-name: Git Release
+name: Create Release
 on:
   push:
     tags:
@@ -16,6 +16,7 @@ jobs:
         id: create_release
         uses: release-drafter/release-drafter@v5
         with:
+          tag: ${{ github.ref }}
           draft: false
           prerelease: false
           publish: true

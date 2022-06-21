@@ -1,4 +1,4 @@
-name: Git Pre-Release
+name: Create Pre-Release
 on:
   push:
     tags:
