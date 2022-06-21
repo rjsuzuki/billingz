@@ -1,4 +1,4 @@
-name: build_and_publish
+name: Create Package
 
 # trigger with tag
 on:
@@ -39,6 +39,6 @@ jobs:
       - name: Clean, Build, and Publish AAR
         shell: bash
         run: |
-          ./gradlew -PciBuild=true clean build -x lint
+          ./gradlew -PciBuild=true clean build
           ./gradlew publish
 
