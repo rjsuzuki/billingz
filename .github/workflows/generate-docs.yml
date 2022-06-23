@@ -54,6 +54,7 @@ jobs:
              git commit -m "Add changelog" -a
              echo "::set-output name=push::true"
           fi
+          git pull
         shell: bash
       - name: Push files
         if: steps.commit.outputs.push == 'true'
