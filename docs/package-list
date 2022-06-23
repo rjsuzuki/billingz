@@ -20,7 +20,7 @@ com.zuko.billingz.core.store.sales
 com.zuko.billingz.core.store.security
 com.zuko.billingz.core.ui
 module:google
-com.zuko.billingz.google
+com.zuko.billingz
 com.zuko.billingz.google.store
 com.zuko.billingz.google.store.client
 com.zuko.billingz.google.store.inventory
