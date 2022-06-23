@@ -4,8 +4,7 @@ This is an opinionated, but convenient library for implementing Android's Google
 Through a combination of Adapter and Facade design patterns, this library allows a project to integrate both billing libraries without explicit references to either, reduces the amount of needed code for integration, and speeds up development environments.
 - Supports Android's LiveData and Lifecycle components
 - Supports Kotlin Coroutines and Flow
-[![build_and_publish](https://github.com/rjsuzuki/billingz/actions/workflows/release-package.yml/badge.svg)](https://github.com/rjsuzuki/billingz/actions/workflows/release-package.yml) [![](https://jitpack.io/v/rjsuzuki/billingz.svg)](https://jitpack.io/#rjsuzuki/billingz)
-
+[![build_and_publish](https://github.com/rjsuzuki/billingz/actions/workflows/release-package.yml/badge.svg)](https://github.com/rjsuzuki/billingz/actions/workflows/release-package.yml) [![](https://jitpack.io/v/rjsuzuki/billingz.svg)](https://jitpack.io/#rjsuzuki/billingz) [![](https://jitci.com/gh/rjsuzuki/billingz/svg)](https://jitci.com/gh/rjsuzuki/billingz)
 
 Currently supports up to: 
    - `google billing: 5.0.0`  
