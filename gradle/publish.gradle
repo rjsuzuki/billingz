@@ -77,6 +77,18 @@ def generateFile() {
     writer.close()
 }
 
+boolean isLocalEnv() {
+    def localProps = new Properties()
+    def localFile = project.rootProject.file("local.properties")
+    if(localFile.exists()) {
+        localProps.load(new FileInputStream(rootProject.file("local.properties")))
+        return localProps["env"].equals("local")
+    }
+    return false
+}
+
+println("is Local Environment: ${isLocalEnv()}")
+
 def publishCore() {
     if (project.name == "core") {
         println("Configuring core module's publication...")
@@ -94,12 +106,13 @@ def publishCore() {
                 }
 
                 publications {
-
                     release(MavenPublication) {
                         groupId = LibraryInfo.groupId
                         artifactId = "${LibraryInfo.coreArtifactId}"
                         version = "${project.ext.get("billingzVersion")}"
-                        artifact("$buildDir/outputs/aar/${project.ext.get("coreArtifact")}-release.aar")
+                        if (isLocalEnv()) {
+                            artifact("$buildDir/outputs/aar/${project.ext.get("amazonArtifact")}-release.aar")
+                        }
                     }
                 }
             }
@@ -124,12 +137,13 @@ def publishAmazon() {
                 }
 
                 publications {
-
                     release(MavenPublication) {
                         groupId = LibraryInfo.groupId
                         artifactId = "${LibraryInfo.amazonArtifactId}"
                         version = "${project.ext.get("billingzVersion")}"
-                        artifact("$buildDir/outputs/aar/${project.ext.get("amazonArtifact")}-release.aar")
+                        if (isLocalEnv()) {
+                            artifact("$buildDir/outputs/aar/${project.ext.get("amazonArtifact")}-release.aar")
+                        }
                     }
                 }
             }
@@ -154,12 +168,13 @@ def publishGoogle() {
                 }
 
                 publications {
-
                     release(MavenPublication) {
                         groupId = LibraryInfo.groupId
                         artifactId = "${LibraryInfo.googleArtifactId}"
                         version = "${project.ext.get("billingzVersion")}"
-                        artifact("$buildDir/outputs/aar/${project.ext.get("googleArtifact")}-release.aar")
+                        if (isLocalEnv()) {
+                            artifact("$buildDir/outputs/aar/${project.ext.get("amazonArtifact")}-release.aar")
+                        }
                     }
                 }
             }

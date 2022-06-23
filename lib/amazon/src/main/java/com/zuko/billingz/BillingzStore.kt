@@ -67,6 +67,7 @@ object BillingzStore {
                 .setOrderUpdater(updaterListener)
                 .setOrderValidator(validatorListener)
                 .setAccountId(accountId)
+                .setNewVersion(isNewVersion)
                 .build(context)
             return instance
         }
