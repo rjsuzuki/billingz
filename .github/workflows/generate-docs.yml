@@ -35,7 +35,9 @@ jobs:
           touch secrets.properties
           echo gpr.usr=$GPR_USER > secrets.properties
           echo gpr.key=$GPR_API_KEY >> secrets.properties
-
+      - name: Update branch
+        shell: bash
+        run: git pull origin docs -f
       - name: Generate documentation
         shell: bash
         run: |
@@ -44,6 +46,7 @@ jobs:
 
       - name: Commit files
         id: commit
+        shell: bash
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "github-actions"
@@ -54,8 +57,6 @@ jobs:
              git commit -m "Add changelog" -a
              echo "::set-output name=push::true"
           fi
-          git pull
-        shell: bash
       - name: Push files
         if: steps.commit.outputs.push == 'true'
         uses: ad-m/github-push-action@master
