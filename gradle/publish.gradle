@@ -106,13 +106,16 @@ def publishCore() {
 
                 publications {
                     release(MavenPublication) {
+                        // Applies the component for the release build variant.
+                        from components.release
+
                         groupId = LibraryInfo.groupId
                         artifactId = "${LibraryInfo.coreArtifactId}"
                         version = "${project.ext.get("billingzVersion")}"
                         if (isLocalEnv()) {
                             artifact("$buildDir/outputs/aar/${project.ext.get("coreArtifact")}-release.aar")
                         } else {
-                            from components.release
+                            artifact("$buildDir/outputs/aar/${project.ext.get("coreArtifact")}-release.aar")
                         }
                     }
                 }
@@ -139,13 +142,16 @@ def publishAmazon() {
 
                 publications {
                     release(MavenPublication) {
+                        // Applies the component for the release build variant.
+                        from components.release
+
                         groupId = LibraryInfo.groupId
                         artifactId = "${LibraryInfo.amazonArtifactId}"
                         version = "${project.ext.get("billingzVersion")}"
                         if (isLocalEnv()) {
                             artifact("$buildDir/outputs/aar/${project.ext.get("amazonArtifact")}-release.aar")
                         } else {
-                            from components.release
+                            artifact("$buildDir/outputs/aar/${project.ext.get("amazonArtifact")}-release.aar")
                         }
                     }
                 }
@@ -172,13 +178,16 @@ def publishGoogle() {
 
                 publications {
                     release(MavenPublication) {
+                        // Applies the component for the release build variant.
+                        from components.release
+
                         groupId = LibraryInfo.groupId
                         artifactId = "${LibraryInfo.googleArtifactId}"
                         version = "${project.ext.get("billingzVersion")}"
                         if (isLocalEnv()) {
                             artifact("$buildDir/outputs/aar/${project.ext.get("googleArtifact")}-release.aar")
                         } else {
-                            from components.release
+                            artifact("$buildDir/outputs/aar/${project.ext.get("googleArtifact")}-release.aar")
                         }
                     }
                 }
