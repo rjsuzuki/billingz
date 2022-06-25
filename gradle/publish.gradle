@@ -82,9 +82,9 @@ boolean isLocalEnv() {
     def localFile = project.rootProject.file("local.properties")
     if(localFile.exists()) {
         localProps.load(new FileInputStream(rootProject.file("local.properties")))
-        return localProps["env"].equals("local")
+        return localProps["env"].equals("local") || System.getenv("GPR_API_KEY").equals("github")
     }
-    return false
+    return System.getenv("GPR_API_KEY").equals("github") ?: false
 }
 
 println("is Local Environment: ${isLocalEnv()}")
@@ -106,19 +106,14 @@ def publishCore() {
                 }
 
                 publications {
-                    debug(MavenPublication) {
-                        groupId = LibraryInfo.groupId
-                        artifactId = "${LibraryInfo.coreArtifactId}"
-                        version = "${project.ext.get("billingzVersion")}"
-                        artifact("$buildDir/outputs/aar/${project.ext.get("coreArtifact")}-debug.aar")
-                    }
-
                     release(MavenPublication) {
                         groupId = LibraryInfo.groupId
                         artifactId = "${LibraryInfo.coreArtifactId}"
                         version = "${project.ext.get("billingzVersion")}"
                         if (isLocalEnv()) {
                             artifact("$buildDir/outputs/aar/${project.ext.get("coreArtifact")}-release.aar")
+                        } else {
+                            artifact("$buildDir/intermediates/${project.ext.get("coreArtifact")}-release.aar")
                         }
                     }
                 }
@@ -144,19 +139,14 @@ def publishAmazon() {
                 }
 
                 publications {
-                    debug(MavenPublication) {
-                        groupId = LibraryInfo.groupId
-                        artifactId = "${LibraryInfo.amazonArtifactId}"
-                        version = "${project.ext.get("billingzVersion")}"
-                        artifact("$buildDir/outputs/aar/${project.ext.get("amazonArtifact")}-debug.aar")
-                    }
-
                     release(MavenPublication) {
                         groupId = LibraryInfo.groupId
                         artifactId = "${LibraryInfo.amazonArtifactId}"
                         version = "${project.ext.get("billingzVersion")}"
                         if (isLocalEnv()) {
                             artifact("$buildDir/outputs/aar/${project.ext.get("amazonArtifact")}-release.aar")
+                        } else {
+                            artifact("$buildDir/intermediates/${project.ext.get("amazonArtifact")}-release.aar")
                         }
                     }
                 }
@@ -182,19 +172,14 @@ def publishGoogle() {
                 }
 
                 publications {
-                    debug(MavenPublication) {
-                        groupId = LibraryInfo.groupId
-                        artifactId = "${LibraryInfo.googleArtifactId}"
-                        version = "${project.ext.get("billingzVersion")}"
-                        artifact("$buildDir/outputs/aar/${project.ext.get("googleArtifact")}-debug.aar")
-                    }
-
                     release(MavenPublication) {
                         groupId = LibraryInfo.groupId
                         artifactId = "${LibraryInfo.googleArtifactId}"
                         version = "${project.ext.get("billingzVersion")}"
                         if (isLocalEnv()) {
                             artifact("$buildDir/outputs/aar/${project.ext.get("googleArtifact")}-release.aar")
+                        } else {
+                            artifact("$buildDir/intermediates/${project.ext.get("googleArtifact")}-release.aar")
                         }
                     }
                 }
