@@ -112,7 +112,7 @@ def publishCore() {
                         if (isLocalEnv()) {
                             artifact("$buildDir/outputs/aar/${project.ext.get("coreArtifact")}-release.aar")
                         } else {
-                            artifact(project.releaseSourcesJar)
+                            from components.release
                         }
                     }
                 }
@@ -145,7 +145,7 @@ def publishAmazon() {
                         if (isLocalEnv()) {
                             artifact("$buildDir/outputs/aar/${project.ext.get("amazonArtifact")}-release.aar")
                         } else {
-                            artifact(project.releaseSourcesJar)
+                            from components.release
                         }
                     }
                 }
@@ -178,7 +178,7 @@ def publishGoogle() {
                         if (isLocalEnv()) {
                             artifact("$buildDir/outputs/aar/${project.ext.get("googleArtifact")}-release.aar")
                         } else {
-                            artifact(project.releaseSourcesJar)
+                            from components.release
                         }
                     }
                 }

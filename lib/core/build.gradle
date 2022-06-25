@@ -89,7 +89,6 @@ android {
 dependencies {
     api "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Dependencies.kotlin_coroutines}"
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Dependencies.kotlin_coroutines}"
-    api "org.jetbrains.kotlin:kotlin-stdlib:${Dependencies.kotlin}"
 
     api "androidx.lifecycle:lifecycle-common-java8:${Dependencies.androidx_lifecycle_java8}"
     api "androidx.core:core-ktx:${Dependencies.androidx_core}"
