@@ -23,7 +23,7 @@ apply plugin: "kotlin-android"
 apply plugin: "kotlin-kapt"
 
 println("Loading github publishing settings for: ${project.name}")
-
+println("artifact location: ${project.ar}")
 
 def githubUser() {
     // Load github properties file for local environment builds
@@ -82,9 +82,9 @@ boolean isLocalEnv() {
     def localFile = project.rootProject.file("local.properties")
     if(localFile.exists()) {
         localProps.load(new FileInputStream(rootProject.file("local.properties")))
-        return localProps["env"].equals("local") || System.getenv("GPR_API_KEY").equals("github")
+        return localProps["env"].equals("local") || System.getenv("BILLINGZ_ENV").equals("github")
     }
-    return System.getenv("GPR_API_KEY").equals("github") ?: false
+    return System.getenv("BILLINGZ_ENV").equals("github") ?: false
 }
 
 println("is Local Environment: ${isLocalEnv()}")
