@@ -118,11 +118,11 @@ class GoogleInventory(
         }
 
         val skuType = when (type) {
-            Productz.Type.CONSUMABLE -> BillingClient.SkuType.INAPP
-            Productz.Type.NON_CONSUMABLE -> BillingClient.SkuType.INAPP
-            Productz.Type.SUBSCRIPTION -> BillingClient.SkuType.SUBS
+            Productz.Type.CONSUMABLE -> BillingClient.ProductType.INAPP
+            Productz.Type.NON_CONSUMABLE -> BillingClient.ProductType.INAPP
+            Productz.Type.SUBSCRIPTION -> BillingClient.ProductType.SUBS
             else -> {
-                BillingClient.SkuType.INAPP
+                BillingClient.ProductType.INAPP
             }
         }
         val builder = SkuDetailsParams.newBuilder()
@@ -219,11 +219,11 @@ class GoogleInventory(
         }
         LogUtilz.log.v(TAG, "queryProduct")
         val skuType = when (type) {
-            Productz.Type.CONSUMABLE -> BillingClient.SkuType.INAPP
-            Productz.Type.NON_CONSUMABLE -> BillingClient.SkuType.INAPP
-            Productz.Type.SUBSCRIPTION -> BillingClient.SkuType.SUBS
+            Productz.Type.CONSUMABLE -> BillingClient.ProductType.INAPP
+            Productz.Type.NON_CONSUMABLE -> BillingClient.ProductType.INAPP
+            Productz.Type.SUBSCRIPTION -> BillingClient.ProductType.SUBS
             else -> {
-                BillingClient.SkuType.INAPP
+                BillingClient.ProductType.INAPP
             }
         }
         val builder = SkuDetailsParams.newBuilder()
