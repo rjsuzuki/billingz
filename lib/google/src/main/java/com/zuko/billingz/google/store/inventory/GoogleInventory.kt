@@ -76,6 +76,11 @@ class GoogleInventory(
     private val mainScope = MainScope()
 
     private fun queryProducts2(skus: List<String>, type: Productz.Type) {
+        if (skus.isEmpty()){
+            LogUtilz.log.w(TAG,"Cannot run a query with an empty list of: $type")
+            return
+        }
+
         val skuType = when (type) {
             Productz.Type.CONSUMABLE -> BillingClient.ProductType.INAPP
             Productz.Type.NON_CONSUMABLE -> BillingClient.ProductType.INAPP
