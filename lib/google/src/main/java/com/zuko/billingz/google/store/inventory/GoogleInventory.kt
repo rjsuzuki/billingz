@@ -77,7 +77,7 @@ class GoogleInventory(
 
     private fun queryProducts2(skus: List<String>, type: Productz.Type) {
         if (skus.isEmpty()) {
-            LogUtilz.log.w(TAG,"Cannot run a query with an empty list of: $type")
+            LogUtilz.log.w(TAG, "Cannot run a query with an empty list of: $type")
             return
         }
 
@@ -113,7 +113,7 @@ class GoogleInventory(
 
     private fun queryProducts(skus: List<String>, type: Productz.Type) {
         if (skus.isEmpty()) {
-            LogUtilz.log.w(TAG,"Cannot run a query with an empty list of: $type")
+            LogUtilz.log.w(TAG, "Cannot run a query with an empty list of: $type")
             return
         }
 
