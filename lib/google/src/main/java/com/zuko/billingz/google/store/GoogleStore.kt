@@ -118,6 +118,7 @@ class GoogleStore internal constructor() : Storez {
         inventory.destroy()
     }
 
+    @Suppress("OverridingDeprecatedMember")
     private val storeAgent = object : Agentz {
 
         override fun isInventoryReadyLiveData(): LiveData<Boolean> {

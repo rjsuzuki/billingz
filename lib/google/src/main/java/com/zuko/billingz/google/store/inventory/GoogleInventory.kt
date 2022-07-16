@@ -44,6 +44,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+@Suppress("DEPRECATION")
 class GoogleInventory(
     private val client: GoogleClient,
     private val dispatcher: Dispatcherz = BillingzDispatcher()

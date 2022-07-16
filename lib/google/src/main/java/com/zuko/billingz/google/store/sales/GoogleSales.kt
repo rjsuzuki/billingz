@@ -70,6 +70,7 @@ import java.util.Date
  * @constructor
  * @param inventory
  */
+@Suppress("DEPRECATION")
 class GoogleSales(
     private val inventory: GoogleInventory,
     private val client: GoogleClient,
