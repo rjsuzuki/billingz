@@ -201,23 +201,27 @@ class AmazonInventory(
         LogUtilz.log.d(TAG, "updateInventory : ${products?.size ?: 0}")
         if (!products.isNullOrEmpty()) {
             mainScope.launch(dispatcher.io()) {
+                val tempConsumables: ArrayMap<String, Productz> = ArrayMap()
+                val tempNonConsumables: ArrayMap<String, Productz> = ArrayMap()
+                val tempSubscriptions: ArrayMap<String, Productz> = ArrayMap()
+
                 // Unlike the Android Billing Library, the amazon sdk does
                 // not provide functionality to run queries by product type.
                 for (p in products) {
                     when (p.type) {
                         Productz.Type.CONSUMABLE -> {
                             p.getProductId()?.let { sku ->
-                                consumables.putIfAbsent(sku, p)
+                                tempConsumables.putIfAbsent(sku, p)
                             }
                         }
                         Productz.Type.NON_CONSUMABLE -> {
                             p.getProductId()?.let { sku ->
-                                nonConsumables.putIfAbsent(sku, p)
+                                tempNonConsumables.putIfAbsent(sku, p)
                             }
                         }
                         Productz.Type.SUBSCRIPTION -> {
                             p.getProductId()?.let { sku ->
-                                subscriptions.putIfAbsent(sku, p)
+                                tempSubscriptions.putIfAbsent(sku, p)
                             }
                         }
                         else -> {
@@ -226,26 +230,30 @@ class AmazonInventory(
                     }
                 }
 
+                tempConsumables.forEach { c -> consumables.putIfAbsent(c.key, c.value) }
+                tempNonConsumables.forEach { nc -> nonConsumables.putIfAbsent(nc.key, nc.value) }
+                tempSubscriptions.forEach { s -> subscriptions.putIfAbsent(s.key, s.value) }
+
                 // After sorting the skus into the inventory cache, notify subscribers
                 when (type) {
                     Productz.Type.CONSUMABLE -> {
-                        requestedProductsLiveData.postValue(consumables)
-                        requestedProductsStateFlow.emit(consumables)
+                        requestedProductsLiveData.postValue(tempConsumables)
+                        requestedProductsStateFlow.emit(tempConsumables)
                     }
                     Productz.Type.NON_CONSUMABLE -> {
-                        requestedProductsLiveData.postValue(nonConsumables)
-                        requestedProductsStateFlow.emit(nonConsumables)
+                        requestedProductsLiveData.postValue(tempNonConsumables)
+                        requestedProductsStateFlow.emit(tempNonConsumables)
                     }
                     Productz.Type.SUBSCRIPTION -> {
-                        requestedProductsLiveData.postValue(subscriptions)
-                        requestedProductsStateFlow.emit(subscriptions)
+                        requestedProductsLiveData.postValue(tempSubscriptions)
+                        requestedProductsStateFlow.emit(tempSubscriptions)
                     }
                     else -> {
                         LogUtilz.log.w(TAG, "Unknown product type: $type. Defaulting to all.")
                         val unidentifiedProducts: ArrayMap<String, Productz> = ArrayMap()
-                        unidentifiedProducts.putAll(from = consumables)
-                        unidentifiedProducts.putAll(from = nonConsumables)
-                        unidentifiedProducts.putAll(from = subscriptions)
+                        unidentifiedProducts.putAll(from = tempConsumables)
+                        unidentifiedProducts.putAll(from = tempNonConsumables)
+                        unidentifiedProducts.putAll(from = tempSubscriptions)
                         requestedProductsLiveData.postValue(unidentifiedProducts)
                         requestedProductsStateFlow.emit(unidentifiedProducts)
                     }
