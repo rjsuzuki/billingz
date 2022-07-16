@@ -29,7 +29,7 @@ import com.amazon.device.iap.model.PurchaseUpdatesResponse
 import com.amazon.device.iap.model.UserDataResponse
 import com.zuko.billingz.amazon.store.inventory.AmazonInventoryz
 import com.zuko.billingz.amazon.store.sales.AmazonSalez
-import com.zuko.billingz.core.LogUtilz
+import com.zuko.billingz.core.misc.Logger
 import com.zuko.billingz.core.store.client.Clientz
 
 class AmazonClient(val inventory: AmazonInventoryz, val sales: AmazonSalez) : AmazonClientz {
@@ -51,20 +51,20 @@ class AmazonClient(val inventory: AmazonInventoryz, val sales: AmazonSalez) : Am
     }
 
     override fun init(context: Context?, connectionListener: Clientz.ConnectionListener) {
-        LogUtilz.log.v(TAG, "Initializing AmazonClient")
+        Logger.v(TAG, "Initializing AmazonClient")
         this.context = context
         try {
             LicensingService.verifyLicense(context) { response ->
-                LogUtilz.log.d(TAG, "License Status: ${response.requestStatus.name}")
+                Logger.d(TAG, "License Status: ${response.requestStatus.name}")
             }
             isInitialized = true
         } catch (e: Exception) {
-            e.printStackTrace()
+            Logger.e(TAG, e)
         }
     }
 
     override fun connect() {
-        LogUtilz.log.v(TAG, "Connecting to Amazon IAP...")
+        Logger.v(TAG, "Connecting to Amazon IAP...")
         connectionState.postValue(Clientz.ConnectionStatus.CONNECTING)
         registerPurchasingListener()
     }
@@ -74,29 +74,29 @@ class AmazonClient(val inventory: AmazonInventoryz, val sales: AmazonSalez) : Am
     }
 
     private fun requestUserData() {
-        LogUtilz.log.v(TAG, "Requesting user data...")
+        Logger.v(TAG, "Requesting user data...")
         // Call this method to retrieve the app-specific ID and marketplace for the user who is
         // currently logged on. For example, if a user switched accounts or if multiple users
         // accessed your app on the same device, this call will help you make sure that the receipts
         // that you retrieve are for the current user account.
         try {
             val userRequestId = PurchasingService.getUserData() // client
-            LogUtilz.log.d(TAG, "UserData request id: $userRequestId")
+            Logger.d(TAG, "UserData request id: $userRequestId")
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
     private fun registerPurchasingListener() {
-        LogUtilz.log.v(TAG, "registerListener")
+        Logger.v(TAG, "registerListener")
         val purchasingListener = object : PurchasingListener {
             override fun onUserDataResponse(response: UserDataResponse?) {
-                LogUtilz.log.d(TAG, "onPurchaseUpdatesResponse")
+                Logger.d(TAG, "onPurchaseUpdatesResponse")
                 // Invoked after a call to getUserData().
                 // Determines the UserId and marketplace of the currently logged on user.
                 when (response?.requestStatus) {
                     UserDataResponse.RequestStatus.SUCCESSFUL -> {
-                        LogUtilz.log.d(
+                        Logger.d(
                             TAG,
                             "Successful user data request: ${response.requestId}" +
                                 "\nmarketplace: ${response.userData?.marketplace}"
@@ -106,18 +106,18 @@ class AmazonClient(val inventory: AmazonInventoryz, val sales: AmazonSalez) : Am
                         connectionState.postValue(Clientz.ConnectionStatus.CONNECTED)
                     }
                     UserDataResponse.RequestStatus.FAILED -> {
-                        LogUtilz.log.e(TAG, "Failed user data request: ${response.requestId}")
+                        Logger.e(TAG, "Failed user data request: ${response.requestId}")
                         isConnected = false
                         connectionState.postValue(Clientz.ConnectionStatus.DISCONNECTED)
                     }
                     UserDataResponse.RequestStatus.NOT_SUPPORTED -> {
-                        LogUtilz.log.wtf(
+                        Logger.wtf(
                             TAG,
                             "Unsupported user data request: ${response.requestId}"
                         )
                     }
                     else -> {
-                        LogUtilz.log.w(
+                        Logger.w(
                             TAG,
                             "Unknown request status: ${response?.requestId}"
                         )
@@ -126,7 +126,7 @@ class AmazonClient(val inventory: AmazonInventoryz, val sales: AmazonSalez) : Am
             }
 
             override fun onProductDataResponse(response: ProductDataResponse?) {
-                LogUtilz.log.d(TAG, "onProductDataResponse")
+                Logger.d(TAG, "onProductDataResponse")
                 // Invoked after a call to getProductDataRequest(java.util.Set skus).
                 // Retrieves information about SKUs you would like to sell from your app.
                 // Use the valid SKUs in onPurchaseResponse().
@@ -134,14 +134,14 @@ class AmazonClient(val inventory: AmazonInventoryz, val sales: AmazonSalez) : Am
             }
 
             override fun onPurchaseResponse(response: PurchaseResponse?) {
-                LogUtilz.log.d(TAG, "onPurchaseResponse")
+                Logger.d(TAG, "onPurchaseResponse")
                 // Invoked after a call to purchase(String sku).
                 // Used to determine the status of a purchase.
                 sales.processPurchase(response)
             }
 
             override fun onPurchaseUpdatesResponse(response: PurchaseUpdatesResponse?) {
-                LogUtilz.log.d(TAG, "onPurchaseUpdatesResponse")
+                Logger.d(TAG, "onPurchaseUpdatesResponse")
                 // Invoked after a call to getPurchaseUpdates(boolean reset).
                 // Retrieves the purchase history.
                 // Amazon recommends that you persist the returned PurchaseUpdatesResponse
@@ -160,13 +160,13 @@ class AmazonClient(val inventory: AmazonInventoryz, val sales: AmazonSalez) : Am
     }
 
     override fun disconnect() {
-        LogUtilz.log.v(TAG, "disconnecting from Amazon IAP")
+        Logger.v(TAG, "disconnecting from Amazon IAP")
         isConnected = false
         connectionState.postValue(Clientz.ConnectionStatus.DISCONNECTED)
     }
 
     override fun checkConnection() {
-        LogUtilz.log.v(
+        Logger.v(
             TAG,
             "checkConnection:" +
                 "\nSDK_VERSION: ${PurchasingService.SDK_VERSION}" +
@@ -177,7 +177,7 @@ class AmazonClient(val inventory: AmazonInventoryz, val sales: AmazonSalez) : Am
     }
 
     override fun destroy() {
-        LogUtilz.log.v(TAG, "Destroying client...")
+        Logger.v(TAG, "Destroying client...")
         isInitialized = false
         disconnect()
     }

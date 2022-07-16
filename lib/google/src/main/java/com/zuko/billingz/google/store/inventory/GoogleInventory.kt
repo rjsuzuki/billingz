@@ -27,9 +27,9 @@ import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.SkuDetails
 import com.android.billingclient.api.SkuDetailsParams
-import com.zuko.billingz.core.LogUtilz
 import com.zuko.billingz.core.misc.BillingzDispatcher
 import com.zuko.billingz.core.misc.Dispatcherz
+import com.zuko.billingz.core.misc.Logger
 import com.zuko.billingz.core.store.inventory.Inventoryz
 import com.zuko.billingz.core.store.model.Productz
 import com.zuko.billingz.core.store.model.QueryResult
@@ -77,7 +77,7 @@ class GoogleInventory(
 
     private fun queryProducts2(skus: List<String>, type: Productz.Type) {
         if (skus.isEmpty()) {
-            LogUtilz.log.w(TAG, "Cannot run a query with an empty list of: $type")
+            Logger.w(TAG, "Cannot run a query with an empty list of: $type")
             return
         }
 
@@ -113,7 +113,7 @@ class GoogleInventory(
 
     private fun queryProducts(skus: List<String>, type: Productz.Type) {
         if (skus.isEmpty()) {
-            LogUtilz.log.w(TAG, "Cannot run a query with an empty list of: $type")
+            Logger.w(TAG, "Cannot run a query with an empty list of: $type")
             return
         }
 
@@ -146,7 +146,7 @@ class GoogleInventory(
         productDetailsList: List<ProductDetails>?,
         type: Productz.Type
     ) {
-        LogUtilz.log.d(
+        Logger.d(
             TAG,
             "Processing inventory query result ->" +
                 "\n type: $type," +
@@ -179,7 +179,7 @@ class GoogleInventory(
     }
 
     private fun queryProduct2(sku: String, type: Productz.Type): QueryResult<Productz> {
-        LogUtilz.log.v(TAG, "queryProduct2")
+        Logger.v(TAG, "queryProduct2")
         val skuType = when (type) {
             Productz.Type.CONSUMABLE -> BillingClient.ProductType.INAPP
             Productz.Type.NON_CONSUMABLE -> BillingClient.ProductType.INAPP
@@ -217,7 +217,7 @@ class GoogleInventory(
         if (isNewVersion) {
             return queryProduct2(sku, type)
         }
-        LogUtilz.log.v(TAG, "queryProduct")
+        Logger.v(TAG, "queryProduct")
         val skuType = when (type) {
             Productz.Type.CONSUMABLE -> BillingClient.ProductType.INAPP
             Productz.Type.NON_CONSUMABLE -> BillingClient.ProductType.INAPP
@@ -262,7 +262,7 @@ class GoogleInventory(
     }
 
     override fun queryInventory(products: Map<String, Productz.Type>): QueryResult<Map<String, Productz>> {
-        LogUtilz.log.i(
+        Logger.d(
             TAG,
             "queryInventory(" +
                 "\n products: ${products.size}," +
@@ -273,7 +273,7 @@ class GoogleInventory(
 
         if (products.isNotEmpty()) {
             mainScope.launch {
-                LogUtilz.log.d(TAG, "inventory coroutines starting")
+                Logger.d(TAG, "inventory coroutines starting")
 
                 val consumables = mutableListOf<String>()
                 val nonConsumables = mutableListOf<String>()
@@ -286,13 +286,13 @@ class GoogleInventory(
                             Productz.Type.NON_CONSUMABLE -> nonConsumables.add(entry.key)
                             Productz.Type.SUBSCRIPTION -> subscriptions.add(entry.key)
                             else -> {
-                                LogUtilz.log.w(TAG, "Unknown Type: ${entry.key}")
+                                Logger.w(TAG, "Unknown Type: ${entry.key}")
                             }
                         }
                     }
                 }
                 launch(dispatcher.io()) {
-                    LogUtilz.log.d(TAG, "inventory coroutines consumables queried")
+                    Logger.d(TAG, "inventory coroutines consumables queried")
                     if (isNewVersion) {
                         queryProducts2(skus = consumables, type = Productz.Type.CONSUMABLE)
                     } else {
@@ -300,7 +300,7 @@ class GoogleInventory(
                     }
                 }
                 launch(dispatcher.io()) {
-                    LogUtilz.log.d(TAG, "inventory coroutines nonConsumables queried")
+                    Logger.d(TAG, "inventory coroutines non-consumables queried")
                     if (isNewVersion) {
                         queryProducts2(skus = nonConsumables, type = Productz.Type.NON_CONSUMABLE)
                     } else {
@@ -308,7 +308,7 @@ class GoogleInventory(
                     }
                 }
                 launch(dispatcher.io()) {
-                    LogUtilz.log.d(TAG, "inventory coroutines subscriptions queried")
+                    Logger.d(TAG, "inventory coroutines subscriptions queried")
                     if (isNewVersion) {
                         queryProducts2(skus = subscriptions, type = Productz.Type.SUBSCRIPTION)
                     } else {
@@ -321,7 +321,7 @@ class GoogleInventory(
     }
 
     override fun updateInventory(products: List<Productz>?, type: Productz.Type) {
-        LogUtilz.log.i(
+        Logger.i(
             TAG,
             "updateInventory(" +
                 "\n products: ${products?.size ?: 0}," +
@@ -352,7 +352,7 @@ class GoogleInventory(
                             }
                         }
                         else -> {
-                            LogUtilz.log.w(TAG, "Unhandled product type: ${p.type}.")
+                            Logger.w(TAG, "Unhandled product type: ${p.type}.")
                         }
                     }
                 }
@@ -375,7 +375,7 @@ class GoogleInventory(
                         requestedProductsStateFlow.emit(tempSubscriptions)
                     }
                     else -> {
-                        LogUtilz.log.w(TAG, "Unhandled product type: $type")
+                        Logger.w(TAG, "Unhandled product type: $type")
                         val unidentifiedProducts: ArrayMap<String, Productz> = ArrayMap()
                         unidentifiedProducts.putAll(from = tempNonConsumables)
                         unidentifiedProducts.putAll(from = tempNonConsumables)
@@ -392,7 +392,7 @@ class GoogleInventory(
     }
 
     override fun getProduct(sku: String?): Productz? {
-        LogUtilz.log.v(TAG, "getProduct: $sku")
+        Logger.v(TAG, "getProduct: $sku")
         if (consumables.containsKey(sku))
             return consumables[sku]
         if (nonConsumables.containsKey(sku))
@@ -459,7 +459,7 @@ class GoogleInventory(
         // will always publish updates to it.
         mainScope.launch {
             val isCacheReady = !requestedProductsLiveData.value.isNullOrEmpty()
-            LogUtilz.log.d(TAG, "isInventoryCacheReady: $isCacheReady")
+            Logger.d(TAG, "isInventoryCacheReady: $isCacheReady")
             isReadyStateFlow.emit(isCacheReady)
         }
         return isReadyState
@@ -471,7 +471,7 @@ class GoogleInventory(
     }
 
     override fun destroy() {
-        LogUtilz.log.v(TAG, "destroy")
+        Logger.v(TAG, "destroy")
     }
 
     companion object {

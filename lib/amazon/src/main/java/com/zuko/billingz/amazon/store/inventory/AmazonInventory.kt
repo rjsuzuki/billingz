@@ -27,9 +27,9 @@ import com.amazon.device.iap.model.ProductType
 import com.zuko.billingz.amazon.store.model.AmazonInventoryQuery
 import com.zuko.billingz.amazon.store.model.AmazonProduct
 import com.zuko.billingz.amazon.store.model.AmazonProductQuery
-import com.zuko.billingz.core.LogUtilz
 import com.zuko.billingz.core.misc.BillingzDispatcher
 import com.zuko.billingz.core.misc.Dispatcherz
+import com.zuko.billingz.core.misc.Logger
 import com.zuko.billingz.core.store.model.Productz
 import com.zuko.billingz.core.store.model.QueryResult
 import kotlinx.coroutines.MainScope
@@ -76,7 +76,7 @@ class AmazonInventory(
     private val mainScope by lazy { MainScope() }
 
     override fun processQueriedProducts(response: ProductDataResponse?) {
-        LogUtilz.log.v(
+        Logger.d(
             TAG,
             "handleQueriedProducts:" +
                 "\nrequest id: ${response?.requestId}," +
@@ -86,7 +86,7 @@ class AmazonInventory(
         )
         when (response?.requestStatus) {
             ProductDataResponse.RequestStatus.SUCCESSFUL -> {
-                LogUtilz.log.d(
+                Logger.d(
                     TAG,
                     "Successful product data request: ${response.requestId}"
                 )
@@ -101,12 +101,12 @@ class AmazonInventory(
                         else -> Productz.Type.UNKNOWN
                     }
                     val product = AmazonProduct(r.value, type)
-                    LogUtilz.log.d(TAG, "Converted AmazonProduct: $product")
+                    Logger.d(TAG, "Converted AmazonProduct: $product")
                     products[r.key] = product.type
                     productsList.add(product)
-                    LogUtilz.log.i(TAG, "Validated product: $product")
+                    Logger.i(TAG, "Validated product: $product")
                 }
-                LogUtilz.log.v(
+                Logger.v(
                     TAG,
                     "allProducts: ${allProducts.size}, productsList: ${productsList.size}"
                 )
@@ -115,19 +115,19 @@ class AmazonInventory(
                 unavailableSkus = response.unavailableSkus
             }
             ProductDataResponse.RequestStatus.FAILED -> {
-                LogUtilz.log.e(
+                Logger.e(
                     TAG,
                     "Failed product data request: ${response.requestId}"
                 )
             }
             ProductDataResponse.RequestStatus.NOT_SUPPORTED -> {
-                LogUtilz.log.wtf(
+                Logger.wtf(
                     TAG,
                     "Unsupported product data request: ${response.requestId}"
                 )
             }
             else -> {
-                LogUtilz.log.w(
+                Logger.w(
                     TAG,
                     "Unknown request status: ${response?.requestId}"
                 )
@@ -169,13 +169,13 @@ class AmazonInventory(
     }
 
     override fun queryInventory(products: Map<String, Productz.Type>): QueryResult<Map<String, Productz>> {
-        LogUtilz.log.v(TAG, "queryInventory")
+        Logger.v(TAG, "queryInventory")
         // Call this method to retrieve item data for a set of SKUs to display in your app.
         // Call getProductData in the OnResume method.
         try {
             val productDataRequestId =
                 PurchasingService.getProductData(products.keys.toSet()) // inventory
-            LogUtilz.log.i(
+            Logger.i(
                 TAG,
                 "get product data request: $productDataRequestId," +
                     "products: $products"
@@ -188,17 +188,23 @@ class AmazonInventory(
     }
 
     internal fun queryInventoryLiveData(): LiveData<ArrayMap<String, Productz>?> {
-        LogUtilz.log.v(TAG, "queryInventoryLiveData")
+        Logger.v(TAG, "queryInventoryLiveData")
         return requestedProductsLiveData
     }
 
     internal fun queryInventoryStateFlow(): StateFlow<ArrayMap<String, Productz>?> {
-        LogUtilz.log.v(TAG, "queryInventoryStateFlow")
+        Logger.v(TAG, "queryInventoryStateFlow")
         return requestedProductsState
     }
 
     override fun updateInventory(products: List<Productz>?, type: Productz.Type) {
-        LogUtilz.log.d(TAG, "updateInventory : ${products?.size ?: 0}")
+        Logger.i(
+            TAG,
+            "updateInventory(" +
+                "\n products: ${products?.size ?: 0}," +
+                "\n type: $type," +
+                "\n )"
+        )
         if (!products.isNullOrEmpty()) {
             mainScope.launch(dispatcher.io()) {
                 val tempConsumables: ArrayMap<String, Productz> = ArrayMap()
@@ -225,7 +231,7 @@ class AmazonInventory(
                             }
                         }
                         else -> {
-                            LogUtilz.log.w(TAG, "Unhandled product type: ${p.type}.")
+                            Logger.w(TAG, "Unhandled product type: ${p.type}.")
                         }
                     }
                 }
@@ -249,7 +255,7 @@ class AmazonInventory(
                         requestedProductsStateFlow.emit(tempSubscriptions)
                     }
                     else -> {
-                        LogUtilz.log.w(TAG, "Unknown product type: $type. Defaulting to all.")
+                        Logger.w(TAG, "Unknown product type: $type. Defaulting to all.")
                         val unidentifiedProducts: ArrayMap<String, Productz> = ArrayMap()
                         unidentifiedProducts.putAll(from = tempConsumables)
                         unidentifiedProducts.putAll(from = tempNonConsumables)
@@ -329,7 +335,7 @@ class AmazonInventory(
         // will always publish updates to it.
         mainScope.launch {
             val isCacheReady = !requestedProductsLiveData.value.isNullOrEmpty()
-            LogUtilz.log.d(TAG, "isInventoryCacheReady: $isCacheReady")
+            Logger.d(TAG, "isInventoryCacheReady: $isCacheReady")
             isReadyStateFlow.emit(isCacheReady)
         }
         return isReadyState
@@ -341,7 +347,7 @@ class AmazonInventory(
     }
 
     override fun destroy() {
-        LogUtilz.log.v(TAG, "destroy")
+        Logger.v(TAG, "destroy")
         mainScope.cancel()
     }
 

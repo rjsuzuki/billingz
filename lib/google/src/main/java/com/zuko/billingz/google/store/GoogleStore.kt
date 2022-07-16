@@ -25,7 +25,7 @@ import androidx.lifecycle.LiveData
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.PurchasesUpdatedListener
-import com.zuko.billingz.core.LogUtilz
+import com.zuko.billingz.core.misc.Logger
 import com.zuko.billingz.core.store.Storez
 import com.zuko.billingz.core.store.agent.Agentz
 import com.zuko.billingz.core.store.client.Clientz
@@ -69,16 +69,16 @@ class GoogleStore internal constructor() : Storez {
     private val sales: Salez = GoogleSales(inventory as GoogleInventory, client as GoogleClient)
 
     init {
-        LogUtilz.log.v(TAG, "instantiating...")
+        Logger.v(TAG, "instantiating...")
     }
 
     override fun init(context: Context?) {
-        LogUtilz.log.v(TAG, "initializing...")
+        Logger.v(TAG, "initializing...")
         this.context = context
     }
 
     override fun create() {
-        LogUtilz.log.v(TAG, "creating...")
+        Logger.v(TAG, "creating...")
         if (!client.initialized()) {
             client.init(context, connectionListener)
             client.connect()
@@ -87,11 +87,11 @@ class GoogleStore internal constructor() : Storez {
     }
 
     override fun start() {
-        LogUtilz.log.v(TAG, "starting...")
+        Logger.v(TAG, "starting...")
     }
 
     override fun resume() {
-        LogUtilz.log.v(TAG, "resuming...")
+        Logger.v(TAG, "resuming...")
         if (client.isReady())
             sales.refreshQueries()
         else if (!client.initialized()) {
@@ -103,16 +103,16 @@ class GoogleStore internal constructor() : Storez {
     }
 
     override fun pause() {
-        LogUtilz.log.v(TAG, "pausing...")
+        Logger.v(TAG, "pausing...")
     }
 
     override fun stop() {
-        LogUtilz.log.v(TAG, "stopping...")
+        Logger.v(TAG, "stopping...")
         mainScope.cancel()
     }
 
     override fun destroy() {
-        LogUtilz.log.v(TAG, "destroying...")
+        Logger.v(TAG, "destroying...")
         client.destroy()
         sales.destroy()
         inventory.destroy()
@@ -129,7 +129,7 @@ class GoogleStore internal constructor() : Storez {
         }
 
         override fun getState(): LiveData<Clientz.ConnectionStatus> {
-            LogUtilz.log.v(TAG, "isBillingClientReady: ${client.isReady()}")
+            Logger.v(TAG, "isBillingClientReady: ${client.isReady()}")
             return client.connectionState
         }
 
@@ -138,7 +138,7 @@ class GoogleStore internal constructor() : Storez {
             productId: String?,
             options: Bundle?
         ): LiveData<Orderz> {
-            LogUtilz.log.v(TAG, "Starting order: $productId")
+            Logger.v(TAG, "Starting order: $productId")
 
             val product = inventory.getProduct(productId)
             product?.let {
@@ -163,22 +163,22 @@ class GoogleStore internal constructor() : Storez {
         }
 
         override fun queryOrders(): QueryResult<Orderz> {
-            LogUtilz.log.v(TAG, "queryOrders")
+            Logger.v(TAG, "queryOrders")
             return sales.queryOrders()
         }
 
         override fun queryProduct(sku: String, type: Productz.Type): QueryResult<Productz> {
-            LogUtilz.log.v(TAG, "queryProduct: \nsku: $sku,\ntype: $type")
+            Logger.v(TAG, "queryProduct: \nsku: $sku,\ntype: $type")
             return inventory.queryProduct(sku, type)
         }
 
         override fun queryReceipts(type: Productz.Type?): QueryResult<OrderHistoryz> {
-            LogUtilz.log.v(TAG, "queryReceipts:\ntype: $type")
+            Logger.v(TAG, "queryReceipts:\ntype: $type")
             return sales.queryReceipts(type)
         }
 
         override fun queryInventory(products: Map<String, Productz.Type>): QueryResult<Map<String, Productz>> {
-            LogUtilz.log.v(TAG, "queryInventory:\n products: ${products.size}")
+            Logger.v(TAG, "queryInventory:\n products: ${products.size}")
             return inventory.queryInventory(products = products)
         }
 
@@ -186,7 +186,7 @@ class GoogleStore internal constructor() : Storez {
             type: Productz.Type?,
             promo: Productz.Promotion?
         ): Map<String, Productz> {
-            LogUtilz.log.v(TAG, "getProducts: $type : $promo")
+            Logger.v(TAG, "getProducts: $type : $promo")
             return inventory.getProducts(type = type, promo = promo)
         }
 
@@ -199,7 +199,7 @@ class GoogleStore internal constructor() : Storez {
         }
 
         override fun getProduct(sku: String?): Productz? {
-            LogUtilz.log.v(TAG, "getProduct: $sku")
+            Logger.v(TAG, "getProduct: $sku")
             return inventory.getProduct(sku = sku)
         }
     }
