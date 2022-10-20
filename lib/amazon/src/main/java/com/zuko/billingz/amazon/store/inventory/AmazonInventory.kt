@@ -33,7 +33,6 @@ import com.zuko.billingz.core.misc.Logger
 import com.zuko.billingz.core.store.model.Productz
 import com.zuko.billingz.core.store.model.QueryResult
 import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -363,7 +362,7 @@ class AmazonInventory(
 
     override fun destroy() {
         Logger.v(TAG, "destroying...")
-        //mainScope.cancel() // TODO: don't stop?
+        // mainScope.cancel() // TODO: don't stop?
     }
 
     companion object {
