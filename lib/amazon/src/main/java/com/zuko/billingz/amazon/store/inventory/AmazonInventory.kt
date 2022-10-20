@@ -84,6 +84,11 @@ class AmazonInventory(
                 "\nunavailableSkus: ${response?.unavailableSkus?.size}," +
                 "\nproducts: ${response?.productData}"
         )
+
+        response?.unavailableSkus?.forEach { sku ->
+            Logger.v(TAG, "Unavailable Product(SKU): $sku")
+        }
+
         when (response?.requestStatus) {
             ProductDataResponse.RequestStatus.SUCCESSFUL -> {
                 Logger.d(
@@ -145,18 +150,26 @@ class AmazonInventory(
     }
 
     override fun queryProduct(sku: String, type: Productz.Type): QueryResult<Productz> {
+        Logger.v(TAG, "queryProduct: $sku, $type")
         mainScope.launch(dispatcher.io()) {
             val skuType = when (type) {
                 Productz.Type.CONSUMABLE -> ProductType.CONSUMABLE.name
                 Productz.Type.NON_CONSUMABLE -> ProductType.ENTITLED.name
                 Productz.Type.SUBSCRIPTION -> ProductType.SUBSCRIPTION.name
-                else -> ProductType.SUBSCRIPTION.name
+                Productz.Type.UNKNOWN -> Productz.Type.UNKNOWN.name
             }
 
             // check if in cache - local
             // check against server - remote
             val set = mutableSetOf<String>()
-            set.add(skuType)
+            if (skuType == Productz.Type.UNKNOWN.name) {
+                set.add(ProductType.SUBSCRIPTION.name)
+                set.add(ProductType.ENTITLED.name)
+                set.add(ProductType.CONSUMABLE.name)
+            } else {
+                set.add(skuType)
+            }
+
             queryType = type
             try {
                 PurchasingService.getProductData(set)
@@ -188,17 +201,17 @@ class AmazonInventory(
     }
 
     internal fun queryInventoryLiveData(): LiveData<ArrayMap<String, Productz>?> {
-        Logger.v(TAG, "queryInventoryLiveData")
+        Logger.i(TAG, "queryInventoryLiveData")
         return requestedProductsLiveData
     }
 
     internal fun queryInventoryStateFlow(): StateFlow<ArrayMap<String, Productz>?> {
-        Logger.v(TAG, "queryInventoryStateFlow")
+        Logger.i(TAG, "queryInventoryStateFlow")
         return requestedProductsState
     }
 
     override fun updateInventory(products: List<Productz>?, type: Productz.Type) {
-        Logger.i(
+        Logger.v(
             TAG,
             "updateInventory(" +
                 "\n products: ${products?.size ?: 0}," +
@@ -269,6 +282,7 @@ class AmazonInventory(
     }
 
     override fun getProduct(sku: String?): Productz? {
+        Logger.i(TAG, "getProduct: $sku")
         if (consumables.containsKey(sku))
             return consumables[sku]
         if (nonConsumables.containsKey(sku))
@@ -282,6 +296,7 @@ class AmazonInventory(
         type: Productz.Type?,
         promo: Productz.Promotion?
     ): Map<String, Productz> {
+        Logger.i(TAG, "getProducts")
         when (type) {
             Productz.Type.CONSUMABLE -> {
                 if (promo != null) {
@@ -347,8 +362,8 @@ class AmazonInventory(
     }
 
     override fun destroy() {
-        Logger.v(TAG, "destroy")
-        mainScope.cancel()
+        Logger.v(TAG, "destroying...")
+        //mainScope.cancel() // TODO: don't stop?
     }
 
     companion object {
