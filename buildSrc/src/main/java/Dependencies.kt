@@ -34,7 +34,7 @@ object Dependencies {
     const val androidx_core = "1.8.0"
     const val androidx_constraint_layout = "2.1.4"
     const val androidx_appcompat = "1.4.2"
-    const val androidx_lifecycle_java8 = "2.4.1"
+    const val androidx_lifecycle_java8 = "2.5.0"
     const val google_material = "1.6.1"
 
     /**

@@ -29,6 +29,7 @@ import java.util.Locale
 /**
  * https://developer.android.com/reference/com/android/billingclient/api/SkuDetails
  */
+@Suppress("DEPRECATION")
 data class GoogleProduct(
     override val type: Productz.Type
 ) : Productz {

@@ -27,9 +27,9 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.lottie.LottieAnimationView
-import com.zuko.billingz.core.LogUtilz
 import com.zuko.billingz.core.R
 import com.zuko.billingz.core.databinding.ListItemProductBinding
+import com.zuko.billingz.core.misc.Logger
 import com.zuko.billingz.core.store.model.Productz
 
 /**
@@ -43,13 +43,13 @@ class ProductsAdapter(private val list: MutableList<Productz>, private var liste
     inner class ProductViewHolder(val binding: ListItemProductBinding) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
-        LogUtilz.log.v(TAG, "onCreateViewHolder => viewType: $viewType")
+        Logger.v(TAG, "onCreateViewHolder => viewType: $viewType")
         val binding = ListItemProductBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ProductViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
-        LogUtilz.log.v(TAG, "onBindViewHolder => position: $position")
+        Logger.v(TAG, "onBindViewHolder => position: $position")
         val item = list[position]
         holder.binding.productTitle.text = item.getProductId() ?: ""
         holder.binding.productDescription.text = item.getDescription() ?: ""
@@ -86,7 +86,7 @@ class ProductsAdapter(private val list: MutableList<Productz>, private var liste
      */
     @Suppress("unused")
     fun addProduct(product: Productz) {
-        LogUtilz.log.d(TAG, "addProduct")
+        Logger.d(TAG, "addProduct")
         val previousSize = list.size
         list.add(product)
         notifyItemInserted(previousSize)
@@ -97,7 +97,7 @@ class ProductsAdapter(private val list: MutableList<Productz>, private var liste
      */
     @Suppress("unused")
     fun removeProduct(product: Productz) {
-        LogUtilz.log.d(TAG, "removeProduct")
+        Logger.d(TAG, "removeProduct")
         val position = list.indexOf(product)
         if (position > -1) {
             listener?.onProductDeleted(product)
@@ -111,7 +111,7 @@ class ProductsAdapter(private val list: MutableList<Productz>, private var liste
      */
     @Suppress("unused")
     fun updateList(newList: MutableList<Productz>) {
-        LogUtilz.log.d(TAG, "updateList")
+        Logger.d(TAG, "updateList")
         val oldList = mutableListOf<Productz>()
         oldList.addAll(list)
         list.clear()

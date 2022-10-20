@@ -19,13 +19,12 @@
 package com.zuko.billingz.google.store.client
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.PurchasesUpdatedListener
-import com.zuko.billingz.core.LogUtilz
+import com.zuko.billingz.core.misc.Logger
 import com.zuko.billingz.core.store.client.Clientz
 import com.zuko.billingz.google.store.sales.GoogleResponse
 import kotlinx.coroutines.Dispatchers
@@ -60,7 +59,7 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
     }
 
     override fun isReady(): Boolean {
-        LogUtilz.log.d(TAG, "Is ready connection state: ${getConnectionStateName()}")
+        Logger.d(TAG, "Is ready connection state: ${getConnectionStateName()}")
         return isInitialized && isConnected && billingClient?.isReady == true
     }
 
@@ -68,11 +67,11 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
         context: Context?,
         connectionListener: Clientz.ConnectionListener
     ) {
-        LogUtilz.log.v(TAG, "Initializing client...")
+        Logger.v(TAG, "Initializing client...")
         this.connectionListener = connectionListener
         try {
             if (billingClient != null) {
-                LogUtilz.log.v(TAG, "Client already initialized...")
+                Logger.v(TAG, "Client already initialized...")
                 connect()
                 isInitialized = true
                 return
@@ -83,20 +82,20 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
                     .enablePendingPurchases() // switch
                     .build()
                 isInitialized = true
-            } ?: LogUtilz.log.w(TAG, "Failed to build client: null context")
+            } ?: Logger.w(TAG, "Failed to build client: null context")
         } catch (e: Exception) {
             connectionState.postValue(getConnectionState())
-            LogUtilz.log.wtf(TAG, "Failed to instantiate Android BillingClient. ${e.localizedMessage}")
+            Logger.wtf(TAG, "Failed to instantiate Android BillingClient. ${e.localizedMessage}")
         }
     }
 
     override fun connect() {
-        LogUtilz.log.v(TAG, "Connecting to Google...")
+        Logger.v(TAG, "Connecting to Google...")
         if (billingClient?.isReady == true) {
             isConnected = true
             connectionListener?.connected()
             connectionState.postValue(getConnectionState())
-            LogUtilz.log.v(TAG, "Client is already connected to Google...")
+            Logger.v(TAG, "Client is already connected to Google...")
             return
         }
         billingClient?.startConnection(object : BillingClientStateListener {
@@ -110,7 +109,7 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
                         connectionState.postValue(getConnectionState())
                     }
                     else -> {
-                        Log.w(TAG, "Unhandled response code: ${billingResult.responseCode}")
+                        Logger.w(TAG, "Unhandled response code: ${billingResult.responseCode}")
                         isConnected = false
                         connectionState.postValue(getConnectionState())
                     }
@@ -129,13 +128,13 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
     }
 
     override fun disconnect() {
-        LogUtilz.log.v(TAG, "Disconnecting from Google...")
+        Logger.v(TAG, "Disconnecting from Google...")
         billingClient?.endConnection()
         isConnected = false
     }
 
     override fun checkConnection() {
-        LogUtilz.log.d(TAG, "Connection state: ${getConnectionStateName()}")
+        Logger.d(TAG, "Connection state: ${getConnectionStateName()}")
         if (!isReady()) {
             connect()
         }
@@ -151,12 +150,12 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
 
     @Synchronized
     internal fun retry() {
-        LogUtilz.log.w(TAG, "Retrying to connect...")
+        Logger.w(TAG, "Retrying to connect...")
         if (isInitialized && !isConnected) {
             retryAttempts++
             if (retryAttempts <= maxAttempts) {
                 val seconds = 5 * 1000L
-                LogUtilz.log.wtf(TAG, "Connection failed - Next conection attempt #$retryAttempts in $seconds seconds.")
+                Logger.wtf(TAG, "Connection failed - Next conection attempt #$retryAttempts in $seconds seconds.")
                 mainScope.launch(Dispatchers.IO) {
                     delay(seconds) // wait 5 seconds
                     connect()
@@ -171,7 +170,7 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
     }
 
     override fun destroy() {
-        LogUtilz.log.v(TAG, "Destroying client...")
+        Logger.v(TAG, "Destroying client...")
         isInitialized = false
         disconnect()
         cancel()

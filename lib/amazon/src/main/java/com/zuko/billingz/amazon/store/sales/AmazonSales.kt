@@ -36,9 +36,9 @@ import com.zuko.billingz.amazon.store.model.AmazonOrderHistory
 import com.zuko.billingz.amazon.store.model.AmazonOrdersHistoryQuery
 import com.zuko.billingz.amazon.store.model.AmazonOrdersQuery
 import com.zuko.billingz.amazon.store.model.AmazonReceipt
-import com.zuko.billingz.core.LogUtilz
 import com.zuko.billingz.core.misc.BillingzDispatcher
 import com.zuko.billingz.core.misc.Dispatcherz
+import com.zuko.billingz.core.misc.Logger
 import com.zuko.billingz.core.store.client.Clientz
 import com.zuko.billingz.core.store.model.OrderHistoryz
 import com.zuko.billingz.core.store.model.Orderz
@@ -51,6 +51,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import org.json.JSONException
 
 /**
  * [IAP Docs](https://developer.amazon.com/docs/in-app-purchasing/iap-implement-iap.html#responsereceiver)
@@ -84,12 +85,12 @@ class AmazonSales(
     // verify amazon receipt via developer's implementation
     private val validatorCallback: Salez.ValidatorCallback = object : Salez.ValidatorCallback {
         override fun validated(order: Orderz) {
-            LogUtilz.log.d(TAG, "validated order: ${order.orderId}")
+            Logger.d(TAG, "validated order: ${order.orderId}")
             completeOrder(order)
         }
 
         override fun invalidated(order: Orderz) {
-            LogUtilz.log.d(TAG, "invalidated order: ${order.orderId}")
+            Logger.d(TAG, "invalidated order: ${order.orderId}")
             cancelOrder(order)
         }
     }
@@ -118,7 +119,7 @@ class AmazonSales(
                 failedOrder(order)
             }
         } else {
-            LogUtilz.log.e(TAG, "Order cannot start with invalid sku: ${product.getProductId()}")
+            Logger.e(TAG, "Order cannot start with invalid sku: ${product.getProductId()}")
             val order = AmazonOrder(
                 resultMessage = "Order cannot start with invalid sku: ${product.getProductId()}",
                 result = Orderz.Result.INVALID_PRODUCT,
@@ -164,39 +165,39 @@ class AmazonSales(
 
         when (response.requestStatus) {
             PurchaseResponse.RequestStatus.SUCCESSFUL -> {
-                LogUtilz.log.d(
+                Logger.d(
                     TAG,
                     "Successful purchase request: ${response.requestId}"
                 )
                 validateOrder(order = order)
             }
             PurchaseResponse.RequestStatus.FAILED -> {
-                LogUtilz.log.e(TAG, "Failed purchase request: ${response.requestId}")
+                Logger.e(TAG, "Failed purchase request: ${response.requestId}")
                 failedOrder(order = order)
             }
             PurchaseResponse.RequestStatus.ALREADY_PURCHASED -> {
-                LogUtilz.log.w(
+                Logger.w(
                     TAG,
                     "Already purchased product for purchase request: ${response.requestId}"
                 )
                 failedOrder(order = order)
             }
             PurchaseResponse.RequestStatus.INVALID_SKU -> {
-                LogUtilz.log.w(
+                Logger.w(
                     TAG,
                     "Invalid sku id for purchase request: ${response.requestId}"
                 )
                 failedOrder(order = order)
             }
             PurchaseResponse.RequestStatus.NOT_SUPPORTED -> {
-                LogUtilz.log.wtf(
+                Logger.wtf(
                     TAG,
                     "Unsupported purchase request: ${response.requestId}"
                 )
                 failedOrder(order = order)
             }
             else -> {
-                LogUtilz.log.w(
+                Logger.w(
                     TAG,
                     "Unknown request status: ${response.requestId}"
                 )
@@ -212,7 +213,7 @@ class AmazonSales(
             if (order is AmazonOrder) {
                 if (order.receipt?.isCanceled == true) {
                     // revoke
-                    LogUtilz.log.wtf(
+                    Logger.wtf(
                         TAG,
                         "AmazonOrder: " +
                             "\norderId: ${order.orderId}," +
@@ -223,7 +224,7 @@ class AmazonSales(
                 }
                 // Verify the receipts from the purchase by having your back-end server
                 // verify the receiptId with Amazon's Receipt Verification Service (RVS) before fulfilling the item
-                orderValidatorListener?.validate(order, validatorCallback) ?: LogUtilz.log.e(
+                orderValidatorListener?.validate(order, validatorCallback) ?: Logger.e(
                     TAG,
                     "Null validator object. Cannot complete order."
                 )
@@ -231,7 +232,7 @@ class AmazonSales(
         } catch (e: Exception) {
             order.state = Orderz.State.FAILED
             failedOrder(order)
-            LogUtilz.log.e(TAG, e.localizedMessage ?: "error")
+            Logger.e(TAG, e.localizedMessage ?: "error")
         }
     }
 
@@ -255,7 +256,7 @@ class AmazonSales(
                 if (order.receipt?.isCanceled == true) {
                     // revoke
                     cancelOrder(order)
-                    LogUtilz.log.wtf(TAG, "isCanceled")
+                    Logger.wtf(TAG, "isCanceled")
                     return
                 }
                 // successful
@@ -276,7 +277,7 @@ class AmazonSales(
             }
         } catch (e: Exception) {
             order.state = Orderz.State.FAILED
-            LogUtilz.log.e(TAG, e.localizedMessage ?: "error")
+            Logger.e(TAG, e.localizedMessage ?: "error")
         }
     }
 
@@ -285,11 +286,11 @@ class AmazonSales(
      */
     override fun refreshQueries() {
         isAlreadyQueried = if (isAlreadyQueried) {
-            LogUtilz.log.d(TAG, "Skipping purchase history refresh.")
+            Logger.d(TAG, "Skipping purchase history refresh.")
             // skip - prevents double queries on initialization
             false
         } else {
-            LogUtilz.log.d(TAG, "Refreshing purchase history.")
+            Logger.d(TAG, "Refreshing purchase history.")
             queryOrders()
             true
         }
@@ -299,8 +300,14 @@ class AmazonSales(
      * Must be called in onResume
      */
     override fun queryOrders(): QueryResult<Orderz> {
-        currentOrdersQueryId = getPurchaseUpdates(false)
-        LogUtilz.log.d(TAG, "queryOrders \npurchaseUpdatesRequestId: $currentOrdersQueryId")
+        try {
+            currentOrdersQueryId = getPurchaseUpdates(false)
+            Logger.d(TAG, "queryOrders \npurchaseUpdatesRequestId: ${currentOrdersQueryId?.toJSON()?.toString(2)}")
+        } catch (e: JSONException) {
+            Logger.e(TAG, e)
+        } catch (e: Exception) {
+            Logger.e(TAG, e)
+        }
         return AmazonOrdersQuery(this)
     }
 
@@ -313,9 +320,9 @@ class AmazonSales(
      * entitlement, and subscription purchases. Amazon recommends using this approach in most cases.
      */
     private fun getPurchaseUpdates(reset: Boolean): RequestId? {
-        LogUtilz.log.d(TAG, "getPurchaseUpdates \nreset: $reset")
+        Logger.d(TAG, "getPurchaseUpdates \nreset: $reset")
         try {
-            PurchasingService.getPurchaseUpdates(reset)
+            return PurchasingService.getPurchaseUpdates(reset)
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -339,40 +346,47 @@ class AmazonSales(
     }
 
     override fun queryReceipts(type: Productz.Type?): QueryResult<OrderHistoryz> {
-        currentHistoryQueryId = getPurchaseUpdates(true)
-        LogUtilz.log.d(TAG, "queryReceipts: \npurchaseUpdatesRequestId: $currentHistoryQueryId")
+        try {
+            currentHistoryQueryId = getPurchaseUpdates(true)
+            Logger.d(TAG, "queryReceipts: \npurchaseUpdatesRequestId: ${currentHistoryQueryId?.toJSON()?.toString(2)}")
+        } catch (e: JSONException) {
+            Logger.e(TAG, e)
+        } catch (e: Exception) {
+            Logger.e(TAG, e)
+        }
         return AmazonOrdersHistoryQuery(this)
     }
 
     override fun processPurchaseUpdates(response: PurchaseUpdatesResponse?) {
         response ?: return
+        currentOrdersQueryId ?: return
 
         if (response.requestId == currentOrdersQueryId) {
-            LogUtilz.log.i(TAG, "OrdersQuery request id found: $currentOrdersQueryId")
+            Logger.i(TAG, "OrdersQuery request id found: $currentOrdersQueryId")
             processOrdersQueryResult(response)
         }
 
         if (response.requestId == currentHistoryQueryId) {
-            LogUtilz.log.i(TAG, "OrderHistoryQuery request id found: $currentHistoryQueryId")
+            Logger.i(TAG, "OrderHistoryQuery request id found: $currentHistoryQueryId")
             processHistoryQueryResult(response)
         }
     }
 
     override fun processOrdersQueryResult(response: PurchaseUpdatesResponse) {
-        LogUtilz.log.v(TAG, "Processing Orders query: ${response.requestId}")
+        Logger.v(TAG, "Processing Orders query: ${response.requestId}")
         processQueryResult(response, false)
     }
 
     override fun processHistoryQueryResult(response: PurchaseUpdatesResponse) {
-        LogUtilz.log.v(TAG, "Processing OrderHistory query: ${response.requestId}")
+        Logger.v(TAG, "Processing OrderHistory query: ${response.requestId}")
         processQueryResult(response, true)
     }
 
     private fun processQueryResult(response: PurchaseUpdatesResponse, isFullHistory: Boolean) {
-        LogUtilz.log.v(TAG, "Processing query result: ${response.requestId}")
+        Logger.v(TAG, "Processing query result: ${response.requestId}")
         when (response.requestStatus) {
             PurchaseUpdatesResponse.RequestStatus.SUCCESSFUL -> {
-                LogUtilz.log.d(
+                Logger.d(
                     TAG,
                     "Successful purchase updates request: ${response.requestId}"
                 )
@@ -423,19 +437,19 @@ class AmazonSales(
                 }
             }
             PurchaseUpdatesResponse.RequestStatus.FAILED -> {
-                LogUtilz.log.e(
+                Logger.e(
                     TAG,
                     "Failed purchase updates request: ${response.requestId}"
                 )
             }
             PurchaseUpdatesResponse.RequestStatus.NOT_SUPPORTED -> {
-                LogUtilz.log.wtf(
+                Logger.wtf(
                     TAG,
                     "Unsupported purchase update request: ${response.requestId}"
                 )
             }
             else -> {
-                LogUtilz.log.w(
+                Logger.w(
                     TAG,
                     "Unknown request status: ${response.requestId}"
                 )
@@ -483,11 +497,11 @@ class AmazonSales(
     }
 
     override fun setObfuscatedIdentifiers(accountId: String?, profileId: String?) {
-        LogUtilz.log.w(TAG, "setObfuscatedIdentifiers: is not supported by Amazon IAP.")
+        Logger.w(TAG, "setObfuscatedIdentifiers: is not supported by Amazon IAP.")
     }
 
     private fun completeConsumable(receipt: Receipt?) {
-        LogUtilz.log.v(TAG, "completeConsumable")
+        Logger.v(TAG, "completeConsumable")
         receipt ?: return
         val amazonReceipt = AmazonReceipt(receipt)
         currentReceipt.postValue(amazonReceipt)
@@ -495,7 +509,7 @@ class AmazonSales(
     }
 
     private fun completeNonConsumable(receipt: Receipt?) {
-        LogUtilz.log.v(TAG, "completeNonConsumable")
+        Logger.v(TAG, "completeNonConsumable")
         receipt ?: return
         val amazonReceipt = AmazonReceipt(receipt)
         currentReceipt.postValue(amazonReceipt)
@@ -508,7 +522,7 @@ class AmazonSales(
      * the app will receive multiple receipts.
      */
     private fun completeSubscription(receipt: Receipt?) {
-        LogUtilz.log.v(TAG, "completeSubscription")
+        Logger.v(TAG, "completeSubscription")
         receipt ?: return
         val amazonReceipt = AmazonReceipt(receipt)
         currentReceipt.postValue(amazonReceipt)
@@ -516,7 +530,7 @@ class AmazonSales(
     }
 
     override fun cancelOrder(order: Orderz) {
-        LogUtilz.log.v(TAG, "cancelOrder")
+        Logger.v(TAG, "cancelOrder")
         if (order is AmazonOrder) {
             order.receipt?.receiptId?.let { id ->
                 notifyFulfillment(id, false)
@@ -528,7 +542,7 @@ class AmazonSales(
     }
 
     override fun failedOrder(order: Orderz) {
-        LogUtilz.log.v(TAG, "failedOrder")
+        Logger.v(TAG, "failedOrder")
         if (order is AmazonOrder) {
             order.receipt?.receiptId?.let { id ->
                 notifyFulfillment(id, false)
@@ -540,7 +554,7 @@ class AmazonSales(
     }
 
     private fun notifyFulfillment(receiptId: String, acknowledge: Boolean) {
-        LogUtilz.log.v(
+        Logger.v(
             TAG,
             "notifyFulfillment:" +
                 "\nreceiptId: $receiptId," +
@@ -557,12 +571,12 @@ class AmazonSales(
                 result
             )
         } catch (e: Exception) {
-            LogUtilz.log.e(TAG, "Failed to acknowledge order: $e")
+            Logger.e(TAG, "Failed to acknowledge order: $e")
         }
     }
 
     override fun destroy() {
-        LogUtilz.log.v(TAG, "destroy")
+        Logger.v(TAG, "destroy")
         mainScope.cancel()
     }
 

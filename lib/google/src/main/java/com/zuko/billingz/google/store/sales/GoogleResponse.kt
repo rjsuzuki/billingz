@@ -16,10 +16,9 @@
  */
 package com.zuko.billingz.google.store.sales
 
-import android.util.Log
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingResult
-import com.zuko.billingz.core.LogUtilz
+import com.zuko.billingz.core.misc.Logger
 
 /**
  * @author rjsuzuki
@@ -35,46 +34,46 @@ object GoogleResponse {
     fun logResult(billingResult: BillingResult?) {
         when (billingResult?.responseCode) {
             BillingClient.BillingResponseCode.OK -> {
-                LogUtilz.log.d(
+                Logger.d(
                     TAG,
                     "Response Code: " + BillingClient.BillingResponseCode.OK.toString() + ": OK"
                 )
             }
             BillingClient.BillingResponseCode.USER_CANCELED -> {
-                LogUtilz.log.w(TAG, "Response Code: " + BillingClient.BillingResponseCode.USER_CANCELED.toString() + ": ${billingResult.debugMessage}")
+                Logger.w(TAG, "Response Code: " + BillingClient.BillingResponseCode.USER_CANCELED.toString() + ": ${billingResult.debugMessage}")
             }
             BillingClient.BillingResponseCode.BILLING_UNAVAILABLE -> {
-                LogUtilz.log.w(TAG, "Response Code: " + BillingClient.BillingResponseCode.BILLING_UNAVAILABLE.toString() + ": ${billingResult.debugMessage}")
+                Logger.w(TAG, "Response Code: " + BillingClient.BillingResponseCode.BILLING_UNAVAILABLE.toString() + ": ${billingResult.debugMessage}")
             }
             BillingClient.BillingResponseCode.DEVELOPER_ERROR -> {
-                LogUtilz.log.e(TAG, "Response Code: " + BillingClient.BillingResponseCode.DEVELOPER_ERROR.toString() + ": ${billingResult.debugMessage}")
+                Logger.e(TAG, "Response Code: " + BillingClient.BillingResponseCode.DEVELOPER_ERROR.toString() + ": ${billingResult.debugMessage}")
             }
             BillingClient.BillingResponseCode.ERROR -> {
-                LogUtilz.log.e(TAG, "Response Code: " + BillingClient.BillingResponseCode.ERROR.toString() + ": ${billingResult.debugMessage}")
+                Logger.e(TAG, "Response Code: " + BillingClient.BillingResponseCode.ERROR.toString() + ": ${billingResult.debugMessage}")
             }
             BillingClient.BillingResponseCode.FEATURE_NOT_SUPPORTED -> {
-                LogUtilz.log.w(TAG, "Response Code: " + BillingClient.BillingResponseCode.FEATURE_NOT_SUPPORTED.toString() + ": ${billingResult.debugMessage}")
+                Logger.w(TAG, "Response Code: " + BillingClient.BillingResponseCode.FEATURE_NOT_SUPPORTED.toString() + ": ${billingResult.debugMessage}")
             }
             BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED -> {
-                LogUtilz.log.w(TAG, "Response Code: " + BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED.toString() + ": ${billingResult.debugMessage}")
+                Logger.w(TAG, "Response Code: " + BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED.toString() + ": ${billingResult.debugMessage}")
             }
             BillingClient.BillingResponseCode.ITEM_NOT_OWNED -> {
-                LogUtilz.log.w(TAG, "Response Code: " + BillingClient.BillingResponseCode.ITEM_NOT_OWNED.toString() + ": ${billingResult.debugMessage}")
+                Logger.w(TAG, "Response Code: " + BillingClient.BillingResponseCode.ITEM_NOT_OWNED.toString() + ": ${billingResult.debugMessage}")
             }
             BillingClient.BillingResponseCode.ITEM_UNAVAILABLE -> {
-                LogUtilz.log.w(TAG, "Response Code: " + BillingClient.BillingResponseCode.ITEM_UNAVAILABLE.toString() + ": ${billingResult.debugMessage}")
+                Logger.w(TAG, "Response Code: " + BillingClient.BillingResponseCode.ITEM_UNAVAILABLE.toString() + ": ${billingResult.debugMessage}")
             }
             BillingClient.BillingResponseCode.SERVICE_DISCONNECTED -> {
-                LogUtilz.log.w(TAG, "Response Code: " + BillingClient.BillingResponseCode.SERVICE_DISCONNECTED.toString() + ": ${billingResult.debugMessage}")
+                Logger.w(TAG, "Response Code: " + BillingClient.BillingResponseCode.SERVICE_DISCONNECTED.toString() + ": ${billingResult.debugMessage}")
             }
             BillingClient.BillingResponseCode.SERVICE_TIMEOUT -> {
-                LogUtilz.log.e(TAG, "Response Code: " + BillingClient.BillingResponseCode.SERVICE_TIMEOUT.toString() + ": ${billingResult.debugMessage}")
+                Logger.e(TAG, "Response Code: " + BillingClient.BillingResponseCode.SERVICE_TIMEOUT.toString() + ": ${billingResult.debugMessage}")
             }
             BillingClient.BillingResponseCode.SERVICE_UNAVAILABLE -> {
-                LogUtilz.log.e(TAG, "Response Code: " + BillingClient.BillingResponseCode.SERVICE_UNAVAILABLE.toString() + ": ${billingResult.debugMessage}")
+                Logger.e(TAG, "Response Code: " + BillingClient.BillingResponseCode.SERVICE_UNAVAILABLE.toString() + ": ${billingResult.debugMessage}")
             }
             else -> {
-                Log.wtf(TAG, "Unhandled response code: ${billingResult?.responseCode}")
+                Logger.wtf(TAG, "Unhandled response code: ${billingResult?.responseCode}")
             }
         }
     }
