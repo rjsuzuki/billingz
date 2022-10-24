@@ -31,6 +31,8 @@ object BillingzStore {
         private lateinit var updaterListener: Salez.OrderUpdaterListener
         private lateinit var validatorListener: Salez.OrderValidatorListener
         private var accountId: String? = null
+        private var profileId: String? = null
+        private var hashingSalt: String? = null
         private var isNewVersion = false
 
         /**
@@ -57,6 +59,16 @@ object BillingzStore {
             return this
         }
 
+        override fun setProfileId(id: String?): Storez.Builder {
+            profileId = id
+            return this
+        }
+
+        override fun setObfuscatingHashingSalt(salt: String?): Storez.Builder {
+            hashingSalt = salt
+            return this
+        }
+
         override fun setNewVersion(enable: Boolean): Storez.Builder {
             isNewVersion = enable
             return this
@@ -67,6 +79,8 @@ object BillingzStore {
                 .setOrderUpdater(updaterListener)
                 .setOrderValidator(validatorListener)
                 .setAccountId(accountId)
+                .setProfileId(profileId)
+                .setObfuscatingHashingSalt(hashingSalt)
                 .setNewVersion(isNewVersion)
                 .build(context)
             return instance

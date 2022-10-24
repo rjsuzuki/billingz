@@ -53,6 +53,20 @@ interface Storez : StoreLifecycle {
         fun setAccountId(id: String?): Builder
 
         /**
+         * Some applications allow users to have multiple profiles within a single account.
+         * Use this method to send the user's profile identifier to Google.
+         * @param - unique identifier for the user's profile (64 character limit).
+         * The profile ID is obfuscated using SHA-256 before being cached and used.
+         */
+        fun setProfileId(id: String?): Builder
+
+        /**
+         * Specify a salt to use when obfuscating account id or profile id
+         * @param - a string to use as salt for the hashing of identifiers
+         */
+        fun setObfuscatingHashingSalt(salt: String?): Builder
+
+        /**
          * Toggle between an old and new version of Billingz.
          * Old versions maintain legacy functionality, and newer versions
          * use the latest changes from their respetive billing libraries.

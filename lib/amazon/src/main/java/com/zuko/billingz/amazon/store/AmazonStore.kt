@@ -36,6 +36,7 @@ import com.zuko.billingz.core.store.model.Orderz
 import com.zuko.billingz.core.store.model.Productz
 import com.zuko.billingz.core.store.model.QueryResult
 import com.zuko.billingz.core.store.sales.Salez
+import com.zuko.billingz.core.store.security.Securityz
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.StateFlow
@@ -108,6 +109,25 @@ class AmazonStore internal constructor() : Storez {
     }
 
     private val storeAgent = object : Agentz {
+
+        override fun updateIdentifiers(
+            accountId: String?,
+            profileId: String?,
+            hashingSalt: String?
+        ) {
+            var hashedAccountId: String? = null
+            var hashedProfileId: String? = null
+            if (!accountId.isNullOrBlank()) {
+                hashedAccountId = Securityz.sha256(accountId, hashingSalt)
+            }
+            if (!profileId.isNullOrBlank()) {
+                hashedProfileId = Securityz.sha256(profileId, hashingSalt)
+            }
+            sales.setObfuscatedIdentifiers(
+                accountId = hashedAccountId,
+                profileId = hashedProfileId
+            )
+        }
 
         override fun isInventoryReadyLiveData(): LiveData<Boolean> {
             return inventory.isReadyLiveData()
@@ -205,6 +225,8 @@ class AmazonStore internal constructor() : Storez {
         private lateinit var validatorListener: Salez.OrderValidatorListener
         private lateinit var products: ArrayMap<String, Productz.Type>
         private var accountId: String? = null
+        private var profileId: String? = null
+        private var hashingSalt: String? = null
         private var isNewVersion = false
         /**
          * @param listener - Required to be set for proper functionality
@@ -227,6 +249,16 @@ class AmazonStore internal constructor() : Storez {
          */
         override fun setAccountId(id: String?): Builder {
             accountId = id
+            return this
+        }
+
+        override fun setProfileId(id: String?): Storez.Builder {
+            profileId = id
+            return this
+        }
+
+        override fun setObfuscatingHashingSalt(salt: String?): Storez.Builder {
+            hashingSalt = salt
             return this
         }
 

@@ -37,6 +37,12 @@ import kotlinx.coroutines.flow.StateFlow
  */
 interface Agentz {
 
+
+    /**
+     * Update the current library instance with new user identifiers.
+     */
+    fun updateIdentifiers(accountId: String?, profileId: String?, hashingSalt: String?)
+
     /**
      * Checks if the billing client has products loaded. if false, use [queryInventory]
      * to prepare the client for purchases.

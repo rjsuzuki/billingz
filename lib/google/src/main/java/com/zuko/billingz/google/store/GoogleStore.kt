@@ -121,6 +121,21 @@ class GoogleStore internal constructor() : Storez {
     @Suppress("OverridingDeprecatedMember")
     private val storeAgent = object : Agentz {
 
+        override fun updateIdentifiers(accountId: String?, profileId: String?, hashingSalt: String?) {
+            var hashedAccountId: String? = null
+            var hashedProfileId: String? = null
+            if (!accountId.isNullOrBlank()) {
+                hashedAccountId = Securityz.sha256(accountId, hashingSalt)
+            }
+            if (!profileId.isNullOrBlank()) {
+                hashedProfileId = Securityz.sha256(profileId, hashingSalt)
+            }
+            sales.setObfuscatedIdentifiers(
+                accountId = hashedAccountId,
+                profileId = hashedProfileId
+            )
+        }
+
         override fun isInventoryReadyLiveData(): LiveData<Boolean> {
             return inventory.isReadyLiveData()
         }
@@ -232,12 +247,9 @@ class GoogleStore internal constructor() : Storez {
             return this
         }
 
-        /**
-         * Specify a salt to use when obfuscating account id or profile id
-         * @param - a string to use as salt for the hashing of identifiers
-         */
-        fun setObfuscatingHashingSalt(salt: String?) {
+        override fun setObfuscatingHashingSalt(salt: String?): Builder {
             hashingSalt = salt
+            return this
         }
 
         override fun setAccountId(id: String?): Builder {
@@ -247,13 +259,7 @@ class GoogleStore internal constructor() : Storez {
             return this
         }
 
-        /**
-         * Some applications allow users to have multiple profiles within a single account.
-         * Use this method to send the user's profile identifier to Google.
-         * @param - unique identifier for the user's profile (64 character limit).
-         * The profile ID is obfuscated using SHA-256 before being cached and used.
-         */
-        fun setProfileId(id: String?): Builder {
+        override fun setProfileId(id: String?): Builder {
             if (!id.isNullOrBlank()) {
                 obfuscatedProfileId = Securityz.sha256(id, hashingSalt)
             }
