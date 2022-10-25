@@ -37,7 +37,6 @@ import kotlinx.coroutines.flow.StateFlow
  */
 interface Agentz {
 
-
     /**
      * Update the current library instance with new user identifiers.
      */
