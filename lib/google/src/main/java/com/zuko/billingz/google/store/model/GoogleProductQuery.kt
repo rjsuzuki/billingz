@@ -20,23 +20,29 @@
 package com.zuko.billingz.google.store.model
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.zuko.billingz.core.store.model.Productz
 import com.zuko.billingz.core.store.model.QueryResult
 import com.zuko.billingz.google.store.inventory.GoogleInventory
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 data class GoogleProductQuery(
     private val sku: String,
-    private val type: Productz.Type,
-    private val inventory: GoogleInventory
+    private val type: Productz.Type
 ) : QueryResult<Productz> {
 
+    val queriedProductLiveData = MutableLiveData<Productz>()
+    val queriedProductStateFlow: MutableStateFlow<Productz?> = MutableStateFlow(null)
+    private val queriedProductState = queriedProductStateFlow.asStateFlow()
+
     override fun liveData(): LiveData<Productz?> {
-        return inventory.queryProductLiveData()
+        return queriedProductLiveData
     }
 
     override fun flow(): StateFlow<Productz?> {
-        return inventory.queryProductStateFlow()
+        return queriedProductState
     }
 
     companion object {
