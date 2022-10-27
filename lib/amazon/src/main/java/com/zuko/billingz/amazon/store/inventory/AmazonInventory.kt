@@ -61,10 +61,8 @@ class AmazonInventory(
     }
     private val requestedProductsState: StateFlow<ArrayMap<String, Productz>> by lazy { requestedProductsStateFlow.asStateFlow() }
 
-    private val queriedProductLiveData = MutableLiveData<AmazonProduct?>()
-    private val queriedProductStateFlow = MutableStateFlow<AmazonProduct?>(null)
-    private val queriedProductState = queriedProductStateFlow.asStateFlow()
-
+    private val queriedProductsMap = ArrayMap<String, AmazonProductQuery>()
+    
     /**
      * Cached list of invalid skus to prevent your app's users from being able
      * to purchase these products.
@@ -109,6 +107,13 @@ class AmazonInventory(
                     products[r.key] = product.type
                     productsList.add(product)
                     Logger.i(TAG, "Validated product: $product")
+                    product.getProductId()?.let { sku ->
+                        mainScope.launch(dispatcher.main()) {
+                            val query = queriedProductsMap[sku]
+                            query?.queriedProductLiveData?.postValue(product)
+                            query?.queriedProductStateFlow?.emit(product)
+                        }
+                    }
                 }
                 Logger.v(
                     TAG,
@@ -140,14 +145,6 @@ class AmazonInventory(
         queryType = Productz.Type.UNKNOWN
     }
 
-    internal fun queryProductStateFlow(): StateFlow<AmazonProduct?> {
-        return queriedProductState
-    }
-
-    internal fun queryProductLiveData(): LiveData<AmazonProduct?> {
-        return queriedProductLiveData
-    }
-
     override fun queryProduct(sku: String, type: Productz.Type): QueryResult<Productz> {
         Logger.v(TAG, "queryProduct: $sku, $type")
         mainScope.launch(dispatcher.io()) {
@@ -176,8 +173,9 @@ class AmazonInventory(
                 e.printStackTrace()
             }
         }
-
-        return AmazonProductQuery(sku, type, this)
+        val query = AmazonProductQuery(sku, type)
+        queriedProductsMap[sku] = query
+        return query
     }
 
     override fun queryInventory(products: Map<String, Productz.Type>): QueryResult<Map<String, Productz>> {

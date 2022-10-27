@@ -20,22 +20,27 @@
 package com.zuko.billingz.amazon.store.model
 
 import androidx.lifecycle.LiveData
-import com.zuko.billingz.amazon.store.inventory.AmazonInventory
+import androidx.lifecycle.MutableLiveData
 import com.zuko.billingz.core.store.model.Productz
 import com.zuko.billingz.core.store.model.QueryResult
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class AmazonProductQuery(
     private val sku: String,
-    private val type: Productz.Type,
-    private val inventory: AmazonInventory
+    private val type: Productz.Type
 ) :
     QueryResult<AmazonProduct> {
+
+    val queriedProductLiveData = MutableLiveData<AmazonProduct>()
+    val queriedProductStateFlow: MutableStateFlow<AmazonProduct?> = MutableStateFlow(null)
+    private val queriedProductState = queriedProductStateFlow.asStateFlow()
     override fun liveData(): LiveData<AmazonProduct?> {
-        return inventory.queryProductLiveData()
+        return queriedProductLiveData
     }
 
     override fun flow(): StateFlow<AmazonProduct?> {
-        return inventory.queryProductStateFlow()
+        return queriedProductState
     }
 }
