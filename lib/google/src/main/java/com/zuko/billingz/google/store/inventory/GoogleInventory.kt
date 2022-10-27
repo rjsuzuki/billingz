@@ -211,10 +211,10 @@ class GoogleInventory(
                 }
             }
         }
-        return GoogleProductQuery(sku, type, this)
+        return GoogleProductQuery(sku, type)
     }
 
-    private fun queryProductInternal(sku: String, type: Productz.Type, skuType: String) {
+    private fun queryProductInternal(sku: String, type: Productz.Type, skuType: String, query: GoogleProductQuery) {
         val builder = SkuDetailsParams.newBuilder()
         val params = builder
             .setSkusList(listOf(sku))
@@ -226,8 +226,8 @@ class GoogleInventory(
             ) {
                 val product = GoogleProduct(skuDetails = skuDetailsList.first(), type = type)
                 mainScope.launch(dispatcher.main()) {
-                    queriedProductLiveData.postValue(product)
-                    queriedProductStateFlow.emit(product)
+                    query.queriedProductStateFlow.emit(product)
+                    query.queriedProductLiveData.postValue(product)
                 }
             }
         }
@@ -245,23 +245,17 @@ class GoogleInventory(
             Productz.Type.UNKNOWN -> Productz.Type.UNKNOWN.name
         }
 
+        val query = GoogleProductQuery(sku, type)
+
         if (skuType == Productz.Type.UNKNOWN.name) {
-            queryProductInternal(sku, Productz.Type.SUBSCRIPTION, BillingClient.ProductType.SUBS)
-            queryProductInternal(sku, Productz.Type.CONSUMABLE, BillingClient.ProductType.INAPP)
-            queryProductInternal(sku, Productz.Type.NON_CONSUMABLE, BillingClient.ProductType.INAPP)
+            queryProductInternal(sku, Productz.Type.SUBSCRIPTION, BillingClient.ProductType.SUBS, query)
+            queryProductInternal(sku, Productz.Type.CONSUMABLE, BillingClient.ProductType.INAPP, query)
+            queryProductInternal(sku, Productz.Type.NON_CONSUMABLE, BillingClient.ProductType.INAPP, query)
         } else {
-            queryProductInternal(sku, type, skuType)
+            queryProductInternal(sku, type, skuType, query)
         }
 
-        return GoogleProductQuery(sku, type, this)
-    }
-
-    internal fun queryProductLiveData(): LiveData<Productz?> {
-        return queriedProductLiveData
-    }
-
-    internal fun queryProductStateFlow(): StateFlow<Productz?> {
-        return queriedProductState
+        return query
     }
 
     internal fun queryInventoryLiveData(): LiveData<ArrayMap<String, Productz>?> {
