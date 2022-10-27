@@ -70,10 +70,6 @@ class GoogleInventory(
     }
     private val requestedProductsState: StateFlow<ArrayMap<String, Productz>> by lazy { requestedProductsStateFlow.asStateFlow() }
 
-    private val queriedProductLiveData = MutableLiveData<Productz>()
-    private val queriedProductStateFlow: MutableStateFlow<Productz?> = MutableStateFlow(null)
-    private val queriedProductState = queriedProductStateFlow.asStateFlow()
-
     private val mainScope = MainScope()
 
     private fun queryProducts2(skus: List<String>, type: Productz.Type) {
@@ -200,18 +196,20 @@ class GoogleInventory(
                 )
             )
             .build()
+        val query = GoogleProductQuery(sku, type)
+
         client.getBillingClient()?.queryProductDetailsAsync(params) { billingResult, productDetailsList ->
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK &&
                 productDetailsList.isNotEmpty()
             ) {
                 val product = GoogleProduct(productDetails = productDetailsList.first(), type = type)
                 mainScope.launch(dispatcher.main()) {
-                    queriedProductLiveData.postValue(product)
-                    queriedProductStateFlow.emit(product)
+                    query.queriedProductLiveData.postValue(product)
+                    query.queriedProductStateFlow.emit(product)
                 }
             }
         }
-        return GoogleProductQuery(sku, type)
+        return query
     }
 
     private fun queryProductInternal(sku: String, type: Productz.Type, skuType: String, query: GoogleProductQuery) {
