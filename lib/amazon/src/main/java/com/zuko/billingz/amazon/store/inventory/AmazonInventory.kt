@@ -62,7 +62,7 @@ class AmazonInventory(
     private val requestedProductsState: StateFlow<ArrayMap<String, Productz>> by lazy { requestedProductsStateFlow.asStateFlow() }
 
     private val queriedProductsMap = ArrayMap<String, AmazonProductQuery>()
-    
+
     /**
      * Cached list of invalid skus to prevent your app's users from being able
      * to purchase these products.

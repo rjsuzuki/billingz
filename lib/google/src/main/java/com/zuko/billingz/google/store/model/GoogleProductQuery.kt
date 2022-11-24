@@ -43,8 +43,4 @@ data class GoogleProductQuery(
     override fun flow(): StateFlow<Productz?> {
         return queriedProductState
     }
-
-    companion object {
-        private const val TAG = "GoogleProductQuery"
-    }
 }

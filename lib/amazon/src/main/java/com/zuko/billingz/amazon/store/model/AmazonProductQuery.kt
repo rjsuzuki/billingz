@@ -30,12 +30,12 @@ import kotlinx.coroutines.flow.asStateFlow
 class AmazonProductQuery(
     private val sku: String,
     private val type: Productz.Type
-) :
-    QueryResult<AmazonProduct> {
+) : QueryResult<AmazonProduct> {
 
     val queriedProductLiveData = MutableLiveData<AmazonProduct>()
     val queriedProductStateFlow: MutableStateFlow<AmazonProduct?> = MutableStateFlow(null)
     private val queriedProductState = queriedProductStateFlow.asStateFlow()
+
     override fun liveData(): LiveData<AmazonProduct?> {
         return queriedProductLiveData
     }
