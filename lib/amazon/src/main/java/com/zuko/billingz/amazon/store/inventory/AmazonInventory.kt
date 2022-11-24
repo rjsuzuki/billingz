@@ -246,9 +246,9 @@ class AmazonInventory(
                     }
                 }
 
-                tempConsumables.forEach { c -> consumables.putIfAbsent(c.key, c.value) }
-                tempNonConsumables.forEach { nc -> nonConsumables.putIfAbsent(nc.key, nc.value) }
-                tempSubscriptions.forEach { s -> subscriptions.putIfAbsent(s.key, s.value) }
+                updateConsumbalesCache(tempConsumables)
+                updateNonConsumbalesCache(tempNonConsumables)
+                updateSubscriptionsCache(tempSubscriptions)
 
                 // After sorting the skus into the inventory cache, notify subscribers
                 when (type) {
@@ -276,6 +276,21 @@ class AmazonInventory(
                 }
             }
         }
+    }
+
+    @Synchronized
+    private fun updateConsumbalesCache(data: ArrayMap<String, Productz>) {
+        data.forEach { c -> consumables.putIfAbsent(c.key, c.value) }
+    }
+
+    @Synchronized
+    private fun updateNonConsumbalesCache(data: ArrayMap<String, Productz>) {
+        data.forEach { nc -> nonConsumables.putIfAbsent(nc.key, nc.value) }
+    }
+
+    @Synchronized
+    private fun updateSubscriptionsCache(data: ArrayMap<String, Productz>) {
+        data.forEach { s -> subscriptions.putIfAbsent(s.key, s.value) }
     }
 
     override fun getProduct(sku: String?): Productz? {
