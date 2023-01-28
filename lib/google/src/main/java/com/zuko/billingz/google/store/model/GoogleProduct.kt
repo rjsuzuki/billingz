@@ -118,23 +118,28 @@ data class GoogleProduct(
                 Currency.getInstance(productDetails.subscriptionOfferDetails?.firstOrNull()?.pricingPhases?.pricingPhaseList?.firstOrNull()?.priceCurrencyCode)
 
             productDetails.subscriptionOfferDetails?.forEach { offerDetails ->
-                offerDetails.offerToken
-                offerDetails.offerTags
+
+                // Offer details other values
+                // offerDetails.offerToken
+                // offerDetails.offerTags
+                // offerDetails.installmentPlanDetails
+
                 offerDetails.pricingPhases.pricingPhaseList.forEach { pricingPhase ->
-                    pricingPhase.billingPeriod
-                    pricingPhase.formattedPrice
-                    pricingPhase.priceCurrencyCode
-                    pricingPhase.recurrenceMode
-                    pricingPhase.billingCycleCount
-                    pricingPhase.priceAmountMicros
+                    pricingInfo = PricingInfo(
+                        introPrice = pricingPhase.formattedPrice,
+                        introPricePeriod = pricingPhase.billingPeriod,
+                        billingPeriod = productDetails.subscriptionOfferDetails?.firstOrNull()?.pricingPhases?.pricingPhaseList?.firstOrNull()?.billingPeriod,
+                        trialPeriod = pricingPhase.billingPeriod
+                    )
+
+                    // Other pricing information
+                    // pricingPhase.priceCurrencyCode
+                    // pricingPhase.recurrenceMode
+                    // pricingPhase.billingCycleCount
+                    // pricingPhase.priceAmountMicros
                 }
             }
-            pricingInfo = PricingInfo(
-                introPrice = null,
-                introPricePeriod = null,
-                billingPeriod = productDetails.subscriptionOfferDetails?.firstOrNull()?.pricingPhases?.pricingPhaseList?.firstOrNull()?.billingPeriod,
-                trialPeriod = null
-            )
+
         } else {
             price = productDetails.oneTimePurchaseOfferDetails?.formattedPrice
             currency =
