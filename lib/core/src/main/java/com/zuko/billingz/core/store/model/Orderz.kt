@@ -109,6 +109,7 @@ interface Orderz : ModuleIdentifier {
         ERROR(6), // FAILED
         PRODUCT_ALREADY_OWNED(7),
         PRODUCT_NOT_OWNED(8),
-        NO_RESULT(9)
+        NO_RESULT(9),
+        PENDING(10)
     }
 }

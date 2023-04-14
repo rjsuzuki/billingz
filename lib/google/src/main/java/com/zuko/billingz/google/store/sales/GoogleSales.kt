@@ -818,7 +818,11 @@ class GoogleSales(
     private fun queryOrderHistory(type: Productz.Type?) {
         Logger.v(TAG, "queryOrderHistory: $type")
         val skuType =
-            if (type == Productz.Type.SUBSCRIPTION) BillingClient.ProductType.SUBS else BillingClient.ProductType.INAPP
+            if (type == Productz.Type.SUBSCRIPTION) {
+                BillingClient.ProductType.SUBS
+            } else {
+                BillingClient.ProductType.INAPP
+            }
 
         mainScope.launch(dispatcher.io()) {
             if (isNewVersion) {
@@ -862,9 +866,9 @@ class GoogleSales(
                 receipt.entitlement = record.purchaseToken
                 receipt.orderDate = Date(record.purchaseTime)
                 if (isNewVersion) {
-                    receipt.skus = record.products
+                    receipt.skus = record.products.toList()
                 } else {
-                    receipt.skus = record.skus
+                    receipt.skus = record.skus.toList()
                 }
                 receipt.originalJson = record.originalJson
                 receipt.quantity = record.quantity

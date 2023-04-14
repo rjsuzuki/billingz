@@ -25,8 +25,9 @@ import com.zuko.billingz.core.misc.CleanUpz
  * Blueprint of the core logic of the library.
  */
 interface Clientz : CleanUpz {
-
-    // fun getBillingClient(): BillingClient?
+    /**
+     *
+     */
     var connectionState: MutableLiveData<ConnectionStatus>
 
     /**
@@ -87,7 +88,7 @@ interface Clientz : CleanUpz {
      * Interface for reconnection logic to the billing service
      * INTERNAL USE ONLY
      */
-    interface ReconnectListener {
+    interface ReconnectListener { //todo
 
         /**
          *

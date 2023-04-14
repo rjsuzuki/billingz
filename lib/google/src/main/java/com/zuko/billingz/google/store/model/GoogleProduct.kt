@@ -21,6 +21,8 @@ package com.zuko.billingz.google.store.model
 
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.SkuDetails
+import com.zuko.billingz.core.store.model.Offer
+import com.zuko.billingz.core.store.model.OfferDetails
 import com.zuko.billingz.core.store.model.PricingInfo
 import com.zuko.billingz.core.store.model.Productz
 import java.util.Currency
@@ -89,7 +91,8 @@ data class GoogleProduct(
                 introPrice = skuDetails.introductoryPrice,
                 introPricePeriod = skuDetails.introductoryPricePeriod,
                 billingPeriod = skuDetails.subscriptionPeriod,
-                trialPeriod = skuDetails.freeTrialPeriod
+                trialPeriod = skuDetails.freeTrialPeriod,
+                subscriptionOffers = null
             )
         }
 
@@ -117,29 +120,55 @@ data class GoogleProduct(
             currency =
                 Currency.getInstance(productDetails.subscriptionOfferDetails?.firstOrNull()?.pricingPhases?.pricingPhaseList?.firstOrNull()?.priceCurrencyCode)
 
-            productDetails.subscriptionOfferDetails?.forEach { offerDetails ->
-                offerDetails.offerToken
-                offerDetails.offerTags
-                offerDetails.pricingPhases.pricingPhaseList.forEach { pricingPhase ->
-                    pricingPhase.billingPeriod
-                    pricingPhase.formattedPrice
-                    pricingPhase.priceCurrencyCode
-                    pricingPhase.recurrenceMode
-                    pricingPhase.billingCycleCount
-                    pricingPhase.priceAmountMicros
-                }
-            }
             pricingInfo = PricingInfo(
                 introPrice = null,
                 introPricePeriod = null,
-                billingPeriod = productDetails.subscriptionOfferDetails?.firstOrNull()?.pricingPhases?.pricingPhaseList?.firstOrNull()?.billingPeriod,
-                trialPeriod = null
+                billingPeriod = null,
+                trialPeriod = null,
+                subscriptionOffers = convertSubscriptionOfferDetailsTo(productDetails.subscriptionOfferDetails)
             )
+
         } else {
             price = productDetails.oneTimePurchaseOfferDetails?.formattedPrice
             currency =
                 Currency.getInstance(productDetails.oneTimePurchaseOfferDetails?.priceCurrencyCode)
         }
+    }
+
+    private fun convertSubscriptionOfferDetailsTo(offers: List<ProductDetails.SubscriptionOfferDetails>?): List<OfferDetails>? {
+        if (offers.isNullOrEmpty()) {
+            return null
+        }
+        val offerDetailsList = mutableListOf<OfferDetails>()
+        offers.forEach {
+            val details = convertSubscriptionOfferTo(it)
+            offerDetailsList.add(details)
+        }
+        return offerDetailsList
+    }
+
+    private fun convertSubscriptionOfferTo(offer: ProductDetails.SubscriptionOfferDetails): OfferDetails {
+        val offers = mutableListOf<Offer>()
+        offer.pricingPhases.pricingPhaseList.forEach { pricingPhase ->
+            val o = convertPricingPhaseTo(pricingPhase)
+            offers.add(o)
+        }
+        return OfferDetails(
+            offerTags = offer.offerTags,
+            offerToken = offer.offerToken,
+            offers = offers
+        )
+    }
+
+    private fun convertPricingPhaseTo(p: ProductDetails.PricingPhase): Offer {
+        return Offer(
+            billingPeriod = p.billingPeriod,
+            formattedPrice = p.formattedPrice,
+            priceCurrencyCode = p.priceCurrencyCode,
+            priceAmountMicros = p.priceAmountMicros,
+            recurrenceMode = p.recurrenceMode,
+            billingCycleCount = p.billingCycleCount
+        )
     }
 
     override fun getProductId(): String? {
