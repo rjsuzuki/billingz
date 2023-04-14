@@ -23,10 +23,8 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class PricingInfo(
-    override val introPrice: String?,
-    override val introPricePeriod: String?,
-    override val billingPeriod: String?,
-    override val trialPeriod: String?,
-    override val subscriptionOffers: List<OfferDetails>?
-) : Productz.Pricing, Parcelable
+data class OfferDetails(
+    override val offerTags: List<String>,
+    override val offerToken: String,
+    override val offers: List<Offer>
+) : Productz.OfferDetails, Parcelable

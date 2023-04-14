@@ -126,5 +126,31 @@ interface Productz : ModuleIdentifier {
         val introPricePeriod: String?
         val billingPeriod: String?
         val trialPeriod: String?
+
+        /**
+         * Only available for Google products. Amazon products will return null.
+         */
+        val subscriptionOffers: List<OfferDetails>?
+    }
+
+    /**
+     * For Google Play SubscriptionOfferDetails support
+     */
+    interface OfferDetails {
+        val offerTags: List<String>
+        val offerToken: String
+        val offers: List<Offer>
+    }
+
+    /**
+     * For Google Play SubscriptionOfferDetails support
+     */
+    interface Offer {
+        val billingPeriod: String
+        val formattedPrice: String
+        val priceCurrencyCode: String
+        val priceAmountMicros: Long
+        val recurrenceMode: Int
+        val billingCycleCount: Int
     }
 }
