@@ -7,9 +7,10 @@ Through a combination of Adapter and Facade design patterns, this library allows
 [![build_and_publish](https://github.com/rjsuzuki/billingz/actions/workflows/release-package.yml/badge.svg)](https://github.com/rjsuzuki/billingz/actions/workflows/release-package.yml) [![](https://jitpack.io/v/rjsuzuki/billingz.svg)](https://jitpack.io/#rjsuzuki/billingz) [![](https://jitci.com/gh/rjsuzuki/billingz/svg)](https://jitci.com/gh/rjsuzuki/billingz)
 
 Currently supports up to: 
-   - `google billing: 5.0.0`  
-   - `amazon in-app: 2.0.76`  (v2.0.6)
-   - `amazon appstore sdk: 3.0.2` (v2.1.0+)
+
+- `google billing: 5.1.0`
+- `amazon in-app: 2.0.76`  (v2.0.6)
+- `amazon appstore sdk: 3.0.4` (v2.1.0+)
 ## Version History
 
 [Release History and Notes](https://github.com/rjsuzuki/billingz/releases)
