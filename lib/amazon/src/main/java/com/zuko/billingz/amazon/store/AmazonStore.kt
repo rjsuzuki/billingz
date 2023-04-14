@@ -82,8 +82,9 @@ class AmazonStore internal constructor() : Storez {
 
     override fun resume() {
         Logger.v(TAG, "resuming...")
-        if (client.isReady())
+        if (client.isReady()) {
             sales.refreshQueries()
+        }
         else if (!client.initialized()) {
             client.init(context, connectionListener)
             client.connect()

@@ -110,7 +110,7 @@ data class GoogleProduct(
         name = productDetails.title
         title = productDetails.title
         description = productDetails.description
-
+        productDetails.subscriptionOfferDetails
         if (type == Productz.Type.SUBSCRIPTION) {
             price =
                 productDetails.subscriptionOfferDetails?.firstOrNull()?.pricingPhases?.pricingPhaseList?.firstOrNull()?.formattedPrice

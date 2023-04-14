@@ -818,7 +818,11 @@ class GoogleSales(
     private fun queryOrderHistory(type: Productz.Type?) {
         Logger.v(TAG, "queryOrderHistory: $type")
         val skuType =
-            if (type == Productz.Type.SUBSCRIPTION) BillingClient.ProductType.SUBS else BillingClient.ProductType.INAPP
+            if (type == Productz.Type.SUBSCRIPTION) {
+                BillingClient.ProductType.SUBS
+            } else {
+                BillingClient.ProductType.INAPP
+            }
 
         mainScope.launch(dispatcher.io()) {
             if (isNewVersion) {

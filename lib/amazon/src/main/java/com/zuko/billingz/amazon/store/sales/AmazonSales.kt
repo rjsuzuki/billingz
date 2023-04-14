@@ -148,6 +148,7 @@ class AmazonSales(
             PurchaseResponse.RequestStatus.ALREADY_PURCHASED -> Orderz.Result.PRODUCT_ALREADY_OWNED
             PurchaseResponse.RequestStatus.INVALID_SKU -> Orderz.Result.INVALID_PRODUCT
             PurchaseResponse.RequestStatus.NOT_SUPPORTED -> Orderz.Result.NOT_SUPPORTED
+            PurchaseResponse.RequestStatus.PENDING -> Orderz.Result.PENDING
         }
     }
 
@@ -491,7 +492,8 @@ class AmazonSales(
                 // again even if you receive a second receipt.
                 return false
             }
-            else -> {}
+
+            else -> Logger.w(TAG, "Unhandled ProductType: ${receipt.productType}")
         }
         return true
     }
