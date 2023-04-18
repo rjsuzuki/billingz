@@ -127,7 +127,6 @@ data class GoogleProduct(
                 trialPeriod = null,
                 subscriptionOffers = convertSubscriptionOfferDetailsTo(productDetails.subscriptionOfferDetails)
             )
-
         } else {
             price = productDetails.oneTimePurchaseOfferDetails?.formattedPrice
             currency =
