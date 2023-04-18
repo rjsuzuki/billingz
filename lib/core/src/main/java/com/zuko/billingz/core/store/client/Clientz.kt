@@ -88,7 +88,7 @@ interface Clientz : CleanUpz {
      * Interface for reconnection logic to the billing service
      * INTERNAL USE ONLY
      */
-    interface ReconnectListener { //todo
+    interface ReconnectListener { // todo
 
         /**
          *
