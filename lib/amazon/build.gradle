@@ -35,13 +35,13 @@ android {
     namespace = "${LibraryInfo.namespace}.amazon"
 
     compileSdk LibraryInfo.compileSDK
-    buildToolsVersion LibraryInfo.buildTools
+    buildToolsVersion = LibraryInfo.buildTools
 
     defaultConfig {
         minSdk LibraryInfo.minSDK
         targetSdk LibraryInfo.targetSDK
         group = LibraryInfo.groupId
-        versionCode 1
+        versionCode LibraryInfo.versionCode
         versionName "${project.ext.get("billingzVersion")}"
         multiDexEnabled false
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

@@ -21,10 +21,10 @@ object LibraryInfo {
 
     const val versionCode = 1
 
-    const val compileSDK = 31
-    const val buildTools = "33.0.0"
+    const val compileSDK = 32
+    const val buildTools = "34.0.0"
     const val minSDK = 21
-    const val targetSDK = 31
+    const val targetSDK = 32
 
     const val libraryArtifactId = "billingz"
     const val coreArtifactId = "core"
