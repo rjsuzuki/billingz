@@ -108,11 +108,11 @@ class GoogleStore internal constructor() : Storez {
 
     override fun stop() {
         Logger.v(TAG, "stopping...")
-        mainScope.cancel()
     }
 
     override fun destroy() {
         Logger.v(TAG, "destroying...")
+        mainScope.cancel()
         client.destroy()
         sales.destroy()
         inventory.destroy()

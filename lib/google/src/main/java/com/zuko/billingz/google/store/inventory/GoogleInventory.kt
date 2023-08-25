@@ -38,6 +38,7 @@ import com.zuko.billingz.google.store.model.GoogleInventoryQuery
 import com.zuko.billingz.google.store.model.GoogleProduct
 import com.zuko.billingz.google.store.model.GoogleProductQuery
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -490,6 +491,10 @@ class GoogleInventory(
 
     override fun destroy() {
         Logger.v(TAG, "destroy")
+        mainScope.cancel()
+        consumables.clear()
+        nonConsumables.clear()
+        subscriptions.clear()
     }
 
     companion object {
