@@ -1,3 +1,5 @@
+import org.gradle.api.JavaVersion
+
 /*
  *
  *  * Copyright 2021 rjsuzuki
@@ -25,6 +27,11 @@ object LibraryInfo {
     const val buildTools = "34.0.0"
     const val minSDK = 21
     const val targetSDK = 32
+
+    const val kotlinJvmTarget = "17"
+    private val javaVersion: JavaVersion = JavaVersion.VERSION_17
+    val sourceCompatibility = javaVersion
+    val targetCompatibility = javaVersion
 
     const val libraryArtifactId = "billingz"
     const val coreArtifactId = "core"
