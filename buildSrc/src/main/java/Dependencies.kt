@@ -40,7 +40,7 @@ object Dependencies {
     /**
      * Billing libs
      */
-    const val google_billing = "6.0.1"
+    const val google_billing = "6.1.0"
     const val amazon_iap = "3.0.4"
 
     /**

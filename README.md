@@ -8,7 +8,7 @@ Through a combination of Adapter and Facade design patterns, this library allows
 
 Currently supports up to: 
 
-- `google billing: 5.1.0`
+- `google billing: 6.1.0`
 - `amazon in-app: 2.0.76`  (v2.0.6)
 - `amazon appstore sdk: 3.0.4` (v2.1.0+)
 ## Version History
