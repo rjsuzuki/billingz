@@ -88,7 +88,7 @@ android {
 
 dependencies {
     api project(':lib:core')
-    api "com.amazon.device:amazon-appstore-sdk:${Dependencies.amazon_iap}"
+    api "com.amazon.device:amazon-appstore-sdk:3.0.4"
 }
 
 dokkaHtml.configure {

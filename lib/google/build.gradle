@@ -32,7 +32,7 @@ apply from: "${project.rootDir}/gradle/tasks.gradle"
 apply from: "${project.rootDir}/gradle/publish.gradle"
 
 android {
-    "${LibraryInfo.namespace}.google"
+    namespace = "${LibraryInfo.namespace}.google"
 
     compileSdk LibraryInfo.compileSDK
     buildToolsVersion = LibraryInfo.buildTools
@@ -88,7 +88,7 @@ android {
 
 dependencies {
     api project(':lib:core')
-    api "com.android.billingclient:billing-ktx:${Dependencies.google_billing}"
+    api "com.android.billingclient:billing-ktx:6.1.0"
 }
 
 dokkaHtml.configure {
