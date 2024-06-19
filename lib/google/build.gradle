@@ -86,7 +86,7 @@ android {
 
 dependencies {
     api project(':lib:core')
-    api "com.android.billingclient:billing-ktx:6.1.0"
+    api "com.android.billingclient:billing-ktx:7.0.0"
 }
 
 dokkaHtml.configure {
