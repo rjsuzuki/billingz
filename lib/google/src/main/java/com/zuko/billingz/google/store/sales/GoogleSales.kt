@@ -400,7 +400,7 @@ class GoogleSales(
 
         // UI flow will start
         val result = billingClient.launchBillingFlow(activity, flowParams.build())
-        Logger.v(TAG, "Purchased flow finished : $result")
+        Logger.v(TAG, "Purchased flow finished: $result")
         return result
     }
 
@@ -412,7 +412,7 @@ class GoogleSales(
         billingResult: BillingResult?,
         purchases: MutableList<Purchase>?
     ) {
-        Logger.v(TAG, "processUpdatedPurchases: purchase list size:${purchases?.size ?: 0}")
+        Logger.v(TAG, "processUpdatedPurchases=> purchase list size: ${purchases?.size ?: 0}")
         GoogleResponse.logResult(billingResult)
 
         if (purchases.isNullOrEmpty()) {
