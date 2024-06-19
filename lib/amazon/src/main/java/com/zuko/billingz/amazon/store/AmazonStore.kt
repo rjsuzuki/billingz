@@ -193,6 +193,7 @@ class AmazonStore internal constructor() : Storez {
             return inventory.queryProduct(sku, type)
         }
 
+        @Deprecated("Will be removed in a future release")
         override fun getProducts(
             type: Productz.Type?,
             promo: Productz.Promotion?
@@ -212,6 +213,7 @@ class AmazonStore internal constructor() : Storez {
             sales.cancelOrder(order)
         }
 
+        @Deprecated("Will be removed in a future release.")
         override fun getProduct(sku: String?): Productz? {
             Logger.v(TAG, "getProduct: $sku")
             return inventory.getProduct(sku = sku)
