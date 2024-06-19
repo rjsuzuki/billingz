@@ -39,8 +39,6 @@ android {
         minSdk LibraryInfo.minSDK
         targetSdk LibraryInfo.targetSDK
         group = LibraryInfo.groupId
-        versionCode LibraryInfo.versionCode
-        versionName "${project.ext.get("billingzVersion")}"
         multiDexEnabled false
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
