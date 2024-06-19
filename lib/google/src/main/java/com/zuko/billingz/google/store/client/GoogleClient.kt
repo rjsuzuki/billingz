@@ -141,7 +141,7 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
     }
 
     internal fun getConnectionState(): Clientz.ConnectionStatus {
-        return Clientz.ConnectionStatus.values()[billingClient?.connectionState ?: 0]
+        return Clientz.ConnectionStatus.entries[billingClient?.connectionState ?: 0]
     }
 
     private fun getConnectionStateName(): String {
