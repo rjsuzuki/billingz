@@ -25,7 +25,7 @@ object LibraryInfo {
 
     const val compileSDK = 34
     const val buildTools = "34.0.0"
-    const val minSDK = 21
+    const val minSDK = 24
     const val targetSDK = 34
 
     const val kotlinJvmTarget = "17"
