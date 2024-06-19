@@ -65,10 +65,11 @@ class AmazonStore internal constructor() : Storez {
 
     override fun init(context: Context?) {
         Logger.v(
-            TAG, "Initializing client..." +
-                    "\n debug: ${BuildConfig.DEBUG}" +
-                    "\n build: ${BuildConfig.BUILD_TYPE}" +
-                    "\n version: ${BuildConfig.VERSION}"
+            TAG,
+            "Initializing client..." +
+                "\n debug: ${BuildConfig.DEBUG}" +
+                "\n build: ${BuildConfig.BUILD_TYPE}" +
+                "\n version: ${BuildConfig.VERSION}"
         )
         this.context = context
     }
@@ -234,6 +235,7 @@ class AmazonStore internal constructor() : Storez {
         private var profileId: String? = null
         private var hashingSalt: String? = null
         private var isNewVersion = false
+
         /**
          * @param listener - Required to be set for proper functionality
          */

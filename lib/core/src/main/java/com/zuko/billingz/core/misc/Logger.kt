@@ -28,11 +28,13 @@ object Logger : Logz {
          * Only warnings and error logs will be shown.
          */
         LOW,
+
         /**
          * Logs equivalent to [Log.VERBOSE] will be shown.
          * Warning and error logs will be shown.
          */
         DEFAULT,
+
         /**
          * All log types are enabled. Be mindful as this will show sensitive information.
          */
@@ -49,20 +51,23 @@ object Logger : Logz {
 
     // 2
     override fun v(tag: String, msg: String) {
-        if (verbosity == Level.DEFAULT || verbosity == Level.DEBUG)
+        if (verbosity == Level.DEFAULT || verbosity == Level.DEBUG) {
             Log.v(tag, msg)
+        }
     }
 
     // 3 - sensitive information
     override fun d(tag: String, msg: String) {
-        if (verbosity == Level.DEBUG)
+        if (verbosity == Level.DEBUG) {
             Log.d(tag, msg)
+        }
     }
 
     // 4 - sensitive information
     override fun i(tag: String, msg: String) {
-        if (verbosity == Level.DEBUG)
+        if (verbosity == Level.DEBUG) {
             Log.i(tag, msg)
+        }
     }
 
     // 5

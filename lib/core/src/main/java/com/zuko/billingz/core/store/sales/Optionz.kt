@@ -16,12 +16,16 @@ object Optionz {
     enum class Region {
         /** North America **/
         NA,
+
         /** Europe **/
         EU,
+
         /** Asia & Pacific Islands **/
         ASIA,
+
         /** South America **/
         SA,
+
         /** Africa **/
         AFR
     }
@@ -92,6 +96,7 @@ object Optionz {
          * Default region is [Region.NA].
          */
         fun setConsumerRegion(region: Region): Builder
+
         /**
          * Only for Google Play consumers in the European Union.
          * When true, the Play UI includes the disclosure. When false, the UI omits the disclosure.
@@ -102,24 +107,29 @@ object Optionz {
          *
          */
         fun setIsOfferPersonalized(isOfferPersonalized: Boolean): Builder
+
         /**
          * Modify the proration settings for subscriptions.
          * Refer to Google's BillingFlowParams.ProrationMode [https://developer.android.com/reference/com/android/billingclient/api/BillingFlowParams.ProrationMode]
          */
         fun setProrationMode(mode: Int): Builder
+
         /**
          * Set the purchase token for the subscription to be modified.
          */
         fun setOldPurchaseToken(token: String): Builder
+
         /**
          * Set the product id of the subscription to be modified.
          */
         fun setOldSubscriptionId(id: String): Builder
+
         /**
          * Set the index (position) of the relevant Subscription OfferDetails to
          * be purchased.
          */
         fun setSelectedOfferIndex(index: Int): Builder
+
         /**
          * Create [Bundle] object of order options.
          */

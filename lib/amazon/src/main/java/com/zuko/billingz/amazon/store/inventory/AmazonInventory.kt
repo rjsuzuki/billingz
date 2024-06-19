@@ -295,12 +295,15 @@ class AmazonInventory(
 
     override fun getProduct(sku: String?): Productz? {
         Logger.i(TAG, "getProduct: $sku")
-        if (consumables.containsKey(sku))
+        if (consumables.containsKey(sku)) {
             return consumables[sku]
-        if (nonConsumables.containsKey(sku))
+        }
+        if (nonConsumables.containsKey(sku)) {
             return nonConsumables[sku]
-        if (subscriptions.containsKey(sku))
+        }
+        if (subscriptions.containsKey(sku)) {
             return subscriptions[sku]
+        }
         return null
     }
 

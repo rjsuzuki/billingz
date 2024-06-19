@@ -263,11 +263,12 @@ class GoogleSales(
         options: Bundle? = null
     ): BillingResult {
         Logger.v(TAG, "Starting subscription purchase flow")
-        if (activity == null || (skuDetails == null && productDetails == null) || billingClient == null)
+        if (activity == null || (skuDetails == null && productDetails == null) || billingClient == null) {
             return BillingResult.newBuilder()
                 .setResponseCode(BillingClient.BillingResponseCode.ERROR)
                 .setDebugMessage("Can't start subscription purchase flow with null parameters")
                 .build()
+        }
 
         // Retrieve a value for "skuDetails" by calling querySkuDetailsAsync().
         // Google uses [setObfuscatedAccountId, setObfuscatedProfileId] to detect suspicious behavior
@@ -364,11 +365,12 @@ class GoogleSales(
         options: Bundle? = null
     ): BillingResult {
         Logger.v(TAG, "Starting in-app purchase flow")
-        if (activity == null || (skuDetails == null && productDetails == null) || billingClient == null)
+        if (activity == null || (skuDetails == null && productDetails == null) || billingClient == null) {
             return BillingResult.newBuilder()
                 .setResponseCode(BillingClient.BillingResponseCode.ERROR)
                 .setDebugMessage("Can't start in-app purchase flow with null parameters")
                 .build()
+        }
 
         val flowParams = BillingFlowParams.newBuilder()
 

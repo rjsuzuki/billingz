@@ -69,10 +69,11 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
         connectionListener: Clientz.ConnectionListener
     ) {
         Logger.v(
-            TAG, "Initializing client..." +
-                    "\n debug: ${BuildConfig.DEBUG}" +
-                    "\n build: ${BuildConfig.BUILD_TYPE}" +
-                    "\n version: ${BuildConfig.VERSION}"
+            TAG,
+            "Initializing client..." +
+                "\n debug: ${BuildConfig.DEBUG}" +
+                "\n build: ${BuildConfig.BUILD_TYPE}" +
+                "\n version: ${BuildConfig.VERSION}"
         )
         this.connectionListener = connectionListener
         try {

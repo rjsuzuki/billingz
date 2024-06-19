@@ -28,11 +28,13 @@ sealed interface Logz {
          * Only warnings and error logs will be shown.
          */
         LOW,
+
         /**
          * Logs equivalent to [Log.VERBOSE] will be shown.
          * Warning and error logs will be shown.
          */
         DEFAULT,
+
         /**
          * All log types are enabled. Be mindful as this will show sensitive information.
          */

@@ -39,6 +39,7 @@ interface Salez : CleanUpz {
     var isNewVersion: Boolean
 
     val currentOrder: MutableLiveData<Orderz>
+
     /**
      * Provides a liveData [Orderz] object for
      * developers to observe and react to on
@@ -56,6 +57,7 @@ interface Salez : CleanUpz {
     val orderHistoryLiveData: MutableLiveData<out OrderHistoryz>
     val orderHistoryStateFlow: MutableStateFlow<out OrderHistoryz?>
     val orderHistoryState: StateFlow<OrderHistoryz?>
+
     /**
      * Callback method required to be implemented by developer
      */

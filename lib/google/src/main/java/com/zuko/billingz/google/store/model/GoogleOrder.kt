@@ -34,7 +34,7 @@ import com.zuko.billingz.core.store.model.Productz
  */
 data class GoogleOrder(
     val purchase: Purchase?,
-    val billingResult: BillingResult?,
+    val billingResult: BillingResult?
 
 ) : Orderz {
     /**

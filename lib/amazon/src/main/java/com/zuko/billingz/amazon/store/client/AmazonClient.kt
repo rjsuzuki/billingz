@@ -172,8 +172,9 @@ class AmazonClient(val inventory: AmazonInventoryz, val sales: AmazonSalez) : Am
                 "\nSDK_VERSION: ${PurchasingService.SDK_VERSION}" +
                 "\nSDK_MODE: ${LicensingService.getAppstoreSDKMode()}"
         )
-        if (!isReady())
+        if (!isReady()) {
             requestUserData()
+        }
     }
 
     override fun destroy() {
