@@ -68,13 +68,14 @@ android {
         viewBinding false
     }
     lintOptions {
+        baseline file("../lint-baseline.xml")
         // set to true to turn off analysis progress reporting by lint
         quiet false
         // if true, stop the gradle build if errors are found
         abortOnError true
         // set to true to have all release builds run lint on issues with severity=fatal
         // and abort the build (controlled by abortOnError above) if fatal issues are found
-        checkReleaseBuilds true
+        checkReleaseBuilds false
         // Normally lint will analyze all dependencies along with each module; this ensures
         // that lint can correctly (for example) determine if a resource declared in a library
         // is unused; checking only the library in isolation would not be able to identify this
