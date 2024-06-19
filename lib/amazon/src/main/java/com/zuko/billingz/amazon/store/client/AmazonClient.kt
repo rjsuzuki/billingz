@@ -51,7 +51,7 @@ class AmazonClient(val inventory: AmazonInventoryz, val sales: AmazonSalez) : Am
     }
 
     override fun init(context: Context?, connectionListener: Clientz.ConnectionListener) {
-        Logger.v(TAG, "Initializing AmazonClient")
+        Logger.v(TAG, "Initializing AmazonClient...")
         this.context = context
         try {
             LicensingService.verifyLicense(context) { response ->

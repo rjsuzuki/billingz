@@ -36,6 +36,7 @@ import com.zuko.billingz.core.store.model.Productz
 import com.zuko.billingz.core.store.model.QueryResult
 import com.zuko.billingz.core.store.sales.Salez
 import com.zuko.billingz.core.store.security.Securityz
+import com.zuko.billingz.google.BuildConfig
 import com.zuko.billingz.google.store.client.GoogleClient
 import com.zuko.billingz.google.store.inventory.GoogleInventory
 import com.zuko.billingz.google.store.model.GoogleOrder
@@ -73,7 +74,13 @@ class GoogleStore internal constructor() : Storez {
     }
 
     override fun init(context: Context?) {
-        Logger.v(TAG, "initializing...")
+        Logger.i(
+            TAG,
+            "Initializing..." +
+                "\n debug: ${BuildConfig.DEBUG}" +
+                "\n build: ${BuildConfig.BUILD_TYPE}" +
+                "\n version: ${BuildConfig.VERSION}"
+        )
         this.context = context
     }
 

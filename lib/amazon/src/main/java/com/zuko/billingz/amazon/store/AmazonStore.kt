@@ -64,9 +64,9 @@ class AmazonStore internal constructor() : Storez {
     }
 
     override fun init(context: Context?) {
-        Logger.v(
+        Logger.i(
             TAG,
-            "Initializing client..." +
+            "Initializing..." +
                 "\n debug: ${BuildConfig.DEBUG}" +
                 "\n build: ${BuildConfig.BUILD_TYPE}" +
                 "\n version: ${BuildConfig.VERSION}"
