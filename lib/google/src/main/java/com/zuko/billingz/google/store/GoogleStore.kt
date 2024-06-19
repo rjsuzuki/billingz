@@ -36,6 +36,7 @@ import com.zuko.billingz.core.store.model.Productz
 import com.zuko.billingz.core.store.model.QueryResult
 import com.zuko.billingz.core.store.sales.Salez
 import com.zuko.billingz.core.store.security.Securityz
+import com.zuko.billingz.google.BuildConfig
 import com.zuko.billingz.google.store.client.GoogleClient
 import com.zuko.billingz.google.store.inventory.GoogleInventory
 import com.zuko.billingz.google.store.model.GoogleOrder
@@ -73,7 +74,13 @@ class GoogleStore internal constructor() : Storez {
     }
 
     override fun init(context: Context?) {
-        Logger.v(TAG, "initializing...")
+        Logger.i(
+            TAG,
+            "Initializing..." +
+                "\n debug: ${BuildConfig.DEBUG}" +
+                "\n build: ${BuildConfig.BUILD_TYPE}" +
+                "\n version: ${BuildConfig.VERSION}"
+        )
         this.context = context
     }
 
@@ -92,9 +99,9 @@ class GoogleStore internal constructor() : Storez {
 
     override fun resume() {
         Logger.v(TAG, "resuming...")
-        if (client.isReady())
+        if (client.isReady()) {
             sales.refreshQueries()
-        else if (!client.initialized()) {
+        } else if (!client.initialized()) {
             client.init(context, connectionListener)
             client.connect()
         } else {
@@ -108,11 +115,11 @@ class GoogleStore internal constructor() : Storez {
 
     override fun stop() {
         Logger.v(TAG, "stopping...")
-        mainScope.cancel()
     }
 
     override fun destroy() {
         Logger.v(TAG, "destroying...")
+        mainScope.cancel()
         client.destroy()
         sales.destroy()
         inventory.destroy()
@@ -198,6 +205,7 @@ class GoogleStore internal constructor() : Storez {
             return inventory.queryInventory(products = products)
         }
 
+        @Deprecated("Will be removed in a future release")
         override fun getProducts(
             type: Productz.Type?,
             promo: Productz.Promotion?
@@ -214,6 +222,7 @@ class GoogleStore internal constructor() : Storez {
             sales.cancelOrder(order)
         }
 
+        @Deprecated("Will be removed in a future release.")
         override fun getProduct(sku: String?): Productz? {
             Logger.v(TAG, "getProduct: $sku")
             return inventory.getProduct(sku = sku)

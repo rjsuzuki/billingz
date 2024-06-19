@@ -37,6 +37,7 @@ object BillingzStore {
         private var profileId: String? = null
         private var hashingSalt: String? = null
         private var isNewVersion = false
+
         /**
          * @param listener - Required to be set for proper functionality
          */

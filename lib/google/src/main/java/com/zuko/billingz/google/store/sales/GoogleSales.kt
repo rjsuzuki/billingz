@@ -28,6 +28,7 @@ import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.AcknowledgePurchaseResponseListener
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingFlowParams
+import com.android.billingclient.api.BillingFlowParams.SubscriptionUpdateParams
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.ConsumeParams
 import com.android.billingclient.api.ProductDetails
@@ -262,11 +263,12 @@ class GoogleSales(
         options: Bundle? = null
     ): BillingResult {
         Logger.v(TAG, "Starting subscription purchase flow")
-        if (activity == null || (skuDetails == null && productDetails == null) || billingClient == null)
+        if (activity == null || (skuDetails == null && productDetails == null) || billingClient == null) {
             return BillingResult.newBuilder()
                 .setResponseCode(BillingClient.BillingResponseCode.ERROR)
                 .setDebugMessage("Can't start subscription purchase flow with null parameters")
                 .build()
+        }
 
         // Retrieve a value for "skuDetails" by calling querySkuDetailsAsync().
         // Google uses [setObfuscatedAccountId, setObfuscatedProfileId] to detect suspicious behavior
@@ -314,7 +316,7 @@ class GoogleSales(
             val oldPurchaseToken = options.getString(Optionz.Type.OLD_PURCHASE_TOKEN.name, null)
             val prorationMode = options.getInt(
                 Optionz.Type.PRORATION_MODE.name,
-                BillingFlowParams.ProrationMode.DEFERRED
+                SubscriptionUpdateParams.ReplacementMode.DEFERRED
             )
 
             when {
@@ -338,8 +340,8 @@ class GoogleSales(
                             "\n old purchase token: $oldPurchaseToken," +
                             "\n new proration mode: $prorationMode"
                     )
-                    val subUpdateParams = BillingFlowParams.SubscriptionUpdateParams.newBuilder()
-                        .setReplaceProrationMode(prorationMode)
+                    val subUpdateParams = SubscriptionUpdateParams.newBuilder()
+                        .setSubscriptionReplacementMode(prorationMode)
                         .setOldPurchaseToken(oldPurchaseToken)
                         .build()
                     flowParams.setSubscriptionUpdateParams(subUpdateParams)
@@ -363,11 +365,12 @@ class GoogleSales(
         options: Bundle? = null
     ): BillingResult {
         Logger.v(TAG, "Starting in-app purchase flow")
-        if (activity == null || (skuDetails == null && productDetails == null) || billingClient == null)
+        if (activity == null || (skuDetails == null && productDetails == null) || billingClient == null) {
             return BillingResult.newBuilder()
                 .setResponseCode(BillingClient.BillingResponseCode.ERROR)
                 .setDebugMessage("Can't start in-app purchase flow with null parameters")
                 .build()
+        }
 
         val flowParams = BillingFlowParams.newBuilder()
 
@@ -399,7 +402,7 @@ class GoogleSales(
 
         // UI flow will start
         val result = billingClient.launchBillingFlow(activity, flowParams.build())
-        Logger.v(TAG, "Purchased flow finished : $result")
+        Logger.v(TAG, "Purchased flow finished: $result")
         return result
     }
 
@@ -411,7 +414,7 @@ class GoogleSales(
         billingResult: BillingResult?,
         purchases: MutableList<Purchase>?
     ) {
-        Logger.v(TAG, "processUpdatedPurchases: purchase list size:${purchases?.size ?: 0}")
+        Logger.v(TAG, "processUpdatedPurchases=> purchase list size: ${purchases?.size ?: 0}")
         GoogleResponse.logResult(billingResult)
 
         if (purchases.isNullOrEmpty()) {

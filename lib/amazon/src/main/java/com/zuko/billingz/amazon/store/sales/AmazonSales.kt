@@ -252,7 +252,6 @@ class AmazonSales(
     override fun completeOrder(order: Orderz) {
         try {
             if (order is AmazonOrder) {
-
                 // we check if the order is canceled again before completing
                 if (order.receipt?.isCanceled == true) {
                     // revoke

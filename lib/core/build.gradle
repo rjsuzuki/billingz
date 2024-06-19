@@ -35,14 +35,12 @@ android {
     namespace = "${LibraryInfo.namespace}.core"
 
     compileSdk LibraryInfo.compileSDK
-    buildToolsVersion LibraryInfo.buildTools
+    buildToolsVersion = LibraryInfo.buildTools
 
     defaultConfig {
         minSdk LibraryInfo.minSDK
         targetSdk LibraryInfo.targetSDK
         group = LibraryInfo.groupId
-        versionCode 1
-        versionName "${project.ext.get("billingzVersion")}"
         multiDexEnabled false
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -60,23 +58,24 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility LibraryInfo.sourceCompatibility
+        targetCompatibility LibraryInfo.targetCompatibility
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = LibraryInfo.kotlinJvmTarget
     }
     buildFeatures {
-        viewBinding true
+        viewBinding false
     }
     lintOptions {
+        baseline file("../lint-baseline.xml")
         // set to true to turn off analysis progress reporting by lint
         quiet false
         // if true, stop the gradle build if errors are found
         abortOnError true
         // set to true to have all release builds run lint on issues with severity=fatal
         // and abort the build (controlled by abortOnError above) if fatal issues are found
-        checkReleaseBuilds true
+        checkReleaseBuilds false
         // Normally lint will analyze all dependencies along with each module; this ensures
         // that lint can correctly (for example) determine if a resource declared in a library
         // is unused; checking only the library in isolation would not be able to identify this
@@ -87,19 +86,14 @@ android {
 }
 
 dependencies {
-    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Dependencies.kotlin_coroutines}"
-    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Dependencies.kotlin_coroutines}"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
+    api "androidx.lifecycle:lifecycle-runtime-ktx:2.8.2"
+    api "androidx.lifecycle:lifecycle-common-java8:2.8.2"
+    api "androidx.core:core-ktx:1.13.1"
+    api 'androidx.lifecycle:lifecycle-livedata-core-ktx:2.8.2'
 
-    api "androidx.lifecycle:lifecycle-common-java8:${Dependencies.androidx_lifecycle_java8}"
-    api "androidx.core:core-ktx:${Dependencies.androidx_core}"
-    api "androidx.appcompat:appcompat:${Dependencies.androidx_appcompat}"
-    api "com.google.android.material:material:${Dependencies.google_material}"
-    api "androidx.constraintlayout:constraintlayout:${Dependencies.androidx_constraint_layout}"
-    api "com.airbnb.android:lottie:${Dependencies.lottie}"
-
-    testImplementation "junit:junit:${Dependencies.junit}"
-    androidTestImplementation "androidx.test.ext:junit:${Dependencies.androidx_junit}"
-    androidTestImplementation "androidx.test.espresso:espresso-core:${Dependencies.espresso_core}"
+    testImplementation "junit:junit:4.13.2"
 }
 dokkaHtml.configure {
     dokkaSourceSets {

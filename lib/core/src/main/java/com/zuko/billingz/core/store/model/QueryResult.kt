@@ -27,7 +27,7 @@ import kotlinx.coroutines.flow.StateFlow
  * Functionality for query results to be published as android LiveData objects
  * or kotlin StateFlow objects. Both provide functionality for multiple subscribers.
  */
-interface QueryResult <out T> {
+interface QueryResult<out T> {
     /**
      * Recommended for use-cases related to the ui (activity or fragment)
      */

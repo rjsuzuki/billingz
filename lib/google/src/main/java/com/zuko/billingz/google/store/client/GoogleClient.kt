@@ -23,6 +23,7 @@ import androidx.lifecycle.MutableLiveData
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingResult
+import com.android.billingclient.api.PendingPurchasesParams
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.zuko.billingz.core.misc.Logger
 import com.zuko.billingz.core.store.client.Clientz
@@ -67,7 +68,7 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
         context: Context?,
         connectionListener: Clientz.ConnectionListener
     ) {
-        Logger.v(TAG, "Initializing client...")
+        Logger.v(TAG, "Initializing GoogleClient...")
         this.connectionListener = connectionListener
         try {
             if (billingClient != null) {
@@ -79,7 +80,12 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
             context?.let {
                 billingClient = BillingClient.newBuilder(context)
                     .setListener(purchasesUpdatedListener)
-                    .enablePendingPurchases() // switch
+                    .enablePendingPurchases(
+                        PendingPurchasesParams.newBuilder()
+                            // .enablePrepaidPlans()
+                            .enableOneTimeProducts()
+                            .build()
+                    ) // switch
                     .build()
                 isInitialized = true
             } ?: Logger.w(TAG, "Failed to build client: null context")
@@ -141,7 +147,7 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
     }
 
     internal fun getConnectionState(): Clientz.ConnectionStatus {
-        return Clientz.ConnectionStatus.values()[billingClient?.connectionState ?: 0]
+        return Clientz.ConnectionStatus.entries[billingClient?.connectionState ?: 0]
     }
 
     private fun getConnectionStateName(): String {

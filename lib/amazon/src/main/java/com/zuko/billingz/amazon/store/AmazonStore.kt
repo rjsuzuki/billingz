@@ -23,6 +23,7 @@ import android.content.Context
 import android.os.Bundle
 import androidx.collection.ArrayMap
 import androidx.lifecycle.LiveData
+import com.zuko.billingz.amazon.BuildConfig
 import com.zuko.billingz.amazon.store.client.AmazonClient
 import com.zuko.billingz.amazon.store.inventory.AmazonInventory
 import com.zuko.billingz.amazon.store.model.AmazonOrder
@@ -63,7 +64,13 @@ class AmazonStore internal constructor() : Storez {
     }
 
     override fun init(context: Context?) {
-        Logger.v(TAG, "initializing...")
+        Logger.i(
+            TAG,
+            "Initializing..." +
+                "\n debug: ${BuildConfig.DEBUG}" +
+                "\n build: ${BuildConfig.BUILD_TYPE}" +
+                "\n version: ${BuildConfig.VERSION}"
+        )
         this.context = context
     }
 
@@ -186,6 +193,7 @@ class AmazonStore internal constructor() : Storez {
             return inventory.queryProduct(sku, type)
         }
 
+        @Deprecated("Will be removed in a future release")
         override fun getProducts(
             type: Productz.Type?,
             promo: Productz.Promotion?
@@ -205,6 +213,7 @@ class AmazonStore internal constructor() : Storez {
             sales.cancelOrder(order)
         }
 
+        @Deprecated("Will be removed in a future release.")
         override fun getProduct(sku: String?): Productz? {
             Logger.v(TAG, "getProduct: $sku")
             return inventory.getProduct(sku = sku)
@@ -228,6 +237,7 @@ class AmazonStore internal constructor() : Storez {
         private var profileId: String? = null
         private var hashingSalt: String? = null
         private var isNewVersion = false
+
         /**
          * @param listener - Required to be set for proper functionality
          */

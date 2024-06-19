@@ -34,7 +34,7 @@ import com.zuko.billingz.core.store.model.Productz
  */
 data class GoogleOrder(
     val purchase: Purchase?,
-    val billingResult: BillingResult?,
+    val billingResult: BillingResult?
 
 ) : Orderz {
     /**
@@ -97,5 +97,5 @@ data class GoogleOrder(
     override val resultMessage: String =
         billingResult?.debugMessage ?: "No result message available."
     override val result: Orderz.Result =
-        if (billingResult != null) Orderz.Result.values()[billingResult.responseCode + 3] else Orderz.Result.NO_RESULT
+        if (billingResult != null) Orderz.Result.entries[billingResult.responseCode + 3] else Orderz.Result.NO_RESULT
 }

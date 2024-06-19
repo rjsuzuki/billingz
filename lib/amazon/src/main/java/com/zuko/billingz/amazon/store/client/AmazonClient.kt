@@ -51,7 +51,7 @@ class AmazonClient(val inventory: AmazonInventoryz, val sales: AmazonSalez) : Am
     }
 
     override fun init(context: Context?, connectionListener: Clientz.ConnectionListener) {
-        Logger.v(TAG, "Initializing AmazonClient")
+        Logger.v(TAG, "Initializing AmazonClient...")
         this.context = context
         try {
             LicensingService.verifyLicense(context) { response ->
@@ -172,8 +172,9 @@ class AmazonClient(val inventory: AmazonInventoryz, val sales: AmazonSalez) : Am
                 "\nSDK_VERSION: ${PurchasingService.SDK_VERSION}" +
                 "\nSDK_MODE: ${LicensingService.getAppstoreSDKMode()}"
         )
-        if (!isReady())
+        if (!isReady()) {
             requestUserData()
+        }
     }
 
     override fun destroy() {

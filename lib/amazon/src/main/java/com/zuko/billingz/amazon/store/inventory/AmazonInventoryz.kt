@@ -24,6 +24,7 @@ import com.zuko.billingz.core.store.inventory.Inventoryz
 
 interface AmazonInventoryz : Inventoryz {
     var unavailableSkus: Set<String>?
+
     /**
      * For internal use only
      */
