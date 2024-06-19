@@ -18,7 +18,7 @@ spotless { // Linter for project
 
     kotlin {
         target '**/*.kt'
-        ktlint("0.37.2")
+        ktlint("0.46.0")
         trimTrailingWhitespace()
         indentWithSpaces()
         endWithNewline()
