@@ -26,6 +26,7 @@ import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.zuko.billingz.core.misc.Logger
 import com.zuko.billingz.core.store.client.Clientz
+import com.zuko.billingz.google.BuildConfig
 import com.zuko.billingz.google.store.sales.GoogleResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -67,7 +68,12 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
         context: Context?,
         connectionListener: Clientz.ConnectionListener
     ) {
-        Logger.v(TAG, "Initializing client...")
+        Logger.v(
+            TAG, "Initializing client..." +
+                    "\n debug: ${BuildConfig.DEBUG}" +
+                    "\n build: ${BuildConfig.BUILD_TYPE}" +
+                    "\n version: ${BuildConfig.VERSION}"
+        )
         this.connectionListener = connectionListener
         try {
             if (billingClient != null) {

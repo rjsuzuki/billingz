@@ -23,6 +23,7 @@ import android.content.Context
 import android.os.Bundle
 import androidx.collection.ArrayMap
 import androidx.lifecycle.LiveData
+import com.zuko.billingz.amazon.BuildConfig
 import com.zuko.billingz.amazon.store.client.AmazonClient
 import com.zuko.billingz.amazon.store.inventory.AmazonInventory
 import com.zuko.billingz.amazon.store.model.AmazonOrder
@@ -63,7 +64,12 @@ class AmazonStore internal constructor() : Storez {
     }
 
     override fun init(context: Context?) {
-        Logger.v(TAG, "initializing...")
+        Logger.v(
+            TAG, "Initializing client..." +
+                    "\n debug: ${BuildConfig.DEBUG}" +
+                    "\n build: ${BuildConfig.BUILD_TYPE}" +
+                    "\n version: ${BuildConfig.VERSION}"
+        )
         this.context = context
     }
 
