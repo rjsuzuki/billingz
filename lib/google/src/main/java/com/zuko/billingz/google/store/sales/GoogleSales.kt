@@ -28,6 +28,7 @@ import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.AcknowledgePurchaseResponseListener
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingFlowParams
+import com.android.billingclient.api.BillingFlowParams.SubscriptionUpdateParams
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.ConsumeParams
 import com.android.billingclient.api.ProductDetails
@@ -314,7 +315,7 @@ class GoogleSales(
             val oldPurchaseToken = options.getString(Optionz.Type.OLD_PURCHASE_TOKEN.name, null)
             val prorationMode = options.getInt(
                 Optionz.Type.PRORATION_MODE.name,
-                BillingFlowParams.ProrationMode.DEFERRED
+                SubscriptionUpdateParams.ReplacementMode.DEFERRED
             )
 
             when {
@@ -338,8 +339,8 @@ class GoogleSales(
                             "\n old purchase token: $oldPurchaseToken," +
                             "\n new proration mode: $prorationMode"
                     )
-                    val subUpdateParams = BillingFlowParams.SubscriptionUpdateParams.newBuilder()
-                        .setReplaceProrationMode(prorationMode)
+                    val subUpdateParams = SubscriptionUpdateParams.newBuilder()
+                        .setSubscriptionReplacementMode(prorationMode)
                         .setOldPurchaseToken(oldPurchaseToken)
                         .build()
                     flowParams.setSubscriptionUpdateParams(subUpdateParams)
