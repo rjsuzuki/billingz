@@ -75,6 +75,11 @@ interface Storez : StoreLifecycle {
         fun setNewVersion(enable: Boolean): Builder
 
         /**
+         * Enable debug logs
+         */
+        fun enableDebugLogs(enable: Boolean): Builder
+
+        /**
          * Return an instance of [Storez] for either Google Play or Amazon Appstore
          */
         fun build(context: Context?): Storez

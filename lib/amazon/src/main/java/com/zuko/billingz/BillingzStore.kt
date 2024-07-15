@@ -34,6 +34,7 @@ object BillingzStore {
         private var profileId: String? = null
         private var hashingSalt: String? = null
         private var isNewVersion = false
+        private var isDebug = false
 
         /**
          * @param listener - Required to be set for proper functionality
@@ -74,6 +75,11 @@ object BillingzStore {
             return this
         }
 
+        override fun enableDebugLogs(enable: Boolean): Storez.Builder {
+            isDebug = enable
+            return this
+        }
+
         override fun build(context: Context?): Storez {
             instance = AmazonStore.Builder()
                 .setOrderUpdater(updaterListener)
@@ -82,6 +88,7 @@ object BillingzStore {
                 .setProfileId(profileId)
                 .setObfuscatingHashingSalt(hashingSalt)
                 .setNewVersion(isNewVersion)
+                .enableDebugLogs(isDebug)
                 .build(context)
             return instance
         }

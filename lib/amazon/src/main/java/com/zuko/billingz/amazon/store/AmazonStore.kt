@@ -237,6 +237,7 @@ class AmazonStore internal constructor() : Storez {
         private var profileId: String? = null
         private var hashingSalt: String? = null
         private var isNewVersion = false
+        private var isDebug = false
 
         /**
          * @param listener - Required to be set for proper functionality
@@ -277,7 +278,17 @@ class AmazonStore internal constructor() : Storez {
             return this
         }
 
+        override fun enableDebugLogs(enable: Boolean): Storez.Builder {
+            isDebug = enable
+            return this
+        }
+
         override fun build(context: Context?): Storez {
+            Logger.verbosity = if (isDebug) {
+                Logger.Level.DEBUG
+            } else {
+                Logger.Level.DEFAULT
+            }
             instance = AmazonStore()
             instance.sales.apply {
                 orderUpdaterListener = updaterListener
