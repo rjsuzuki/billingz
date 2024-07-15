@@ -273,10 +273,10 @@ class GoogleSales(
         Logger.d(
             TAG,
             "startSubscriptionPurchaseFlow =>" +
-                    "\n skuDetails: $skuDetails," +
-                    "\n productDetails: $productDetails," +
-                    "\n options: $options," +
-                    "\n isNewVersion: $isNewVersion"
+                "\n skuDetails: $skuDetails," +
+                "\n productDetails: $productDetails," +
+                "\n options: $options," +
+                "\n isNewVersion: $isNewVersion"
         )
         if (activity == null || (!isNewVersion && skuDetails == null) || (isNewVersion && productDetails == null) || billingClient == null || (isNewVersion && options == null)) {
             return BillingResult.newBuilder()
@@ -387,10 +387,10 @@ class GoogleSales(
         Logger.d(
             TAG,
             "startInAppPurchaseFlow =>" +
-                    "\n skuDetails: $skuDetails," +
-                    "\n productDetails: $productDetails," +
-                    "\n options: $options," +
-                    "\n isNewVersion: $isNewVersion"
+                "\n skuDetails: $skuDetails," +
+                "\n productDetails: $productDetails," +
+                "\n options: $options," +
+                "\n isNewVersion: $isNewVersion"
         )
         if (activity == null || (!isNewVersion && skuDetails == null) || (isNewVersion && productDetails == null) || billingClient == null) {
             return BillingResult.newBuilder()

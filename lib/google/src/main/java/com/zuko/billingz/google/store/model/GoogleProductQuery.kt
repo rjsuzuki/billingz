@@ -32,7 +32,7 @@ data class GoogleProductQuery(
     private val type: Productz.Type
 ) : QueryResult<Productz> {
 
-    val queriedProductLiveData = MutableLiveData<Productz>()
+    val queriedProductLiveData = MutableLiveData<Productz?>()
     val queriedProductStateFlow: MutableStateFlow<Productz?> = MutableStateFlow(null)
     private val queriedProductState = queriedProductStateFlow.asStateFlow()
 

@@ -37,6 +37,7 @@ import com.zuko.billingz.google.store.client.GoogleClient
 import com.zuko.billingz.google.store.model.GoogleInventoryQuery
 import com.zuko.billingz.google.store.model.GoogleProduct
 import com.zuko.billingz.google.store.model.GoogleProductQuery
+import com.zuko.billingz.google.store.sales.GoogleResponse
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -74,6 +75,7 @@ class GoogleInventory(
     private val mainScope = MainScope()
 
     private fun queryProducts2(skus: List<String>, type: Productz.Type) {
+        Logger.v(TAG, "queryProducts2")
         if (skus.isEmpty()) {
             Logger.w(TAG, "Cannot run a query with an empty list of: $type")
             return
@@ -144,9 +146,10 @@ class GoogleInventory(
         productDetailsList: List<ProductDetails>?,
         type: Productz.Type
     ) {
+        Logger.v(TAG, "Processing inventory query result...")
         Logger.d(
             TAG,
-            "Processing inventory query result ->" +
+            "handleQueryResult =>" +
                 "\n type: $type," +
                 "\n billingResult code: ${result?.responseCode}," +
                 "\n billingResult msg: ${result?.debugMessage ?: "n/a"}," +
@@ -173,6 +176,8 @@ class GoogleInventory(
                 }
             }
             updateInventory(products = availableProducts, type = type)
+        } else {
+            Logger.w(TAG, "")
         }
     }
 
@@ -200,6 +205,14 @@ class GoogleInventory(
         val query = GoogleProductQuery(sku, type)
 
         client.getBillingClient()?.queryProductDetailsAsync(params) { billingResult, productDetailsList ->
+            Logger.d(
+                TAG,
+                "queryProduct2 =>" +
+                    "\n billingResult.responseCode: ${billingResult.responseCode}," +
+                    "\n billingResult.debugMessage: ${billingResult.debugMessage}," +
+                    "\n productDetailsList: $productDetailsList"
+            )
+            GoogleResponse.logResult(billingResult)
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK &&
                 productDetailsList.isNotEmpty()
             ) {
@@ -207,6 +220,11 @@ class GoogleInventory(
                 mainScope.launch(dispatcher.main()) {
                     query.queriedProductLiveData.postValue(product)
                     query.queriedProductStateFlow.emit(product)
+                }
+            } else {
+                mainScope.launch(dispatcher.main()) {
+                    query.queriedProductLiveData.postValue(null)
+                    query.queriedProductStateFlow.emit(null)
                 }
             }
         }
@@ -220,6 +238,14 @@ class GoogleInventory(
             .setType(skuType)
             .build()
         client.getBillingClient()?.querySkuDetailsAsync(params) { billingResult, skuDetailsList ->
+            Logger.d(
+                TAG,
+                "queryProduct =>" +
+                    "\n billingResult.responseCode: ${billingResult.responseCode}," +
+                    "\n billingResult.debugMessage: ${billingResult.debugMessage}," +
+                    "\n skuDetailsList: $skuDetailsList"
+            )
+            GoogleResponse.logResult(billingResult)
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK &&
                 !skuDetailsList.isNullOrEmpty()
             ) {
@@ -228,15 +254,27 @@ class GoogleInventory(
                     query.queriedProductStateFlow.emit(product)
                     query.queriedProductLiveData.postValue(product)
                 }
+            } else {
+                mainScope.launch(dispatcher.main()) {
+                    query.queriedProductStateFlow.emit(null)
+                    query.queriedProductLiveData.postValue(null)
+                }
             }
         }
     }
 
     override fun queryProduct(sku: String, type: Productz.Type): QueryResult<Productz> {
+        Logger.v(
+            TAG,
+            "queryProduct =>" +
+                "\n sku: $sku," +
+                "\n type: $type," +
+                "\n isNewVersion: $isNewVersion"
+        )
         if (isNewVersion) {
             return queryProduct2(sku, type)
         }
-        Logger.v(TAG, "queryProduct")
+
         val skuType = when (type) {
             Productz.Type.CONSUMABLE -> BillingClient.ProductType.INAPP
             Productz.Type.NON_CONSUMABLE -> BillingClient.ProductType.INAPP
