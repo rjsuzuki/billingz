@@ -273,11 +273,12 @@ class GoogleSales(
         Logger.d(
             TAG,
             "startSubscriptionPurchaseFlow =>" +
-                "\n skuDetails: $skuDetails," +
-                "\n productDetails: $productDetails," +
-                "\n options: $options"
+                    "\n skuDetails: $skuDetails," +
+                    "\n productDetails: $productDetails," +
+                    "\n options: $options," +
+                    "\n isNewVersion: $isNewVersion"
         )
-        if (activity == null || (skuDetails == null && productDetails == null) || billingClient == null) {
+        if (activity == null || (!isNewVersion && skuDetails == null) || (isNewVersion && productDetails == null) || billingClient == null || (isNewVersion && options == null)) {
             return BillingResult.newBuilder()
                 .setResponseCode(BillingClient.BillingResponseCode.ERROR)
                 .setDebugMessage("Can't start subscription purchase flow with null parameters")
@@ -293,23 +294,27 @@ class GoogleSales(
 
         val flowParams = BillingFlowParams.newBuilder()
 
-        if (skuDetails != null) {
-            flowParams.setSkuDetails(skuDetails)
-        } else if (productDetails?.subscriptionOfferDetails != null) {
-            options?.getInt(Optionz.Type.SELECTED_OFFER_INDEX.name)?.let { selectedOfferIndex ->
-                if (selectedOfferIndex > -1 && selectedOfferIndex < productDetails.subscriptionOfferDetails!!.size) {
-                    productDetails.subscriptionOfferDetails?.get(selectedOfferIndex)?.offerToken?.let { offerToken ->
-                        val productDetailsParamsList =
-                            listOf(
-                                BillingFlowParams.ProductDetailsParams.newBuilder()
-                                    .setProductDetails(productDetails)
-                                    .setOfferToken(offerToken)
-                                    .build()
-                            )
-                        flowParams.setProductDetailsParamsList(productDetailsParamsList)
+        if (isNewVersion) {
+            productDetails?.subscriptionOfferDetails?.let { subscriptionOfferDetails ->
+                options?.getInt(Optionz.Type.SELECTED_OFFER_INDEX.name)?.let { selectedOfferIndex ->
+                    if (selectedOfferIndex > -1 && selectedOfferIndex < subscriptionOfferDetails.size) {
+                        subscriptionOfferDetails[selectedOfferIndex]?.offerToken?.let { offerToken ->
+                            val productDetailsParamsList =
+                                listOf(
+                                    BillingFlowParams.ProductDetailsParams.newBuilder()
+                                        .setProductDetails(productDetails)
+                                        .setOfferToken(offerToken)
+                                        .build()
+                                )
+                            flowParams.setProductDetailsParamsList(productDetailsParamsList)
+                        } ?: Logger.w(TAG, "Subscription OfferToken is null.")
                     }
                 }
-            }
+            } ?: Logger.w(TAG, "ProductDetails.subscriptionOfferDetails cannot be null")
+        } else {
+            skuDetails?.let {
+                flowParams.setSkuDetails(skuDetails)
+            } ?: Logger.w(TAG, "skuDetails cannot be null")
         }
 
         obfuscatedAccountId?.let {
@@ -382,11 +387,12 @@ class GoogleSales(
         Logger.d(
             TAG,
             "startInAppPurchaseFlow =>" +
-                "\n skuDetails: $skuDetails," +
-                "\n productDetails: $productDetails," +
-                "\n options: $options"
+                    "\n skuDetails: $skuDetails," +
+                    "\n productDetails: $productDetails," +
+                    "\n options: $options," +
+                    "\n isNewVersion: $isNewVersion"
         )
-        if (activity == null || (skuDetails == null && productDetails == null) || billingClient == null) {
+        if (activity == null || (!isNewVersion && skuDetails == null) || (isNewVersion && productDetails == null) || billingClient == null) {
             return BillingResult.newBuilder()
                 .setResponseCode(BillingClient.BillingResponseCode.ERROR)
                 .setDebugMessage("Can't start in-app purchase flow with null parameters")
@@ -395,16 +401,20 @@ class GoogleSales(
 
         val flowParams = BillingFlowParams.newBuilder()
 
-        if (skuDetails != null) {
-            flowParams.setSkuDetails(skuDetails)
-        } else if (productDetails != null) {
-            val productDetailsParamsList =
-                listOf(
-                    BillingFlowParams.ProductDetailsParams.newBuilder()
-                        .setProductDetails(productDetails)
-                        .build()
-                )
-            flowParams.setProductDetailsParamsList(productDetailsParamsList)
+        if (isNewVersion) {
+            productDetails?.let {
+                val productDetailsParamsList =
+                    listOf(
+                        BillingFlowParams.ProductDetailsParams.newBuilder()
+                            .setProductDetails(productDetails)
+                            .build()
+                    )
+                flowParams.setProductDetailsParamsList(productDetailsParamsList)
+            } ?: Logger.w(TAG, "productDetails cannot be null")
+        } else {
+            skuDetails?.let {
+                flowParams.setSkuDetails(skuDetails)
+            } ?: Logger.w(TAG, "skuDetails cannot be null")
         }
 
         obfuscatedAccountId?.let {
