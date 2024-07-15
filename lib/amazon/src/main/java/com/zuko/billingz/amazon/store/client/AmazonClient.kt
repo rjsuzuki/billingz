@@ -70,6 +70,7 @@ class AmazonClient(val inventory: AmazonInventoryz, val sales: AmazonSalez) : Am
     }
 
     fun pause() {
+        Logger.v(TAG, "Pausing...")
         connectionState.postValue(Clientz.ConnectionStatus.CLOSED)
     }
 
@@ -83,7 +84,7 @@ class AmazonClient(val inventory: AmazonInventoryz, val sales: AmazonSalez) : Am
             val userRequestId = PurchasingService.getUserData() // client
             Logger.d(TAG, "UserData request id: $userRequestId")
         } catch (e: Exception) {
-            e.printStackTrace()
+            Logger.e(TAG, e)
         }
     }
 
@@ -155,7 +156,7 @@ class AmazonClient(val inventory: AmazonInventoryz, val sales: AmazonSalez) : Am
                 purchasingListener
             )
         } catch (e: Exception) {
-            e.printStackTrace()
+            Logger.e(TAG, e)
         }
     }
 

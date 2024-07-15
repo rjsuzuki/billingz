@@ -190,6 +190,12 @@ class AmazonStore internal constructor() : Storez {
         }
 
         override fun queryProduct(sku: String, type: Productz.Type): QueryResult<Productz> {
+            Logger.v(
+                TAG,
+                "queryProduct =>" +
+                    "\n sku: $sku," +
+                    "\n type: $type"
+            )
             return inventory.queryProduct(sku, type)
         }
 
@@ -198,7 +204,12 @@ class AmazonStore internal constructor() : Storez {
             type: Productz.Type?,
             promo: Productz.Promotion?
         ): Map<String, Productz> {
-            Logger.v(TAG, "getProducts: $type : $promo")
+            Logger.v(
+                TAG,
+                "getProducts =>" +
+                    "\n type: $type," +
+                    "\n promo: $promo"
+            )
             return inventory.getProducts(
                 type = type,
                 promo = promo

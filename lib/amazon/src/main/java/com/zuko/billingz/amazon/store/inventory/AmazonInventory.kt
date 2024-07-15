@@ -75,7 +75,7 @@ class AmazonInventory(
     override fun processQueriedProducts(response: ProductDataResponse?) {
         Logger.d(
             TAG,
-            "handleQueriedProducts:" +
+            "processQueriedProducts:" +
                 "\nrequest id: ${response?.requestId}," +
                 "\nstatus: ${response?.requestStatus}," +
                 "\nunavailableSkus: ${response?.unavailableSkus?.size}," +
@@ -83,7 +83,7 @@ class AmazonInventory(
         )
 
         response?.unavailableSkus?.forEach { sku ->
-            Logger.v(TAG, "Unavailable Product(SKU): $sku")
+            Logger.w(TAG, "Unavailable Product(SKU): $sku")
         }
 
         when (response?.requestStatus) {
@@ -109,9 +109,11 @@ class AmazonInventory(
                     Logger.i(TAG, "Validated product: $product")
                     product.getProductId()?.let { sku ->
                         mainScope.launch(dispatcher.main()) {
-                            val query = queriedProductsMap[sku]
-                            query?.queriedProductLiveData?.postValue(product)
-                            query?.queriedProductStateFlow?.emit(product)
+                            queriedProductsMap[sku]?.let { query ->
+                                query.queriedProductLiveData.postValue(product)
+                                query.queriedProductStateFlow.emit(product)
+                                queriedProductsMap.remove(sku)
+                            }
                         }
                     }
                 }
@@ -146,7 +148,12 @@ class AmazonInventory(
     }
 
     override fun queryProduct(sku: String, type: Productz.Type): QueryResult<Productz> {
-        Logger.v(TAG, "queryProduct: $sku, $type")
+        Logger.v(
+            TAG,
+            "queryProduct =>" +
+                "\n sku: $sku, " +
+                "\n type: $type"
+        )
         mainScope.launch(dispatcher.io()) {
             val skuType = when (type) {
                 Productz.Type.CONSUMABLE -> ProductType.CONSUMABLE.name
@@ -170,7 +177,7 @@ class AmazonInventory(
             try {
                 PurchasingService.getProductData(set)
             } catch (e: Exception) {
-                e.printStackTrace()
+                Logger.e(TAG, e)
             }
         }
         val query = AmazonProductQuery(sku, type)
@@ -179,7 +186,7 @@ class AmazonInventory(
     }
 
     override fun queryInventory(products: Map<String, Productz.Type>): QueryResult<Map<String, Productz>> {
-        Logger.v(TAG, "queryInventory")
+        Logger.v(TAG, "queryInventory: $products")
         // Call this method to retrieve item data for a set of SKUs to display in your app.
         // Call getProductData in the OnResume method.
         try {
@@ -191,7 +198,7 @@ class AmazonInventory(
                     "products: $products"
             )
         } catch (e: Exception) {
-            e.printStackTrace()
+            Logger.e(TAG, e)
         }
 
         return AmazonInventoryQuery(this)
@@ -311,7 +318,12 @@ class AmazonInventory(
         type: Productz.Type?,
         promo: Productz.Promotion?
     ): Map<String, Productz> {
-        Logger.i(TAG, "getProducts")
+        Logger.i(
+            TAG,
+            "getProducts =>" +
+                "\n type: $type," +
+                "\n promo: $promo"
+        )
         when (type) {
             Productz.Type.CONSUMABLE -> {
                 if (promo != null) {
