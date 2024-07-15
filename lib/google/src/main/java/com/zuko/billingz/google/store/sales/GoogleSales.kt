@@ -141,8 +141,8 @@ class GoogleSales(
         Logger.d(
             TAG,
             "startOrder => " +
-                    "\n product: $product," +
-                    "\n options: $options"
+                "\n product: $product," +
+                "\n options: $options"
         )
 
         if (product is GoogleProduct && client is GoogleClient) {
@@ -273,9 +273,9 @@ class GoogleSales(
         Logger.d(
             TAG,
             "startSubscriptionPurchaseFlow =>" +
-                    "\n skuDetails: $skuDetails," +
-                    "\n productDetails: $productDetails," +
-                    "\n options: $options"
+                "\n skuDetails: $skuDetails," +
+                "\n productDetails: $productDetails," +
+                "\n options: $options"
         )
         if (activity == null || (skuDetails == null && productDetails == null) || billingClient == null) {
             return BillingResult.newBuilder()
@@ -382,9 +382,9 @@ class GoogleSales(
         Logger.d(
             TAG,
             "startInAppPurchaseFlow =>" +
-                    "\n skuDetails: $skuDetails," +
-                    "\n productDetails: $productDetails," +
-                    "\n options: $options"
+                "\n skuDetails: $skuDetails," +
+                "\n productDetails: $productDetails," +
+                "\n options: $options"
         )
         if (activity == null || (skuDetails == null && productDetails == null) || billingClient == null) {
             return BillingResult.newBuilder()
