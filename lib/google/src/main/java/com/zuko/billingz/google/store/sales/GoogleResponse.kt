@@ -25,10 +25,12 @@ import com.zuko.billingz.core.misc.Logger
  */
 object GoogleResponse {
 
-    private const val TAG = "Billingz"
+    private const val TAG = "BillingzGoogle"
+    private const val BILLING_RESPONSE = "Billing Response"
 
     /**
-     * Convenience logger to interpret the integer code of the [BillingResult]
+     * Convenience logger to interpret the integer code of the [BillingResult].
+     * - Also see [BillingClient.BillingResponseCode]
      * @param billingResult
      */
     fun logResult(billingResult: BillingResult?) {
@@ -36,44 +38,80 @@ object GoogleResponse {
             BillingClient.BillingResponseCode.OK -> {
                 Logger.d(
                     TAG,
-                    "Response Code: " + BillingClient.BillingResponseCode.OK.toString() + ": OK"
+                    "${BILLING_RESPONSE}: " + "\n " + BillingClient.BillingResponseCode.OK.toString() + "\n message: OK"
                 )
             }
             BillingClient.BillingResponseCode.USER_CANCELED -> {
-                Logger.w(TAG, "Response Code: " + BillingClient.BillingResponseCode.USER_CANCELED.toString() + ": ${billingResult.debugMessage}")
+                Logger.w(
+                    TAG,
+                    "${BILLING_RESPONSE}: " + "\n code: " + BillingClient.BillingResponseCode.USER_CANCELED.toString() + "\n message: ${billingResult.debugMessage}"
+                )
             }
             BillingClient.BillingResponseCode.BILLING_UNAVAILABLE -> {
-                Logger.w(TAG, "Response Code: " + BillingClient.BillingResponseCode.BILLING_UNAVAILABLE.toString() + ": ${billingResult.debugMessage}")
+                Logger.w(
+                    TAG,
+                    "${BILLING_RESPONSE}: " + "\n code: " + BillingClient.BillingResponseCode.BILLING_UNAVAILABLE.toString() + "\n message: ${billingResult.debugMessage}"
+                )
             }
             BillingClient.BillingResponseCode.DEVELOPER_ERROR -> {
-                Logger.e(TAG, "Response Code: " + BillingClient.BillingResponseCode.DEVELOPER_ERROR.toString() + ": ${billingResult.debugMessage}")
+                Logger.e(
+                    TAG,
+                    "${BILLING_RESPONSE}: " + "\n code: " + BillingClient.BillingResponseCode.DEVELOPER_ERROR.toString() + "\n message: ${billingResult.debugMessage}"
+                )
             }
             BillingClient.BillingResponseCode.ERROR -> {
-                Logger.e(TAG, "Response Code: " + BillingClient.BillingResponseCode.ERROR.toString() + ": ${billingResult.debugMessage}")
+                Logger.e(
+                    TAG,
+                    "${BILLING_RESPONSE}: " + "\n code: " + BillingClient.BillingResponseCode.ERROR.toString() + "\n message: ${billingResult.debugMessage}"
+                )
             }
             BillingClient.BillingResponseCode.FEATURE_NOT_SUPPORTED -> {
-                Logger.w(TAG, "Response Code: " + BillingClient.BillingResponseCode.FEATURE_NOT_SUPPORTED.toString() + ": ${billingResult.debugMessage}")
+                Logger.w(
+                    TAG,
+                    "${BILLING_RESPONSE}: " + "\n code: " + BillingClient.BillingResponseCode.FEATURE_NOT_SUPPORTED.toString() + "\n message: ${billingResult.debugMessage}"
+                )
             }
             BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED -> {
-                Logger.w(TAG, "Response Code: " + BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED.toString() + ": ${billingResult.debugMessage}")
+                Logger.w(
+                    TAG,
+                    "${BILLING_RESPONSE}: " + "\n code: " + BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED.toString() + "\n message: ${billingResult.debugMessage}"
+                )
             }
             BillingClient.BillingResponseCode.ITEM_NOT_OWNED -> {
-                Logger.w(TAG, "Response Code: " + BillingClient.BillingResponseCode.ITEM_NOT_OWNED.toString() + ": ${billingResult.debugMessage}")
+                Logger.w(
+                    TAG,
+                    "${BILLING_RESPONSE}: " + "\n code: " + BillingClient.BillingResponseCode.ITEM_NOT_OWNED.toString() + "\n message: ${billingResult.debugMessage}"
+                )
             }
             BillingClient.BillingResponseCode.ITEM_UNAVAILABLE -> {
-                Logger.w(TAG, "Response Code: " + BillingClient.BillingResponseCode.ITEM_UNAVAILABLE.toString() + ": ${billingResult.debugMessage}")
+                Logger.w(
+                    TAG,
+                    "${BILLING_RESPONSE}: " + "\n code: " + BillingClient.BillingResponseCode.ITEM_UNAVAILABLE.toString() + "\n message: ${billingResult.debugMessage}"
+                )
             }
             BillingClient.BillingResponseCode.SERVICE_DISCONNECTED -> {
-                Logger.w(TAG, "Response Code: " + BillingClient.BillingResponseCode.SERVICE_DISCONNECTED.toString() + ": ${billingResult.debugMessage}")
+                Logger.w(
+                    TAG,
+                    "${BILLING_RESPONSE}: " + "\n code: " + BillingClient.BillingResponseCode.SERVICE_DISCONNECTED.toString() + "\n message: ${billingResult.debugMessage}"
+                )
             }
             BillingClient.BillingResponseCode.SERVICE_TIMEOUT -> {
-                Logger.e(TAG, "Response Code: " + BillingClient.BillingResponseCode.SERVICE_TIMEOUT.toString() + ": ${billingResult.debugMessage}")
+                Logger.e(
+                    TAG,
+                    "${BILLING_RESPONSE}: " + "\n code: " + BillingClient.BillingResponseCode.SERVICE_TIMEOUT.toString() + "\n message: ${billingResult.debugMessage}"
+                )
             }
             BillingClient.BillingResponseCode.SERVICE_UNAVAILABLE -> {
-                Logger.e(TAG, "Response Code: " + BillingClient.BillingResponseCode.SERVICE_UNAVAILABLE.toString() + ": ${billingResult.debugMessage}")
+                Logger.e(
+                    TAG,
+                    "${BILLING_RESPONSE}: " + "\n code: " + BillingClient.BillingResponseCode.SERVICE_UNAVAILABLE.toString() + "\n message: ${billingResult.debugMessage}"
+                )
             }
             else -> {
-                Logger.wtf(TAG, "Unhandled response code: ${billingResult?.responseCode}")
+                Logger.wtf(
+                    TAG,
+                    "Unhandled ${BILLING_RESPONSE}: ${billingResult?.responseCode}"
+                )
             }
         }
     }
