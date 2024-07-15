@@ -138,6 +138,13 @@ class GoogleSales(
         options: Bundle?
     ) {
         Logger.v(TAG, "Starting Order for sku: ${product.getProductId()}")
+        Logger.d(
+            TAG,
+            "startOrder => " +
+                    "\n product: $product," +
+                    "\n options: $options"
+        )
+
         if (product is GoogleProduct && client is GoogleClient) {
             val result = if (product.type == Productz.Type.SUBSCRIPTION) {
                 startSubscriptionPurchaseFlow(
@@ -263,6 +270,13 @@ class GoogleSales(
         options: Bundle? = null
     ): BillingResult {
         Logger.v(TAG, "Starting subscription purchase flow")
+        Logger.d(
+            TAG,
+            "startSubscriptionPurchaseFlow =>" +
+                    "\n skuDetails: $skuDetails," +
+                    "\n productDetails: $productDetails," +
+                    "\n options: $options"
+        )
         if (activity == null || (skuDetails == null && productDetails == null) || billingClient == null) {
             return BillingResult.newBuilder()
                 .setResponseCode(BillingClient.BillingResponseCode.ERROR)
@@ -365,6 +379,13 @@ class GoogleSales(
         options: Bundle? = null
     ): BillingResult {
         Logger.v(TAG, "Starting in-app purchase flow")
+        Logger.d(
+            TAG,
+            "startInAppPurchaseFlow =>" +
+                    "\n skuDetails: $skuDetails," +
+                    "\n productDetails: $productDetails," +
+                    "\n options: $options"
+        )
         if (activity == null || (skuDetails == null && productDetails == null) || billingClient == null) {
             return BillingResult.newBuilder()
                 .setResponseCode(BillingClient.BillingResponseCode.ERROR)
@@ -769,9 +790,9 @@ class GoogleSales(
                             activeSubscriptions[receipt.entitlement] = receipt
                         }
                     }
-                    processUpdatedPurchases(billingResult, purchases)
                     Logger.i(TAG, "Subscription order history received: $purchases")
                 }
+                processUpdatedPurchases(billingResult, purchases)
             }
         if (isNewVersion) {
             val params = QueryPurchasesParams.newBuilder()
@@ -799,9 +820,9 @@ class GoogleSales(
                             activeInAppProducts[receipt.entitlement] = receipt
                         }
                     }
-                    processUpdatedPurchases(billingResult, purchases)
                     Logger.i(TAG, "In-app order history received: $purchases")
                 }
+                processUpdatedPurchases(billingResult, purchases)
             }
 
         if (isNewVersion) {
