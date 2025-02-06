@@ -118,7 +118,6 @@ class GoogleSales(
     private var activeSubscriptions = ArrayMap<String, GoogleReceipt>()
     private var activeInAppProducts = ArrayMap<String, GoogleReceipt>()
 
-
     override fun setObfuscatedIdentifiers(accountId: String?, profileId: String?) {
         Logger.d(
             TAG,
