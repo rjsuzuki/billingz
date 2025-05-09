@@ -19,6 +19,7 @@
 
 package com.zuko.billingz.google.store.model
 
+import android.util.Log
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.SkuDetails
 import com.zuko.billingz.core.store.model.Offer
@@ -46,6 +47,8 @@ data class GoogleProduct(
     private var iconUrl: String? = null
     private var currency: Currency = Currency.getInstance(Locale.getDefault())
     private var pricingInfo: PricingInfo? = null
+
+    @Deprecated("Use pricingInfo instead")
     private var promotion: Productz.Promotion = Productz.Promotion.NONE
     private var productDetails: ProductDetails? = null
     private var skuDetails: SkuDetails? = null
