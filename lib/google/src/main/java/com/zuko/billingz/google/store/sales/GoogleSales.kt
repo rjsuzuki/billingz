@@ -303,22 +303,34 @@ class GoogleSales(
         val flowParams = BillingFlowParams.newBuilder()
 
         if (isNewVersion) {
-            productDetails?.subscriptionOfferDetails?.let { subscriptionOfferDetails ->
-                options?.getInt(Optionz.Type.SELECTED_OFFER_INDEX.name)?.let { selectedOfferIndex ->
-                    if (selectedOfferIndex > -1 && selectedOfferIndex < subscriptionOfferDetails.size) {
-                        subscriptionOfferDetails[selectedOfferIndex]?.offerToken?.let { offerToken ->
-                            val productDetailsParamsList =
-                                listOf(
-                                    BillingFlowParams.ProductDetailsParams.newBuilder()
-                                        .setProductDetails(productDetails)
-                                        .setOfferToken(offerToken)
-                                        .build()
-                                )
-                            flowParams.setProductDetailsParamsList(productDetailsParamsList)
-                        } ?: Logger.w(TAG, "Subscription OfferToken is null.")
-                    }
+            productDetails?.let {
+                val subscriptionOfferDetails = productDetails.subscriptionOfferDetails
+                if (subscriptionOfferDetails == null) {
+                    val productDetailsParamsList =
+                        listOf(
+                            BillingFlowParams.ProductDetailsParams.newBuilder()
+                                .setProductDetails(productDetails)
+                                .build()
+                        )
+                    flowParams.setProductDetailsParamsList(productDetailsParamsList)
+                } else {
+                    options?.getInt(Optionz.Type.SELECTED_OFFER_INDEX.name)
+                        ?.let { selectedOfferIndex ->
+                            if (selectedOfferIndex > -1 && selectedOfferIndex < subscriptionOfferDetails.size) {
+                                subscriptionOfferDetails[selectedOfferIndex]?.offerToken?.let { offerToken ->
+                                    val productDetailsParamsList =
+                                        listOf(
+                                            BillingFlowParams.ProductDetailsParams.newBuilder()
+                                                .setProductDetails(productDetails)
+                                                .setOfferToken(offerToken)
+                                                .build()
+                                        )
+                                    flowParams.setProductDetailsParamsList(productDetailsParamsList)
+                                } ?: Logger.w(TAG, "Subscription OfferToken is null.")
+                            }
+                        }
                 }
-            } ?: Logger.w(TAG, "ProductDetails.subscriptionOfferDetails cannot be null")
+            } ?: Logger.w(TAG, "productDetails cannot be null")
         } else {
             skuDetails?.let {
                 flowParams.setSkuDetails(skuDetails)
