@@ -113,7 +113,7 @@ data class GoogleProduct(
     constructor(productDetails: ProductDetails, type: Productz.Type) : this(type) {
         this.productDetails = productDetails
         productId = productDetails.productId
-        name = productDetails.title
+        name = productDetails.name
         title = productDetails.title
         description = productDetails.description
 
