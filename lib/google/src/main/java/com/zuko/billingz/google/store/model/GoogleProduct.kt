@@ -19,7 +19,6 @@
 
 package com.zuko.billingz.google.store.model
 
-import android.util.Log
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.SkuDetails
 import com.zuko.billingz.core.store.model.Offer
