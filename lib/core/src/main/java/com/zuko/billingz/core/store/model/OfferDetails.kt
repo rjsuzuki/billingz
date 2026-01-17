@@ -24,6 +24,8 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class OfferDetails(
+    override val offerId: String?,
+    override val basePlanId: String,
     override val offerTags: List<String>,
     override val offerToken: String,
     override val offers: List<Offer>

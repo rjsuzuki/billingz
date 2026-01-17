@@ -118,7 +118,6 @@ class GoogleSales(
     private var activeSubscriptions = ArrayMap<String, GoogleReceipt>()
     private var activeInAppProducts = ArrayMap<String, GoogleReceipt>()
 
-
     override fun setObfuscatedIdentifiers(accountId: String?, profileId: String?) {
         Logger.d(
             TAG,
@@ -287,7 +286,7 @@ class GoogleSales(
                 "\n options: $options," +
                 "\n isNewVersion: $isNewVersion"
         )
-        if (activity == null || (!isNewVersion && skuDetails == null) || (isNewVersion && productDetails == null) || billingClient == null || (isNewVersion && options == null)) {
+        if (activity == null || (!isNewVersion && skuDetails == null) || (isNewVersion && productDetails == null) || billingClient == null) {
             return BillingResult.newBuilder()
                 .setResponseCode(BillingClient.BillingResponseCode.ERROR)
                 .setDebugMessage("Can't start subscription purchase flow with null parameters")
@@ -305,19 +304,32 @@ class GoogleSales(
 
         if (isNewVersion) {
             productDetails?.subscriptionOfferDetails?.let { subscriptionOfferDetails ->
-                options?.getInt(Optionz.Type.SELECTED_OFFER_INDEX.name)?.let { selectedOfferIndex ->
-                    if (selectedOfferIndex > -1 && selectedOfferIndex < subscriptionOfferDetails.size) {
-                        subscriptionOfferDetails[selectedOfferIndex]?.offerToken?.let { offerToken ->
-                            val productDetailsParamsList =
-                                listOf(
-                                    BillingFlowParams.ProductDetailsParams.newBuilder()
-                                        .setProductDetails(productDetails)
-                                        .setOfferToken(offerToken)
-                                        .build()
-                                )
-                            flowParams.setProductDetailsParamsList(productDetailsParamsList)
-                        } ?: Logger.w(TAG, "Subscription OfferToken is null.")
+                val selectedOfferId = options?.getString(Optionz.Type.SELECTED_OFFER_ID.name, null)
+                val selectedOfferIndex = options?.getInt(Optionz.Type.SELECTED_OFFER_INDEX.name, -1) ?: -1
+
+                val offerToken = when {
+                    !selectedOfferId.isNullOrBlank() && subscriptionOfferDetails.find({ it.offerId == selectedOfferId }) != null -> {
+                        subscriptionOfferDetails.find { it.offerId == selectedOfferId }?.offerToken
                     }
+                    selectedOfferIndex > -1 && selectedOfferIndex < subscriptionOfferDetails.size -> {
+                        subscriptionOfferDetails[selectedOfferIndex]?.offerToken
+                    }
+                    else -> {
+                        subscriptionOfferDetails.firstOrNull()?.offerToken
+                    }
+                }
+
+                if (offerToken != null) {
+                    val productDetailsParamsList =
+                        listOf(
+                            BillingFlowParams.ProductDetailsParams.newBuilder()
+                                .setProductDetails(productDetails)
+                                .setOfferToken(offerToken)
+                                .build()
+                        )
+                    flowParams.setProductDetailsParamsList(productDetailsParamsList)
+                } else {
+                    Logger.w(TAG, "Subscription OfferToken is null.")
                 }
             } ?: Logger.w(TAG, "ProductDetails.subscriptionOfferDetails cannot be null")
         } else {

@@ -137,6 +137,8 @@ interface Productz : ModuleIdentifier {
      * For Google Play SubscriptionOfferDetails support
      */
     interface OfferDetails {
+        val offerId: String?
+        val basePlanId: String
         val offerTags: List<String>
         val offerToken: String
         val offers: List<Offer>

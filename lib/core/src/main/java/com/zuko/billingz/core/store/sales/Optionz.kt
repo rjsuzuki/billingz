@@ -10,7 +10,8 @@ object Optionz {
         OLD_PURCHASE_TOKEN,
         IS_PERSONALIZED_OFFER,
         REGION,
-        SELECTED_OFFER_INDEX
+        SELECTED_OFFER_INDEX,
+        SELECTED_OFFER_ID
     }
 
     enum class Region {
@@ -43,6 +44,7 @@ object Optionz {
         private var oldPurchaseToken: String? = null
         private var oldSubId: String? = null
         private var selectedOfferIndex = -1
+        private var selectedOfferId: String? = null
 
         override fun setConsumerRegion(region: Region): Builder {
             this.region = region
@@ -74,6 +76,11 @@ object Optionz {
             return this
         }
 
+        override fun setSelectedOfferId(offerId: String): Builder {
+            selectedOfferId = offerId
+            return this
+        }
+
         override fun build(): Bundle {
             val bundle = Bundle()
             bundle.putString(Type.OLD_SUB_ID.name, oldSubId)
@@ -85,6 +92,7 @@ object Optionz {
             bundle.putInt(Type.REGION.name, region.ordinal)
             bundle.putBoolean(Type.IS_PERSONALIZED_OFFER.name, isOfferPersonalized)
             bundle.putInt(Type.SELECTED_OFFER_INDEX.name, selectedOfferIndex)
+            bundle.putString(Type.SELECTED_OFFER_ID.name, selectedOfferId)
             return bundle
         }
     }
@@ -129,6 +137,12 @@ object Optionz {
          * be purchased.
          */
         fun setSelectedOfferIndex(index: Int): Builder
+
+        /**
+         * Set the offer id of the relevant Subscription OfferDetails to
+         * be purchased.
+         */
+        fun setSelectedOfferId(offerId: String): Builder
 
         /**
          * Create [Bundle] object of order options.

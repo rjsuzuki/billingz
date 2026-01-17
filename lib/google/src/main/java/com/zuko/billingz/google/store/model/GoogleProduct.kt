@@ -153,6 +153,8 @@ data class GoogleProduct(
             offers.add(o)
         }
         return OfferDetails(
+            offerId = offer.offerId,
+            basePlanId = offer.basePlanId,
             offerTags = offer.offerTags,
             offerToken = offer.offerToken,
             offers = offers
