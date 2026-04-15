@@ -135,12 +135,20 @@ interface Productz : ModuleIdentifier {
          * Only available for Google products. Amazon products will return null.
          */
         val subscriptionOffers: List<OfferDetails>?
+
+        fun getFreeTrial(): Offer?
+        fun getPromo(): Offer?
+        fun getSubscription(): Offer?
     }
 
     /**
      * For Google Play SubscriptionOfferDetails support
+     * @property offerId is the id for a specific offer. A null offerId typically signifies the
+     * base plan (the standard price).
      */
     interface OfferDetails {
+        val offerId: String?
+        val basePlanId: String?
         val offerTags: List<String>
         val offerToken: String
         val offers: List<Offer>

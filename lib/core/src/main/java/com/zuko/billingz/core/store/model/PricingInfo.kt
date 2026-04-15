@@ -42,4 +42,18 @@ data class PricingInfo(
     @Deprecated("Use subscriptionOffers instead when using Google Play Billing v5+")
     override val trialPeriod: String?,
     override val subscriptionOffers: List<OfferDetails>?
-) : Productz.Pricing, Parcelable
+) : Productz.Pricing, Parcelable {
+
+    override fun getFreeTrial(): Productz.Offer? {
+        return subscriptionOffers?.firstNotNullOfOrNull { it.getFreeTrial() }
+    }
+
+    override fun getPromo(): Productz.Offer? {
+        return subscriptionOffers?.firstNotNullOfOrNull { it.getPromo() }
+    }
+
+    override fun getSubscription(): Productz.Offer? {
+        return subscriptionOffers?.firstNotNullOfOrNull { it.getSubscription() }
+    }
+
+}

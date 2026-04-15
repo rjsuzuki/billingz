@@ -122,10 +122,10 @@ data class GoogleProduct(
         description = productDetails.description
 
         if (type == Productz.Type.SUBSCRIPTION) {
-            price =
-                productDetails.subscriptionOfferDetails?.firstOrNull()?.pricingPhases?.pricingPhaseList?.firstOrNull()?.formattedPrice
+            val basePlanProduct = productDetails.subscriptionOfferDetails?.firstOrNull { it.offerTags.isEmpty() }
+            price = basePlanProduct?.pricingPhases?.pricingPhaseList?.firstOrNull()?.formattedPrice
             currency =
-                Currency.getInstance(productDetails.subscriptionOfferDetails?.firstOrNull()?.pricingPhases?.pricingPhaseList?.firstOrNull()?.priceCurrencyCode)
+                Currency.getInstance(basePlanProduct?.pricingPhases?.pricingPhaseList?.firstOrNull()?.priceCurrencyCode)
 
             pricingInfo = PricingInfo(
                 introPrice = null,
@@ -151,7 +151,6 @@ data class GoogleProduct(
             else  -> Productz.Promotion.NONE
         }
     }
-
     private fun convertSubscriptionOfferDetailsTo(offers: List<ProductDetails.SubscriptionOfferDetails>?): List<OfferDetails>? {
         if (offers.isNullOrEmpty()) {
             return null
@@ -177,6 +176,8 @@ data class GoogleProduct(
             offers.add(o)
         }
         return OfferDetails(
+            offerId = offer.offerId,
+            basePlanId = offer.basePlanId,
             offerTags = offer.offerTags,
             offerToken = offer.offerToken,
             offers = offers
