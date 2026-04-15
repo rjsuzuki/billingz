@@ -77,7 +77,6 @@ interface Productz : ModuleIdentifier {
      * The promotion type of the product.
      * NONE is the default.
      */
-    @Deprecated("Use pricingInfo instead for Google Play Billing library v5+. isNewVersion must be set to true when initializing the GoogleStore.")
     fun getPromotion(): Promotion
 
     /**
