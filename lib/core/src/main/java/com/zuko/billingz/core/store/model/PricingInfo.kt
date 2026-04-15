@@ -22,11 +22,24 @@ package com.zuko.billingz.core.store.model
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
+/**
+ *
+ * - For Google Play Billing v4-, when using the [com.android.billingclient.api.SkuDetails],
+ * the [subscriptionOffers] property will be null.
+ * - For Google Play Billing v5+, when using the [com.android.billingclient.api.ProductDetails],
+ * the String properties in this class will be null.
+ * - If you want to access other available offers, use [subscriptionOffers] to fetch the full list.
+ * https://developer.android.com/reference/com/android/billingclient/api/ProductDetails
+ */
 @Parcelize
 data class PricingInfo(
+    @Deprecated("Use subscriptionOffers instead when using Google Play Billing v5+")
     override val introPrice: String?,
+    @Deprecated("Use subscriptionOffers instead when using Google Play Billing v5+")
     override val introPricePeriod: String?,
+    @Deprecated("Use subscriptionOffers instead when using Google Play Billing v5+")
     override val billingPeriod: String?,
+    @Deprecated("Use subscriptionOffers instead when using Google Play Billing v5+")
     override val trialPeriod: String?,
     override val subscriptionOffers: List<OfferDetails>?
 ) : Productz.Pricing, Parcelable

@@ -123,9 +123,13 @@ interface Productz : ModuleIdentifier {
      * Supplementary pricing information on a product if available.
      */
     interface Pricing {
+        @Deprecated("Use subscriptionOffers instead when using Google Play Billing v5+")
         val introPrice: String?
+        @Deprecated("Use subscriptionOffers instead when using Google Play Billing v5+")
         val introPricePeriod: String?
+        @Deprecated("Use subscriptionOffers instead when using Google Play Billing v5+")
         val billingPeriod: String?
+        @Deprecated("Use subscriptionOffers instead when using Google Play Billing v5+")
         val trialPeriod: String?
 
         /**
@@ -153,5 +157,10 @@ interface Productz : ModuleIdentifier {
         val priceAmountMicros: Long
         val recurrenceMode: Int
         val billingCycleCount: Int
+
+        /**
+         * Indicates if the offer is a free trial, promotion, or a standard price.
+         */
+        val promo: Promotion
     }
 }

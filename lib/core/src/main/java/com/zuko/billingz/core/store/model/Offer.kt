@@ -29,5 +29,6 @@ data class Offer(
     override val priceCurrencyCode: String,
     override val priceAmountMicros: Long,
     override val recurrenceMode: Int,
-    override val billingCycleCount: Int
+    override val billingCycleCount: Int,
+    override val promo: Productz.Promotion
 ) : Productz.Offer, Parcelable
