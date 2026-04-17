@@ -48,5 +48,4 @@ data class OfferDetails(
             it.promo == Productz.Promotion.NONE
         }
     }
-
 }

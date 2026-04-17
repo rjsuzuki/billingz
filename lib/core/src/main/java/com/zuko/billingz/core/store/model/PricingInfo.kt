@@ -55,5 +55,4 @@ data class PricingInfo(
     override fun getSubscription(): Productz.Offer? {
         return subscriptionOffers?.firstNotNullOfOrNull { it.getSubscription() }
     }
-
 }

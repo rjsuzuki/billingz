@@ -53,7 +53,8 @@ data class GoogleProduct(
     @Deprecated("Use pricingInfo instead")
     private var promotion: Productz.Promotion = Productz.Promotion.NONE
     private var productDetails: ProductDetails? = null
-    @Deprecated ("Use productDetails instead")
+
+    @Deprecated("Use productDetails instead")
     private var skuDetails: SkuDetails? = null
 
     @Suppress("unused")
@@ -83,7 +84,7 @@ data class GoogleProduct(
     /**
      * Android Billing Lib v4-
      */
-    @Deprecated ("Use productDetails instead")
+    @Deprecated("Use productDetails instead")
     constructor(skuDetails: SkuDetails, type: Productz.Type) : this(type) {
         this.skuDetails = skuDetails
         productId = skuDetails.sku
@@ -148,7 +149,7 @@ data class GoogleProduct(
             phase?.isFreeTrial() == true -> Productz.Promotion.FREE
             phase?.isPromotion() == true -> Productz.Promotion.PROMO
             phase?.isStandardPrice() == true -> Productz.Promotion.NONE
-            else  -> Productz.Promotion.NONE
+            else -> Productz.Promotion.NONE
         }
     }
     private fun convertSubscriptionOfferDetailsTo(offers: List<ProductDetails.SubscriptionOfferDetails>?): List<OfferDetails>? {

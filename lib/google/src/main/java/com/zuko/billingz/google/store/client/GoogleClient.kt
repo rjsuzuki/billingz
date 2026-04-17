@@ -137,7 +137,6 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
                 }
             })
         }
-
     }
 
     override fun disconnect() {
