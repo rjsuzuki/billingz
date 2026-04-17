@@ -327,6 +327,11 @@ class GoogleSales(
                                         )
                                     flowParams.setProductDetailsParamsList(productDetailsParamsList)
                                 } ?: Logger.w(TAG, "Subscription OfferToken is null.")
+                            } else {
+                                return BillingResult.newBuilder()
+                                    .setResponseCode(BillingClient.BillingResponseCode.ERROR)
+                                    .setDebugMessage("Can't start subscription purchase flow for selected offer at index $selectedOfferIndex of list size ${subscriptionOfferDetails.size}")
+                                    .build()
                             }
                         }
                 }
