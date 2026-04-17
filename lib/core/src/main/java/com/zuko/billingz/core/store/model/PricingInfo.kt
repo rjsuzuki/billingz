@@ -24,9 +24,9 @@ import kotlinx.parcelize.Parcelize
 
 /**
  *
- * - For Google Play Billing v4-, when using the [com.android.billingclient.api.SkuDetails],
+ * - For Google Play Billing v4-, when using the (com.android.billingclient.api.SkuDetails),
  * the [subscriptionOffers] property will be null.
- * - For Google Play Billing v5+, when using the [com.android.billingclient.api.ProductDetails],
+ * - For Google Play Billing v5+, when using the (com.android.billingclient.api.ProductDetails),
  * the String properties in this class will be null.
  * - If you want to access other available offers, use [subscriptionOffers] to fetch the full list.
  * https://developer.android.com/reference/com/android/billingclient/api/ProductDetails
