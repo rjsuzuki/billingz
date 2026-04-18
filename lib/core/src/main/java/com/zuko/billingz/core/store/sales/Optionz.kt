@@ -6,7 +6,7 @@ object Optionz {
 
     enum class Type {
         PRORATION_MODE,
-        OLD_SUB_ID,
+        ORIGINAL_EXTERNAL_TRANSACTION_ID,
         OLD_PURCHASE_TOKEN,
         IS_PERSONALIZED_OFFER,
         SELECTED_OFFER_INDEX
@@ -22,7 +22,7 @@ object Optionz {
         private var isOfferPersonalized = false
         private var prorationMode: Int = -1
         private var oldPurchaseToken: String? = null
-        private var oldSubId: String? = null
+        private var originalExternalTransactionId: String? = null
         private var selectedOfferIndex = -1
 
         override fun setIsOfferPersonalized(isOfferPersonalized: Boolean): Builder {
@@ -40,8 +40,8 @@ object Optionz {
             return this
         }
 
-        override fun setOldSubscriptionId(id: String): Builder {
-            oldSubId = id
+        override fun setOriginalExternalTransactionId(id: String): Builder {
+            originalExternalTransactionId = id
             return this
         }
 
@@ -52,7 +52,7 @@ object Optionz {
 
         override fun build(): Bundle {
             val bundle = Bundle()
-            bundle.putString(Type.OLD_SUB_ID.name, oldSubId)
+            bundle.putString(Type.ORIGINAL_EXTERNAL_TRANSACTION_ID.name, originalExternalTransactionId)
             bundle.putString(Type.OLD_PURCHASE_TOKEN.name, oldPurchaseToken)
             bundle.putInt(Type.PRORATION_MODE.name, prorationMode)
             bundle.putBoolean(Type.IS_PERSONALIZED_OFFER.name, isOfferPersonalized)
@@ -84,9 +84,9 @@ object Optionz {
         fun setOldPurchaseToken(token: String): Builder
 
         /**
-         * Set the product id of the subscription to be modified.
+         * Set the [original external transaction id](https://developer.android.com/reference/com/android/billingclient/api/BillingFlowParams.SubscriptionUpdateParams.Builder#setOriginalExternalTransactionId(java.lang.String)) of the subscription to be modified.
          */
-        fun setOldSubscriptionId(id: String): Builder
+        fun setOriginalExternalTransactionId(id: String): Builder
 
         /**
          * Set the index (position) of the relevant Subscription OfferDetails to

@@ -355,8 +355,7 @@ class GoogleSales(
             val isOfferPersonalized = options.getBoolean(Optionz.Type.IS_PERSONALIZED_OFFER.name, false)
             flowParams.setIsOfferPersonalized(isOfferPersonalized)
 
-            // Note: oldSubId is mainly for simple validation and logging
-            val oldSubId = options.getString(Optionz.Type.OLD_SUB_ID.name, null)
+            val originalExternalTransactionId = options.getString(Optionz.Type.ORIGINAL_EXTERNAL_TRANSACTION_ID.name, null)
             val oldPurchaseToken = options.getString(Optionz.Type.OLD_PURCHASE_TOKEN.name, null)
             val prorationMode = options.getInt(
                 Optionz.Type.PRORATION_MODE.name,
@@ -364,31 +363,30 @@ class GoogleSales(
             )
 
             when {
-                oldPurchaseToken.isNullOrBlank() && !oldSubId.isNullOrBlank() -> {
+                oldPurchaseToken.isNullOrBlank() && !originalExternalTransactionId.isNullOrBlank() -> {
                     return BillingResult.newBuilder()
                         .setResponseCode(BillingClient.BillingResponseCode.ERROR)
                         .setDebugMessage("Subscription modification requires the purchase token of the currently active subscription")
                         .build()
                 }
-                !oldPurchaseToken.isNullOrBlank() && oldSubId.isNullOrBlank() -> {
-                    return BillingResult.newBuilder()
-                        .setResponseCode(BillingClient.BillingResponseCode.ERROR)
-                        .setDebugMessage("Subscription modification requires the product id of the currently active subscription")
-                        .build()
-                }
-                !oldPurchaseToken.isNullOrBlank() && !oldSubId.isNullOrBlank() -> {
+
+                !oldPurchaseToken.isNullOrBlank() -> {
                     Logger.d(
                         TAG,
                         "Subscription to replace confirmed:" +
-                            "\n old product id: $oldSubId," +
+                            "\n original external transaction id: $originalExternalTransactionId," +
                             "\n old purchase token: $oldPurchaseToken," +
                             "\n new proration mode: $prorationMode"
                     )
                     val subUpdateParams = SubscriptionUpdateParams.newBuilder()
                         .setSubscriptionReplacementMode(prorationMode)
                         .setOldPurchaseToken(oldPurchaseToken)
-                        .build()
-                    flowParams.setSubscriptionUpdateParams(subUpdateParams)
+
+                    if (!originalExternalTransactionId.isNullOrBlank()) {
+                        subUpdateParams.setOriginalExternalTransactionId(originalExternalTransactionId)
+                    }
+
+                    flowParams.setSubscriptionUpdateParams(subUpdateParams.build())
                 }
                 else -> {} // ignore
             }
