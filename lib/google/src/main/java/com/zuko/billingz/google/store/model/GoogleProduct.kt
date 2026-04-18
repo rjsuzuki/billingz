@@ -124,7 +124,8 @@ data class GoogleProduct(
 
         if (type == Productz.Type.SUBSCRIPTION) {
             val basePlanProduct = productDetails.subscriptionOfferDetails?.firstOrNull { it.offerTags.isEmpty() }
-            price = basePlanProduct?.pricingPhases?.pricingPhaseList?.firstOrNull()?.formattedPrice
+            val standardOfferPhase = basePlanProduct?.pricingPhases?.pricingPhaseList?.find { it.isStandardPrice() }
+            price = standardOfferPhase?.formattedPrice
             currency =
                 Currency.getInstance(basePlanProduct?.pricingPhases?.pricingPhaseList?.firstOrNull()?.priceCurrencyCode)
 
