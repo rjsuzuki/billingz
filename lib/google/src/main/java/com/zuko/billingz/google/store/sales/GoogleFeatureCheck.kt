@@ -22,43 +22,43 @@ package com.zuko.billingz.google.store.sales
 import com.android.billingclient.api.BillingClient
 import com.zuko.billingz.core.misc.Logger
 
-object FeatureCheck {
+object GoogleFeatureCheck {
 
-    private const val TAG = "FeatureCheck"
+    private const val TAG = "BillingzGoogleFeature"
 
-    fun logSupportedFeatures(billingClient: BillingClient?) {
+    internal fun logSupportedFeatures(billingClient: BillingClient?) {
         Logger.d(
             TAG,
-            "Are subscriptions supported: ${isFeatureSupported(billingClient, BillingClient.FeatureType.SUBSCRIPTIONS)}"
+            "[Feature check] Are subscriptions supported: ${isFeatureSupported(billingClient, BillingClient.FeatureType.SUBSCRIPTIONS)}"
         )
         Logger.d(
             TAG,
-            "Are price change confirmations supported: ${isFeatureSupported(billingClient, BillingClient.FeatureType.PRICE_CHANGE_CONFIRMATION)}"
+            "[Feature check] Are price change confirmations supported: ${isFeatureSupported(billingClient, BillingClient.FeatureType.PRICE_CHANGE_CONFIRMATION)}"
         )
         Logger.d(
             TAG,
-            "Are in-app messages supported: ${isFeatureSupported(billingClient, BillingClient.FeatureType.IN_APP_MESSAGING)}"
+            "[Feature check] Are in-app messages supported: ${isFeatureSupported(billingClient, BillingClient.FeatureType.IN_APP_MESSAGING)}"
         )
 
         Logger.d(
             TAG,
-            "Is billing config supported: ${isFeatureSupported(billingClient, BillingClient.FeatureType.BILLING_CONFIG)}"
+            "[Feature check] Are billing configs supported: ${isFeatureSupported(billingClient, BillingClient.FeatureType.BILLING_CONFIG)}"
         )
         Logger.d(
             TAG,
-            "Are external offers supported: ${isFeatureSupported(billingClient, BillingClient.FeatureType.EXTERNAL_OFFER)}"
+            "[Feature check] Are external offers supported: ${isFeatureSupported(billingClient, BillingClient.FeatureType.EXTERNAL_OFFER)}"
         )
         Logger.d(
             TAG,
-            "Are alternative billing methods supported: ${isFeatureSupported(billingClient, BillingClient.FeatureType.ALTERNATIVE_BILLING_ONLY)}"
+            "[Feature check] Are alternative billing methods supported: ${isFeatureSupported(billingClient, BillingClient.FeatureType.ALTERNATIVE_BILLING_ONLY)}"
         )
         Logger.d(
             TAG,
-            "Are product details supported: ${isFeatureSupported(billingClient, BillingClient.FeatureType.PRODUCT_DETAILS)}"
+            "[Feature check] Are product details supported: ${isFeatureSupported(billingClient, BillingClient.FeatureType.PRODUCT_DETAILS)}"
         )
         Logger.d(
             TAG,
-            "Are subscription updates supported: ${isFeatureSupported(billingClient, BillingClient.FeatureType.SUBSCRIPTIONS_UPDATE)}"
+            "[Feature check] Are subscription updates supported: ${isFeatureSupported(billingClient, BillingClient.FeatureType.SUBSCRIPTIONS_UPDATE)}"
         )
     }
 

@@ -27,7 +27,7 @@ import com.android.billingclient.api.PendingPurchasesParams
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.zuko.billingz.core.misc.Logger
 import com.zuko.billingz.core.store.client.Clientz
-import com.zuko.billingz.google.store.sales.FeatureCheck
+import com.zuko.billingz.google.store.sales.GoogleFeatureCheck
 import com.zuko.billingz.google.store.sales.GoogleResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -118,7 +118,7 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
                             isConnected = true
                             connectionListener?.connected()
                             connectionState.postValue(getConnectionState())
-                            FeatureCheck.logSupportedFeatures(billingClient)
+                            GoogleFeatureCheck.logSupportedFeatures(billingClient)
                         }
                         else -> {
                             Logger.w(TAG, "Unhandled response code: ${billingResult.responseCode} - ${billingResult.debugMessage}")
