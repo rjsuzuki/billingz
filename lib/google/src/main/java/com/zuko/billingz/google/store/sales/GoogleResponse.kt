@@ -38,7 +38,7 @@ object GoogleResponse {
             BillingClient.BillingResponseCode.OK -> {
                 Logger.d(
                     TAG,
-                    createLogMessage("OK", BillingClient.BillingResponseCode.OK, billingResult.debugMessage)
+                    createLogMessage("OK", BillingClient.BillingResponseCode.OK, billingResult.debugMessage.ifBlank { "OK" })
                 )
             }
             BillingClient.BillingResponseCode.USER_CANCELED -> {
