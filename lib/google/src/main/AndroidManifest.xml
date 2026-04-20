@@ -2,19 +2,4 @@
 <manifest package="com.zuko.billingz.google"
     xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="com.android.vending.BILLING" />
-
-    <application>
-        <!--
-        * This enables communication between the Response Simulator (Play Billing Lab App) and ours.
-        * The NONPRODUCTION tag prevents accidental deployment of the app to the production
-        * environment with billing overrides testing enabled.
-        * https://developer.android.com/google/play/billing/test-response-codes
-        -->
-        <meta-data
-            android:name="com.google.android.play.largest_release_audience.NONPRODUCTION"
-            android:value="" />
-        <meta-data
-            android:name="com.google.android.play.billingclient.enableBillingOverridesTesting"
-            android:value="true" />
-    </application>
 </manifest>
