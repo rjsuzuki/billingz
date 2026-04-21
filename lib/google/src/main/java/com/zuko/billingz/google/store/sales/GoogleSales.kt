@@ -305,7 +305,7 @@ class GoogleSales(
         if (isNewVersion) {
             productDetails?.let {
                 val subscriptionOfferDetails = productDetails.subscriptionOfferDetails
-                if (subscriptionOfferDetails == null) {
+                if (subscriptionOfferDetails.isNullOrEmpty()) {
                     val productDetailsParamsList =
                         listOf(
                             BillingFlowParams.ProductDetailsParams.newBuilder()
