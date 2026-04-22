@@ -228,6 +228,12 @@ class GoogleInventory(
                 productDetailsList.isNotEmpty()
             ) {
                 val product = GoogleProduct(productDetails = productDetailsList.first(), type = type)
+                when (product.type) {
+                    Productz.Type.UNKNOWN -> Logger.wtf(TAG, "queryProductInternal2 => Cannot update inventory with an unknown product type")
+                    Productz.Type.CONSUMABLE -> consumables.putIfAbsent(sku, product)
+                    Productz.Type.NON_CONSUMABLE -> nonConsumables.putIfAbsent(sku, product)
+                    Productz.Type.SUBSCRIPTION -> subscriptions.putIfAbsent(sku, product)
+                }
                 mainScope.launch(dispatcher.main()) {
                     query.queriedProductLiveData.postValue(product)
                     query.queriedProductStateFlow.emit(product)
