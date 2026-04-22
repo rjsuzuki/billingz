@@ -24,7 +24,28 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class OfferDetails(
+    override val offerId: String?,
+    override val basePlanId: String?,
     override val offerTags: List<String>,
     override val offerToken: String,
     override val offers: List<Offer>
-) : Productz.OfferDetails, Parcelable
+) : Productz.OfferDetails, Parcelable {
+
+    fun getFreeTrial(): Offer? {
+        return offers.find {
+            it.promo == Productz.Promotion.FREE
+        }
+    }
+
+    fun getPromo(): Offer? {
+        return offers.find {
+            it.promo == Productz.Promotion.PROMO
+        }
+    }
+
+    fun getSubscription(): Offer? {
+        return offers.find {
+            it.promo == Productz.Promotion.NONE
+        }
+    }
+}

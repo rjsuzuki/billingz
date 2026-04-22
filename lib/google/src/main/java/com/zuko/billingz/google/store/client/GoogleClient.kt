@@ -27,6 +27,7 @@ import com.android.billingclient.api.PendingPurchasesParams
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.zuko.billingz.core.misc.Logger
 import com.zuko.billingz.core.store.client.Clientz
+import com.zuko.billingz.google.store.sales.GoogleFeatureCheck
 import com.zuko.billingz.google.store.sales.GoogleResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -41,6 +42,7 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
     private var billingClient: BillingClient? = null
     private var isInitialized = false
     private var isConnected = false
+    private var isConnecting = false
     private var retryAttempts = 0
     private var maxAttempts = 3
     private var connectionListener: Clientz.ConnectionListener? = null
@@ -104,33 +106,39 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
             Logger.v(TAG, "Client is already connected to Google...")
             return
         }
-        billingClient?.startConnection(object : BillingClientStateListener {
-            override fun onBillingSetupFinished(billingResult: BillingResult) {
-                GoogleResponse.logResult(billingResult)
-                when (billingResult.responseCode) {
-                    BillingClient.BillingResponseCode.OK -> {
-                        // The BillingClient is ready. You can query purchases here.
-                        isConnected = true
-                        connectionListener?.connected()
-                        connectionState.postValue(getConnectionState())
-                    }
-                    else -> {
-                        Logger.w(TAG, "Unhandled response code: ${billingResult.responseCode}")
-                        isConnected = false
-                        connectionState.postValue(getConnectionState())
+        if (!isConnecting && billingClient != null) {
+            isConnecting = true
+            billingClient?.startConnection(object : BillingClientStateListener {
+                override fun onBillingSetupFinished(billingResult: BillingResult) {
+                    isConnecting = false
+                    GoogleResponse.logResult(billingResult)
+                    when (billingResult.responseCode) {
+                        BillingClient.BillingResponseCode.OK -> {
+                            // The BillingClient is ready. You can query purchases here.
+                            isConnected = true
+                            connectionListener?.connected()
+                            connectionState.postValue(getConnectionState())
+                            GoogleFeatureCheck.logSupportedFeatures(billingClient)
+                        }
+                        else -> {
+                            Logger.w(TAG, "Unhandled response code: ${billingResult.responseCode} - ${billingResult.debugMessage}")
+                            isConnected = false
+                            connectionState.postValue(getConnectionState())
+                        }
                     }
                 }
-            }
 
-            override fun onBillingServiceDisconnected() {
-                connectionState.postValue(getConnectionState())
-                isConnected = false
-                retry()
-                // Note: It's strongly recommended that you implement your own connection retry logic
-                // and override the onBillingServiceDisconnected() method.
-                // Make sure you maintain the BillingClient connection when executing any methods.
-            }
-        })
+                override fun onBillingServiceDisconnected() {
+                    connectionState.postValue(getConnectionState())
+                    isConnecting = false
+                    isConnected = false
+                    retry()
+                    // Note: It's strongly recommended that you implement your own connection retry logic
+                    // and override the onBillingServiceDisconnected() method.
+                    // Make sure you maintain the BillingClient connection when executing any methods.
+                }
+            })
+        }
     }
 
     override fun disconnect() {

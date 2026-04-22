@@ -23,7 +23,6 @@ import com.amazon.device.iap.model.Receipt
 import com.amazon.device.iap.model.RequestId
 import com.amazon.device.iap.model.UserData
 import com.zuko.billingz.core.store.model.Orderz
-import com.zuko.billingz.core.store.model.Productz
 import org.json.JSONObject
 
 /**

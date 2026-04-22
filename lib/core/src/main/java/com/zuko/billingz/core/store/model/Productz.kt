@@ -122,21 +122,36 @@ interface Productz : ModuleIdentifier {
      * Supplementary pricing information on a product if available.
      */
     interface Pricing {
+        @Deprecated("Use subscriptionOffers instead when using Google Play Billing v5+")
         val introPrice: String?
+
+        @Deprecated("Use subscriptionOffers instead when using Google Play Billing v5+")
         val introPricePeriod: String?
+
+        @Deprecated("Use subscriptionOffers instead when using Google Play Billing v5+")
         val billingPeriod: String?
+
+        @Deprecated("Use subscriptionOffers instead when using Google Play Billing v5+")
         val trialPeriod: String?
 
         /**
          * Only available for Google products. Amazon products will return null.
          */
         val subscriptionOffers: List<OfferDetails>?
+
+        fun getFreeTrial(): Offer?
+        fun getPromo(): Offer?
+        fun getSubscription(): Offer?
     }
 
     /**
      * For Google Play SubscriptionOfferDetails support
+     * @property offerId is the id for a specific offer. A null offerId typically signifies the
+     * base plan (the standard price).
      */
     interface OfferDetails {
+        val offerId: String?
+        val basePlanId: String?
         val offerTags: List<String>
         val offerToken: String
         val offers: List<Offer>
@@ -152,5 +167,10 @@ interface Productz : ModuleIdentifier {
         val priceAmountMicros: Long
         val recurrenceMode: Int
         val billingCycleCount: Int
+
+        /**
+         * Indicates if the offer is a free trial, promotion, or a standard price.
+         */
+        val promo: Promotion
     }
 }
