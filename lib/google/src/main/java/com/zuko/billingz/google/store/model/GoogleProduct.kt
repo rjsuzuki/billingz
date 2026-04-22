@@ -21,6 +21,7 @@ package com.zuko.billingz.google.store.model
 
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.SkuDetails
+import com.zuko.billingz.core.misc.Logger
 import com.zuko.billingz.core.store.model.Offer
 import com.zuko.billingz.core.store.model.OfferDetails
 import com.zuko.billingz.core.store.model.PricingInfo
@@ -126,8 +127,12 @@ data class GoogleProduct(
             val basePlanProduct = productDetails.subscriptionOfferDetails?.firstOrNull { it.offerTags.isEmpty() }
             val standardOfferPhase = basePlanProduct?.pricingPhases?.pricingPhaseList?.find { it.isStandardPrice() }
             price = standardOfferPhase?.formattedPrice
-            currency =
+            currency = try {
                 Currency.getInstance(basePlanProduct?.pricingPhases?.pricingPhaseList?.firstOrNull()?.priceCurrencyCode)
+            } catch (e: Exception) {
+                Logger.e(TAG, "Failed to get currency code: ${e.localizedMessage}", e)
+                Currency.getInstance(Locale.getDefault())
+            }
 
             pricingInfo = PricingInfo(
                 introPrice = null,
@@ -140,8 +145,12 @@ data class GoogleProduct(
             promotion = getPromotionType(firstAvailableOffer)
         } else {
             price = productDetails.oneTimePurchaseOfferDetails?.formattedPrice
-            currency =
+            currency = try {
                 Currency.getInstance(productDetails.oneTimePurchaseOfferDetails?.priceCurrencyCode)
+            } catch (e: Exception) {
+                Logger.e(TAG, "Failed to get currency code: ${e.localizedMessage}", e)
+                Currency.getInstance(Locale.getDefault())
+            }
         }
     }
 
@@ -257,5 +266,9 @@ data class GoogleProduct(
     @Suppress("unused")
     fun getSkuDetails(): SkuDetails? {
         return skuDetails
+    }
+
+    companion object {
+        private const val TAG = "BillingzGoogleProduct"
     }
 }
