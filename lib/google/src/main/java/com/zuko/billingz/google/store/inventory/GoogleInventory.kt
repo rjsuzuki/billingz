@@ -187,10 +187,23 @@ class GoogleInventory(
             Productz.Type.CONSUMABLE -> BillingClient.ProductType.INAPP
             Productz.Type.NON_CONSUMABLE -> BillingClient.ProductType.INAPP
             Productz.Type.SUBSCRIPTION -> BillingClient.ProductType.SUBS
-            else -> {
-                BillingClient.ProductType.INAPP
-            }
+            Productz.Type.UNKNOWN -> Productz.Type.UNKNOWN.name
         }
+
+        val query = GoogleProductQuery(sku, type)
+
+        if (skuType == Productz.Type.UNKNOWN.name) {
+            queryProductInternal2(sku, Productz.Type.SUBSCRIPTION, BillingClient.ProductType.SUBS, query)
+            queryProductInternal2(sku, Productz.Type.CONSUMABLE, BillingClient.ProductType.INAPP, query)
+            queryProductInternal2(sku, Productz.Type.NON_CONSUMABLE, BillingClient.ProductType.INAPP, query)
+        } else {
+            queryProductInternal2(sku, type, skuType, query)
+        }
+
+        return query
+    }
+
+    private fun queryProductInternal2(sku: String, type: Productz.Type, skuType: String, query: GoogleProductQuery) {
         val builder = QueryProductDetailsParams.newBuilder()
         val params = builder
             .setProductList(
@@ -202,8 +215,6 @@ class GoogleInventory(
                 )
             )
             .build()
-        val query = GoogleProductQuery(sku, type)
-
         client.getBillingClient()?.queryProductDetailsAsync(params) { billingResult, productDetailsList ->
             Logger.d(
                 TAG,
@@ -228,7 +239,6 @@ class GoogleInventory(
                 }
             }
         }
-        return query
     }
 
     private fun queryProductInternal(sku: String, type: Productz.Type, skuType: String, query: GoogleProductQuery) {
