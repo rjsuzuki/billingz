@@ -68,7 +68,7 @@ object GoogleFeatureCheck {
             val isFeatureSupported = billingClient?.isFeatureSupported(featureType)
             return isFeatureSupported != null && isFeatureSupported.responseCode == BillingClient.BillingResponseCode.OK
         } catch (e: Exception) {
-            Logger.e(TAG, "isFeatureSupported failed: $e:")
+            Logger.e(TAG, "isFeatureSupported failed", e)
         }
         return false
     }
