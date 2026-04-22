@@ -314,26 +314,34 @@ class GoogleSales(
                         )
                     flowParams.setProductDetailsParamsList(productDetailsParamsList)
                 } else {
-                    options?.getInt(Optionz.Type.SELECTED_OFFER_INDEX.name)
-                        ?.let { selectedOfferIndex ->
-                            if (selectedOfferIndex > -1 && selectedOfferIndex < subscriptionOfferDetails.size) {
-                                subscriptionOfferDetails[selectedOfferIndex]?.offerToken?.let { offerToken ->
-                                    val productDetailsParamsList =
-                                        listOf(
-                                            BillingFlowParams.ProductDetailsParams.newBuilder()
-                                                .setProductDetails(productDetails)
-                                                .setOfferToken(offerToken)
-                                                .build()
-                                        )
-                                    flowParams.setProductDetailsParamsList(productDetailsParamsList)
-                                } ?: Logger.w(TAG, "Subscription OfferToken is null.")
-                            } else {
-                                return BillingResult.newBuilder()
-                                    .setResponseCode(BillingClient.BillingResponseCode.ERROR)
-                                    .setDebugMessage("Can't start subscription purchase flow for selected offer at index $selectedOfferIndex of list size ${subscriptionOfferDetails.size}")
-                                    .build()
-                            }
+                    val selectedOfferIndex = options?.getInt(Optionz.Type.SELECTED_OFFER_INDEX.name) ?: -1
+
+                    if (selectedOfferIndex >= subscriptionOfferDetails.size) {
+                        return BillingResult.newBuilder()
+                            .setResponseCode(BillingClient.BillingResponseCode.ERROR)
+                            .setDebugMessage("Can't start subscription purchase flow for selected offer at index $selectedOfferIndex of list size ${subscriptionOfferDetails.size}")
+                            .build()
+                    }
+
+                    val offerToken = when {
+                        selectedOfferIndex > -1 -> {
+                            subscriptionOfferDetails[selectedOfferIndex]?.offerToken
                         }
+                        else -> {
+                            subscriptionOfferDetails[0]?.offerToken
+                        }
+                    }
+
+                    offerToken?.let { offerToken ->
+                        val productDetailsParamsList =
+                            listOf(
+                                BillingFlowParams.ProductDetailsParams.newBuilder()
+                                    .setProductDetails(productDetails)
+                                    .setOfferToken(offerToken)
+                                    .build()
+                            )
+                        flowParams.setProductDetailsParamsList(productDetailsParamsList)
+                    } ?: Logger.w(TAG, "Subscription OfferToken is null.")
                 }
             } ?: Logger.w(TAG, "productDetails cannot be null")
         } else {
