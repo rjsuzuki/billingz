@@ -175,7 +175,7 @@ class GoogleStore internal constructor() : Storez {
                 val order = GoogleOrder(
                     purchase = null,
                     billingResult = BillingResult.newBuilder()
-                        .setDebugMessage("Product: $productId not found.")
+                        .setDebugMessage("Product: $productId not found. Make sure to call [queryInventory] before starting an order.")
                         .setResponseCode(BillingClient.BillingResponseCode.ITEM_UNAVAILABLE)
                         .build()
                 )
