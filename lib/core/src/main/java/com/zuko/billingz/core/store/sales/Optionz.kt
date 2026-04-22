@@ -13,10 +13,10 @@ object Optionz {
     }
 
     /**
-     * Builder for setting customizable options, such as modifying an existing subscription or
-     * updating pricing information for a purchase flow.
-     * To modify an active subscription, make sure to set the desired proration mode, the purchase token, and the productId
-     * of the relevant subscription.
+     * Builder for setting customizable options, such as selecting an offer, modifying an existing
+     * subscription, or updating pricing information for a purchase flow.
+     * To modify an active subscription, make sure to set the desired proration mode and the
+     * purchase token of the relevant subscription.
      */
     class Builder : OptionBuilder {
         private var isOfferPersonalized = false
