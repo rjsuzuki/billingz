@@ -1,6 +1,6 @@
 rootProject.name = "billingz"
 
-//include ':demo'
+include ':demo'
 include ':lib'
 include ':lib:core'
 include ':lib:amazon'
