@@ -303,22 +303,47 @@ class GoogleSales(
         val flowParams = BillingFlowParams.newBuilder()
 
         if (isNewVersion) {
-            productDetails?.subscriptionOfferDetails?.let { subscriptionOfferDetails ->
-                options?.getInt(Optionz.Type.SELECTED_OFFER_INDEX.name)?.let { selectedOfferIndex ->
-                    if (selectedOfferIndex > -1 && selectedOfferIndex < subscriptionOfferDetails.size) {
-                        subscriptionOfferDetails[selectedOfferIndex]?.offerToken?.let { offerToken ->
-                            val productDetailsParamsList =
-                                listOf(
-                                    BillingFlowParams.ProductDetailsParams.newBuilder()
-                                        .setProductDetails(productDetails)
-                                        .setOfferToken(offerToken)
-                                        .build()
-                                )
-                            flowParams.setProductDetailsParamsList(productDetailsParamsList)
-                        } ?: Logger.w(TAG, "Subscription OfferToken is null.")
+            productDetails?.let {
+                val subscriptionOfferDetails = productDetails.subscriptionOfferDetails
+                if (subscriptionOfferDetails.isNullOrEmpty()) {
+                    val productDetailsParamsList =
+                        listOf(
+                            BillingFlowParams.ProductDetailsParams.newBuilder()
+                                .setProductDetails(productDetails)
+                                .build()
+                        )
+                    flowParams.setProductDetailsParamsList(productDetailsParamsList)
+                } else {
+                    val selectedOfferIndex = options?.getInt(Optionz.Type.SELECTED_OFFER_INDEX.name) ?: -1
+
+                    if (selectedOfferIndex >= subscriptionOfferDetails.size) {
+                        return BillingResult.newBuilder()
+                            .setResponseCode(BillingClient.BillingResponseCode.ERROR)
+                            .setDebugMessage("Can't start subscription purchase flow for selected offer at index $selectedOfferIndex of list size ${subscriptionOfferDetails.size}")
+                            .build()
                     }
+
+                    val offerToken = when {
+                        selectedOfferIndex > -1 -> {
+                            subscriptionOfferDetails[selectedOfferIndex]?.offerToken
+                        }
+                        else -> {
+                            subscriptionOfferDetails[0]?.offerToken
+                        }
+                    }
+
+                    offerToken?.let { offerToken ->
+                        val productDetailsParamsList =
+                            listOf(
+                                BillingFlowParams.ProductDetailsParams.newBuilder()
+                                    .setProductDetails(productDetails)
+                                    .setOfferToken(offerToken)
+                                    .build()
+                            )
+                        flowParams.setProductDetailsParamsList(productDetailsParamsList)
+                    } ?: Logger.w(TAG, "Subscription OfferToken is null.")
                 }
-            } ?: Logger.w(TAG, "ProductDetails.subscriptionOfferDetails cannot be null")
+            } ?: Logger.w(TAG, "productDetails cannot be null")
         } else {
             skuDetails?.let {
                 flowParams.setSkuDetails(skuDetails)
@@ -338,8 +363,7 @@ class GoogleSales(
             val isOfferPersonalized = options.getBoolean(Optionz.Type.IS_PERSONALIZED_OFFER.name, false)
             flowParams.setIsOfferPersonalized(isOfferPersonalized)
 
-            // Note: oldSubId is mainly for simple validation and logging
-            val oldSubId = options.getString(Optionz.Type.OLD_SUB_ID.name, null)
+            val originalExternalTransactionId = options.getString(Optionz.Type.ORIGINAL_EXTERNAL_TRANSACTION_ID.name, null)
             val oldPurchaseToken = options.getString(Optionz.Type.OLD_PURCHASE_TOKEN.name, null)
             val prorationMode = options.getInt(
                 Optionz.Type.PRORATION_MODE.name,
@@ -347,31 +371,30 @@ class GoogleSales(
             )
 
             when {
-                oldPurchaseToken.isNullOrBlank() && !oldSubId.isNullOrBlank() -> {
+                oldPurchaseToken.isNullOrBlank() && !originalExternalTransactionId.isNullOrBlank() -> {
                     return BillingResult.newBuilder()
                         .setResponseCode(BillingClient.BillingResponseCode.ERROR)
                         .setDebugMessage("Subscription modification requires the purchase token of the currently active subscription")
                         .build()
                 }
-                !oldPurchaseToken.isNullOrBlank() && oldSubId.isNullOrBlank() -> {
-                    return BillingResult.newBuilder()
-                        .setResponseCode(BillingClient.BillingResponseCode.ERROR)
-                        .setDebugMessage("Subscription modification requires the product id of the currently active subscription")
-                        .build()
-                }
-                !oldPurchaseToken.isNullOrBlank() && !oldSubId.isNullOrBlank() -> {
+
+                !oldPurchaseToken.isNullOrBlank() -> {
                     Logger.d(
                         TAG,
                         "Subscription to replace confirmed:" +
-                            "\n old product id: $oldSubId," +
+                            "\n original external transaction id: $originalExternalTransactionId," +
                             "\n old purchase token: $oldPurchaseToken," +
                             "\n new proration mode: $prorationMode"
                     )
                     val subUpdateParams = SubscriptionUpdateParams.newBuilder()
                         .setSubscriptionReplacementMode(prorationMode)
                         .setOldPurchaseToken(oldPurchaseToken)
-                        .build()
-                    flowParams.setSubscriptionUpdateParams(subUpdateParams)
+
+                    if (!originalExternalTransactionId.isNullOrBlank()) {
+                        subUpdateParams.setOriginalExternalTransactionId(originalExternalTransactionId)
+                    }
+
+                    flowParams.setSubscriptionUpdateParams(subUpdateParams.build())
                 }
                 else -> {} // ignore
             }

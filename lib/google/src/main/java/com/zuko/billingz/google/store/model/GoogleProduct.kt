@@ -21,6 +21,7 @@ package com.zuko.billingz.google.store.model
 
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.SkuDetails
+import com.zuko.billingz.core.misc.Logger
 import com.zuko.billingz.core.store.model.Offer
 import com.zuko.billingz.core.store.model.OfferDetails
 import com.zuko.billingz.core.store.model.PricingInfo
@@ -29,6 +30,9 @@ import java.util.Currency
 import java.util.Locale
 
 /**
+ * @property promotion will indicate if a free trial or promo is available.
+ * @property skuDetails will be null when using Play Billing v5+
+ * @property productDetails will be null when using Play Billing v4-
  * https://developer.android.com/reference/com/android/billingclient/api/SkuDetails
  */
 @Suppress("DEPRECATION")
@@ -46,8 +50,12 @@ data class GoogleProduct(
     private var iconUrl: String? = null
     private var currency: Currency = Currency.getInstance(Locale.getDefault())
     private var pricingInfo: PricingInfo? = null
+
+    @Deprecated("Use pricingInfo instead")
     private var promotion: Productz.Promotion = Productz.Promotion.NONE
     private var productDetails: ProductDetails? = null
+
+    @Deprecated("Use productDetails instead")
     private var skuDetails: SkuDetails? = null
 
     @Suppress("unused")
@@ -77,6 +85,7 @@ data class GoogleProduct(
     /**
      * Android Billing Lib v4-
      */
+    @Deprecated("Use productDetails instead")
     constructor(skuDetails: SkuDetails, type: Productz.Type) : this(type) {
         this.skuDetails = skuDetails
         productId = skuDetails.sku
@@ -110,15 +119,20 @@ data class GoogleProduct(
     constructor(productDetails: ProductDetails, type: Productz.Type) : this(type) {
         this.productDetails = productDetails
         productId = productDetails.productId
-        name = productDetails.title
+        name = productDetails.name
         title = productDetails.title
         description = productDetails.description
 
         if (type == Productz.Type.SUBSCRIPTION) {
-            price =
-                productDetails.subscriptionOfferDetails?.firstOrNull()?.pricingPhases?.pricingPhaseList?.firstOrNull()?.formattedPrice
-            currency =
-                Currency.getInstance(productDetails.subscriptionOfferDetails?.firstOrNull()?.pricingPhases?.pricingPhaseList?.firstOrNull()?.priceCurrencyCode)
+            val basePlanProduct = productDetails.subscriptionOfferDetails?.firstOrNull { it.offerTags.isEmpty() }
+            val standardOfferPhase = basePlanProduct?.pricingPhases?.pricingPhaseList?.find { it.isStandardPrice() }
+            price = standardOfferPhase?.formattedPrice
+            currency = try {
+                Currency.getInstance(basePlanProduct?.pricingPhases?.pricingPhaseList?.firstOrNull()?.priceCurrencyCode)
+            } catch (e: Exception) {
+                Logger.e(TAG, "Failed to get currency code: ${e.localizedMessage}", e)
+                Currency.getInstance(Locale.getDefault())
+            }
 
             pricingInfo = PricingInfo(
                 introPrice = null,
@@ -127,13 +141,27 @@ data class GoogleProduct(
                 trialPeriod = null,
                 subscriptionOffers = convertSubscriptionOfferDetailsTo(productDetails.subscriptionOfferDetails)
             )
+            val firstAvailableOffer = productDetails.subscriptionOfferDetails?.firstOrNull()?.pricingPhases?.pricingPhaseList?.firstOrNull()
+            promotion = getPromotionType(firstAvailableOffer)
         } else {
             price = productDetails.oneTimePurchaseOfferDetails?.formattedPrice
-            currency =
+            currency = try {
                 Currency.getInstance(productDetails.oneTimePurchaseOfferDetails?.priceCurrencyCode)
+            } catch (e: Exception) {
+                Logger.e(TAG, "Failed to get currency code: ${e.localizedMessage}", e)
+                Currency.getInstance(Locale.getDefault())
+            }
         }
     }
 
+    private fun getPromotionType(phase: ProductDetails.PricingPhase?): Productz.Promotion {
+        return when {
+            phase?.isFreeTrial() == true -> Productz.Promotion.FREE
+            phase?.isPromotion() == true -> Productz.Promotion.PROMO
+            phase?.isStandardPrice() == true -> Productz.Promotion.NONE
+            else -> Productz.Promotion.NONE
+        }
+    }
     private fun convertSubscriptionOfferDetailsTo(offers: List<ProductDetails.SubscriptionOfferDetails>?): List<OfferDetails>? {
         if (offers.isNullOrEmpty()) {
             return null
@@ -146,6 +174,12 @@ data class GoogleProduct(
         return offerDetailsList
     }
 
+    /**
+     * Note: An offer can consist of up to two sequential pricing phases
+     * (for example, a free trial followed by a discounted price) before it eventually transitions to the
+     * base plan's standard pricing. We can expect a list with a max size of 3.
+     * - [Reference](https://support.google.com/googleplay/android-developer/answer/12154973?hl=en#:~:text=Offers%20contain%20one%20or%20more,discount%20off%20the%20base%20price)
+     */
     private fun convertSubscriptionOfferTo(offer: ProductDetails.SubscriptionOfferDetails): OfferDetails {
         val offers = mutableListOf<Offer>()
         offer.pricingPhases.pricingPhaseList.forEach { pricingPhase ->
@@ -153,12 +187,13 @@ data class GoogleProduct(
             offers.add(o)
         }
         return OfferDetails(
+            offerId = offer.offerId,
+            basePlanId = offer.basePlanId,
             offerTags = offer.offerTags,
             offerToken = offer.offerToken,
             offers = offers
         )
     }
-
     private fun convertPricingPhaseTo(p: ProductDetails.PricingPhase): Offer {
         return Offer(
             billingPeriod = p.billingPeriod,
@@ -166,7 +201,8 @@ data class GoogleProduct(
             priceCurrencyCode = p.priceCurrencyCode,
             priceAmountMicros = p.priceAmountMicros,
             recurrenceMode = p.recurrenceMode,
-            billingCycleCount = p.billingCycleCount
+            billingCycleCount = p.billingCycleCount,
+            promo = getPromotionType(p)
         )
     }
 
@@ -230,5 +266,9 @@ data class GoogleProduct(
     @Suppress("unused")
     fun getSkuDetails(): SkuDetails? {
         return skuDetails
+    }
+
+    companion object {
+        private const val TAG = "BillingzGoogleProduct"
     }
 }
