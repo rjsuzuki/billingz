@@ -8,7 +8,7 @@ Billingz is an Android library that wraps Google Play Billing and Amazon Appstor
 
 ## Modules
 
-The Gradle project (`settings.gradle`) builds `:lib:core`, `:lib:google`, `:lib:amazon`, and `:demo` (a Jetpack Compose sample app that exercises the library).
+The Gradle project (`settings.gradle`) builds `:lib:core`, `:lib:google`, `:lib:amazon`, and `:demo` (a Jetpack Compose sample app). The demo depends only on `:lib:core` and ships a fully in-memory `SimulatedStore` (`demo/.../sim/`) implementing `Storez`/`Agentz`, so it exercises the library's public purchase contract with no Google Play / Amazon connection and no account — see `demo/README.md`.
 
 - **`lib/core`** — platform-agnostic interfaces and models only. No Google/Amazon SDK dependency. Exposes coroutines + LiveData/Flow APIs (`api`-scoped so consumers inherit them).
 - **`lib/google`** — implements core against `com.android.billingclient:billing-ktx`. Depends on `:lib:core`.
