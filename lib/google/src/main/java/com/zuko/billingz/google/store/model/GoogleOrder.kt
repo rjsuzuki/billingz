@@ -89,5 +89,10 @@ data class GoogleOrder(
     override val resultMessage: String =
         billingResult?.debugMessage ?: "No result message available."
     override val result: Orderz.Result =
-        if (billingResult != null) Orderz.Result.entries[billingResult.responseCode + 3] else Orderz.Result.NO_RESULT
+        billingResult?.let { br ->
+            // Look up by the response code the enum carries, not by ordinal position.
+            // Billing response codes are not contiguous (e.g. NETWORK_ERROR = 12), so an
+            // ordinal-based index (responseCode + 3) walks off the end of `entries`.
+            Orderz.Result.entries.firstOrNull { it.code == br.responseCode }
+        } ?: Orderz.Result.NO_RESULT
 }

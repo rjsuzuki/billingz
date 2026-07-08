@@ -139,7 +139,7 @@ class GoogleInventory(
             }
             updateInventory(products = availableProducts, type = type)
         } else {
-            Logger.w(TAG, "")
+            Logger.w(TAG, "Cannot fetch product details list => responseCode: ${result?.responseCode}")
         }
     }
 

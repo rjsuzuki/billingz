@@ -81,7 +81,9 @@ class GoogleStore internal constructor() : Storez {
                 "\n build: ${BuildConfig.BUILD_TYPE}" +
                 "\n version: ${BuildConfig.VERSION}"
         )
-        this.context = context
+        // Retain only the application context; the store can outlive the Activity/context
+        // the consumer builds it with, so holding that reference directly would leak it.
+        this.context = context?.applicationContext
     }
 
     override fun create() {
