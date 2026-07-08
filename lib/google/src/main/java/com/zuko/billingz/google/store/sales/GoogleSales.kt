@@ -276,7 +276,8 @@ class GoogleSales(
                 "\n productDetails: $productDetails," +
                 "\n options: $options"
         )
-        if (activity == null || productDetails == null || billingClient == null || options == null) {
+        val options = options ?: Bundle()
+        if (activity == null || productDetails == null || billingClient == null) {
             return BillingResult.newBuilder()
                 .setResponseCode(BillingClient.BillingResponseCode.ERROR)
                 .setDebugMessage("Can't start subscription purchase flow with null parameters")
