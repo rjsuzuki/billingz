@@ -20,7 +20,6 @@
 package com.zuko.billingz.google.store.model
 
 import com.android.billingclient.api.ProductDetails
-import com.android.billingclient.api.SkuDetails
 import com.zuko.billingz.core.misc.Logger
 import com.zuko.billingz.core.store.model.Offer
 import com.zuko.billingz.core.store.model.OfferDetails
@@ -31,11 +30,9 @@ import java.util.Locale
 
 /**
  * @property promotion will indicate if a free trial or promo is available.
- * @property skuDetails will be null when using Play Billing v5+
- * @property productDetails will be null when using Play Billing v4-
- * https://developer.android.com/reference/com/android/billingclient/api/SkuDetails
+ * @property productDetails the underlying Play Billing product details.
+ * https://developer.android.com/reference/com/android/billingclient/api/ProductDetails
  */
-@Suppress("DEPRECATION")
 data class GoogleProduct(
     override val type: Productz.Type
 ) : Productz {
@@ -54,9 +51,6 @@ data class GoogleProduct(
     @Deprecated("Use pricingInfo instead")
     private var promotion: Productz.Promotion = Productz.Promotion.NONE
     private var productDetails: ProductDetails? = null
-
-    @Deprecated("Use productDetails instead")
-    private var skuDetails: SkuDetails? = null
 
     @Suppress("unused")
     constructor(
@@ -80,37 +74,6 @@ data class GoogleProduct(
         this.currency = currency
         this.pricingInfo = pricingInfo
         this.promotion = promotion
-    }
-
-    /**
-     * Android Billing Lib v4-
-     */
-    @Deprecated("Use productDetails instead")
-    constructor(skuDetails: SkuDetails, type: Productz.Type) : this(type) {
-        this.skuDetails = skuDetails
-        productId = skuDetails.sku
-        name = skuDetails.title
-        title = skuDetails.title
-        description = skuDetails.description
-        price = skuDetails.price
-        iconUrl = skuDetails.iconUrl
-
-        if (type == Productz.Type.SUBSCRIPTION) {
-            pricingInfo = PricingInfo(
-                introPrice = skuDetails.introductoryPrice,
-                introPricePeriod = skuDetails.introductoryPricePeriod,
-                billingPeriod = skuDetails.subscriptionPeriod,
-                trialPeriod = skuDetails.freeTrialPeriod,
-                subscriptionOffers = null
-            )
-        }
-
-        promotion = when {
-            skuDetails.freeTrialPeriod.isNotBlank() -> Productz.Promotion.FREE
-            skuDetails.introductoryPrice.isNotBlank() -> Productz.Promotion.PROMO
-            skuDetails.introductoryPricePeriod.isNotBlank() -> Productz.Promotion.PROMO
-            else -> Productz.Promotion.NONE
-        }
     }
 
     /**
@@ -257,15 +220,6 @@ data class GoogleProduct(
     @Suppress("unused")
     fun getProductDetails(): ProductDetails? {
         return productDetails
-    }
-
-    /**
-     * Convenience method to fetch original [SkuDetails] object.
-     * Object is only available when returned from a library call.
-     */
-    @Suppress("unused")
-    fun getSkuDetails(): SkuDetails? {
-        return skuDetails
     }
 
     companion object {

@@ -91,11 +91,3 @@ dependencies {
     api project(':lib:core')
     api "com.amazon.device:amazon-appstore-sdk:3.0.6"
 }
-
-dokkaHtml.configure {
-    dokkaSourceSets {
-        named("main") {
-            noAndroidSdkLink.set(false)
-        }
-    }
-}

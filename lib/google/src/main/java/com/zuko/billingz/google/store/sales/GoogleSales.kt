@@ -33,12 +33,8 @@ import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.ConsumeParams
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
-import com.android.billingclient.api.PurchaseHistoryResult
 import com.android.billingclient.api.PurchasesResponseListener
-import com.android.billingclient.api.QueryPurchaseHistoryParams
 import com.android.billingclient.api.QueryPurchasesParams
-import com.android.billingclient.api.SkuDetails
-import com.android.billingclient.api.queryPurchaseHistory
 import com.zuko.billingz.core.misc.BillingzDispatcher
 import com.zuko.billingz.core.misc.Dispatcherz
 import com.zuko.billingz.core.misc.Logger
@@ -71,7 +67,6 @@ import java.util.Date
  * @constructor
  * @param inventory
  */
-@Suppress("DEPRECATION")
 class GoogleSales(
     private val inventory: GoogleInventory,
     private val client: GoogleClient,
@@ -154,7 +149,6 @@ class GoogleSales(
             val result = if (product.type == Productz.Type.SUBSCRIPTION) {
                 startSubscriptionPurchaseFlow(
                     activity = activity,
-                    skuDetails = product.getSkuDetails(),
                     productDetails = product.getProductDetails(),
                     billingClient = client.getBillingClient(),
                     options = options
@@ -162,7 +156,6 @@ class GoogleSales(
             } else {
                 startInAppPurchaseFlow(
                     activity = activity,
-                    skuDetails = product.getSkuDetails(),
                     productDetails = product.getProductDetails(),
                     billingClient = client.getBillingClient(),
                     options = options
@@ -272,7 +265,6 @@ class GoogleSales(
     @UiThread
     private fun startSubscriptionPurchaseFlow(
         activity: Activity?,
-        skuDetails: SkuDetails?,
         productDetails: ProductDetails?,
         billingClient: BillingClient?,
         options: Bundle? = null
@@ -281,19 +273,16 @@ class GoogleSales(
         Logger.d(
             TAG,
             "startSubscriptionPurchaseFlow =>" +
-                "\n skuDetails: $skuDetails," +
                 "\n productDetails: $productDetails," +
-                "\n options: $options," +
-                "\n isNewVersion: $isNewVersion"
+                "\n options: $options"
         )
-        if (activity == null || (!isNewVersion && skuDetails == null) || (isNewVersion && productDetails == null) || billingClient == null || (isNewVersion && options == null)) {
+        if (activity == null || productDetails == null || billingClient == null || options == null) {
             return BillingResult.newBuilder()
                 .setResponseCode(BillingClient.BillingResponseCode.ERROR)
                 .setDebugMessage("Can't start subscription purchase flow with null parameters")
                 .build()
         }
 
-        // Retrieve a value for "skuDetails" by calling querySkuDetailsAsync().
         // Google uses [setObfuscatedAccountId, setObfuscatedProfileId] to detect suspicious behavior
         // and block some types of fraudulent transactions before they are completed.
         // Google Play recommends that you use either encryption or a one-way hash to
@@ -302,52 +291,44 @@ class GoogleSales(
 
         val flowParams = BillingFlowParams.newBuilder()
 
-        if (isNewVersion) {
-            productDetails?.let {
-                val subscriptionOfferDetails = productDetails.subscriptionOfferDetails
-                if (subscriptionOfferDetails.isNullOrEmpty()) {
-                    val productDetailsParamsList =
-                        listOf(
-                            BillingFlowParams.ProductDetailsParams.newBuilder()
-                                .setProductDetails(productDetails)
-                                .build()
-                        )
-                    flowParams.setProductDetailsParamsList(productDetailsParamsList)
-                } else {
-                    val selectedOfferIndex = options?.getInt(Optionz.Type.SELECTED_OFFER_INDEX.name) ?: -1
-
-                    if (selectedOfferIndex >= subscriptionOfferDetails.size) {
-                        return BillingResult.newBuilder()
-                            .setResponseCode(BillingClient.BillingResponseCode.ERROR)
-                            .setDebugMessage("Can't start subscription purchase flow for selected offer at index $selectedOfferIndex of list size ${subscriptionOfferDetails.size}")
-                            .build()
-                    }
-
-                    val offerToken = when {
-                        selectedOfferIndex > -1 -> {
-                            subscriptionOfferDetails[selectedOfferIndex]?.offerToken
-                        }
-                        else -> {
-                            subscriptionOfferDetails[0]?.offerToken
-                        }
-                    }
-
-                    offerToken?.let { offerToken ->
-                        val productDetailsParamsList =
-                            listOf(
-                                BillingFlowParams.ProductDetailsParams.newBuilder()
-                                    .setProductDetails(productDetails)
-                                    .setOfferToken(offerToken)
-                                    .build()
-                            )
-                        flowParams.setProductDetailsParamsList(productDetailsParamsList)
-                    } ?: Logger.w(TAG, "Subscription OfferToken is null.")
-                }
-            } ?: Logger.w(TAG, "productDetails cannot be null")
+        val subscriptionOfferDetails = productDetails.subscriptionOfferDetails
+        if (subscriptionOfferDetails.isNullOrEmpty()) {
+            val productDetailsParamsList =
+                listOf(
+                    BillingFlowParams.ProductDetailsParams.newBuilder()
+                        .setProductDetails(productDetails)
+                        .build()
+                )
+            flowParams.setProductDetailsParamsList(productDetailsParamsList)
         } else {
-            skuDetails?.let {
-                flowParams.setSkuDetails(skuDetails)
-            } ?: Logger.w(TAG, "skuDetails cannot be null")
+            val selectedOfferIndex = options.getInt(Optionz.Type.SELECTED_OFFER_INDEX.name)
+
+            if (selectedOfferIndex >= subscriptionOfferDetails.size) {
+                return BillingResult.newBuilder()
+                    .setResponseCode(BillingClient.BillingResponseCode.ERROR)
+                    .setDebugMessage("Can't start subscription purchase flow for selected offer at index $selectedOfferIndex of list size ${subscriptionOfferDetails.size}")
+                    .build()
+            }
+
+            val offerToken = when {
+                selectedOfferIndex > -1 -> {
+                    subscriptionOfferDetails[selectedOfferIndex]?.offerToken
+                }
+                else -> {
+                    subscriptionOfferDetails[0]?.offerToken
+                }
+            }
+
+            offerToken?.let { offerToken ->
+                val productDetailsParamsList =
+                    listOf(
+                        BillingFlowParams.ProductDetailsParams.newBuilder()
+                            .setProductDetails(productDetails)
+                            .setOfferToken(offerToken)
+                            .build()
+                    )
+                flowParams.setProductDetailsParamsList(productDetailsParamsList)
+            } ?: Logger.w(TAG, "Subscription OfferToken is null.")
         }
 
         obfuscatedAccountId?.let {
@@ -358,46 +339,44 @@ class GoogleSales(
         }
 
         // We can indefinitely add support for more options since we are utilizing an Android Bundle objects
-        options?.let {
-            // for EU personalized pricing disclosure requirements
-            val isOfferPersonalized = options.getBoolean(Optionz.Type.IS_PERSONALIZED_OFFER.name, false)
-            flowParams.setIsOfferPersonalized(isOfferPersonalized)
+        // for EU personalized pricing disclosure requirements
+        val isOfferPersonalized = options.getBoolean(Optionz.Type.IS_PERSONALIZED_OFFER.name, false)
+        flowParams.setIsOfferPersonalized(isOfferPersonalized)
 
-            val originalExternalTransactionId = options.getString(Optionz.Type.ORIGINAL_EXTERNAL_TRANSACTION_ID.name, null)
-            val oldPurchaseToken = options.getString(Optionz.Type.OLD_PURCHASE_TOKEN.name, null)
-            val prorationMode = options.getInt(
-                Optionz.Type.PRORATION_MODE.name,
-                SubscriptionUpdateParams.ReplacementMode.DEFERRED
-            )
+        val originalExternalTransactionId = options.getString(Optionz.Type.ORIGINAL_EXTERNAL_TRANSACTION_ID.name, null)
+        val oldPurchaseToken = options.getString(Optionz.Type.OLD_PURCHASE_TOKEN.name, null)
+        val prorationMode = options.getInt(
+            Optionz.Type.PRORATION_MODE.name,
+            SubscriptionUpdateParams.ReplacementMode.DEFERRED
+        )
 
-            when {
-                oldPurchaseToken.isNullOrBlank() && !originalExternalTransactionId.isNullOrBlank() -> {
-                    return BillingResult.newBuilder()
-                        .setResponseCode(BillingClient.BillingResponseCode.ERROR)
-                        .setDebugMessage("Subscription modification requires the purchase token of the currently active subscription")
-                        .build()
-                }
-
-                !oldPurchaseToken.isNullOrBlank() -> {
-                    Logger.d(
-                        TAG,
-                        "Subscription to replace confirmed:" +
-                            "\n original external transaction id: $originalExternalTransactionId," +
-                            "\n old purchase token: $oldPurchaseToken," +
-                            "\n new proration mode: $prorationMode"
-                    )
-                    val subUpdateParams = SubscriptionUpdateParams.newBuilder()
-                        .setSubscriptionReplacementMode(prorationMode)
-                        .setOldPurchaseToken(oldPurchaseToken)
-
-                    if (!originalExternalTransactionId.isNullOrBlank()) {
-                        subUpdateParams.setOriginalExternalTransactionId(originalExternalTransactionId)
-                    }
-
-                    flowParams.setSubscriptionUpdateParams(subUpdateParams.build())
-                }
-                else -> {} // ignore
+        when {
+            oldPurchaseToken.isNullOrBlank() && !originalExternalTransactionId.isNullOrBlank() -> {
+                return BillingResult.newBuilder()
+                    .setResponseCode(BillingClient.BillingResponseCode.ERROR)
+                    .setDebugMessage("Subscription modification requires the purchase token of the currently active subscription")
+                    .build()
             }
+
+            !oldPurchaseToken.isNullOrBlank() -> {
+                Logger.d(
+                    TAG,
+                    "Subscription to replace confirmed:" +
+                        "\n original external transaction id: $originalExternalTransactionId," +
+                        "\n old purchase token: $oldPurchaseToken," +
+                        "\n new proration mode: $prorationMode"
+                )
+                val subUpdateParams = SubscriptionUpdateParams.newBuilder()
+                    .setSubscriptionReplacementMode(prorationMode)
+                    .setOldPurchaseToken(oldPurchaseToken)
+
+                if (!originalExternalTransactionId.isNullOrBlank()) {
+                    subUpdateParams.setOriginalExternalTransactionId(originalExternalTransactionId)
+                }
+
+                flowParams.setSubscriptionUpdateParams(subUpdateParams.build())
+            }
+            else -> {} // ignore
         }
 
         // UI flow will start
@@ -409,7 +388,6 @@ class GoogleSales(
     @UiThread
     private fun startInAppPurchaseFlow(
         activity: Activity?,
-        skuDetails: SkuDetails?,
         productDetails: ProductDetails?,
         billingClient: BillingClient?,
         options: Bundle? = null
@@ -418,12 +396,10 @@ class GoogleSales(
         Logger.d(
             TAG,
             "startInAppPurchaseFlow =>" +
-                "\n skuDetails: $skuDetails," +
                 "\n productDetails: $productDetails," +
-                "\n options: $options," +
-                "\n isNewVersion: $isNewVersion"
+                "\n options: $options"
         )
-        if (activity == null || (!isNewVersion && skuDetails == null) || (isNewVersion && productDetails == null) || billingClient == null) {
+        if (activity == null || productDetails == null || billingClient == null) {
             return BillingResult.newBuilder()
                 .setResponseCode(BillingClient.BillingResponseCode.ERROR)
                 .setDebugMessage("Can't start in-app purchase flow with null parameters")
@@ -432,21 +408,13 @@ class GoogleSales(
 
         val flowParams = BillingFlowParams.newBuilder()
 
-        if (isNewVersion) {
-            productDetails?.let {
-                val productDetailsParamsList =
-                    listOf(
-                        BillingFlowParams.ProductDetailsParams.newBuilder()
-                            .setProductDetails(productDetails)
-                            .build()
-                    )
-                flowParams.setProductDetailsParamsList(productDetailsParamsList)
-            } ?: Logger.w(TAG, "productDetails cannot be null")
-        } else {
-            skuDetails?.let {
-                flowParams.setSkuDetails(skuDetails)
-            } ?: Logger.w(TAG, "skuDetails cannot be null")
-        }
+        val productDetailsParamsList =
+            listOf(
+                BillingFlowParams.ProductDetailsParams.newBuilder()
+                    .setProductDetails(productDetails)
+                    .build()
+            )
+        flowParams.setProductDetailsParamsList(productDetailsParamsList)
 
         obfuscatedAccountId?.let {
             flowParams.setObfuscatedAccountId(it)
@@ -841,14 +809,10 @@ class GoogleSales(
                 }
                 processUpdatedPurchases(billingResult, purchases)
             }
-        if (isNewVersion) {
-            val params = QueryPurchasesParams.newBuilder()
-                .setProductType(BillingClient.ProductType.SUBS)
-                .build()
-            client.getBillingClient()?.queryPurchasesAsync(params, purchaseResponseListener)
-        } else {
-            client.getBillingClient()?.queryPurchasesAsync(BillingClient.ProductType.SUBS, purchaseResponseListener)
-        }
+        val params = QueryPurchasesParams.newBuilder()
+            .setProductType(BillingClient.ProductType.SUBS)
+            .build()
+        client.getBillingClient()?.queryPurchasesAsync(params, purchaseResponseListener)
     }
 
     private fun queryInAppProducts() {
@@ -872,19 +836,18 @@ class GoogleSales(
                 processUpdatedPurchases(billingResult, purchases)
             }
 
-        if (isNewVersion) {
-            val params = QueryPurchasesParams.newBuilder()
-                .setProductType(BillingClient.ProductType.INAPP)
-                .build()
-            client.getBillingClient()?.queryPurchasesAsync(params, purchaseResponseListener)
-        } else {
-            client.getBillingClient()?.queryPurchasesAsync(BillingClient.ProductType.INAPP, purchaseResponseListener)
-        }
+        val params = QueryPurchasesParams.newBuilder()
+            .setProductType(BillingClient.ProductType.INAPP)
+            .build()
+        client.getBillingClient()?.queryPurchasesAsync(params, purchaseResponseListener)
     }
 
     /**
-     * Per Google: Returns the most recent purchase made by the user for each product,
-     * even if that purchase is expired, canceled, or consumed.
+     * Note: `queryPurchaseHistory` and `PurchaseHistoryRecord` were removed in Google Play
+     * Billing Library 8. There is no replacement that returns expired/canceled/consumed
+     * purchases on-device, so order history is now backed by `queryPurchasesAsync`, which
+     * returns only active subscriptions and non-consumed one-time purchases. For a complete
+     * purchase history, track purchases on your server or use the voided-purchases developer API.
      */
     private fun queryOrderHistory(type: Productz.Type?) {
         Logger.v(TAG, "queryOrderHistory: $type")
@@ -895,34 +858,25 @@ class GoogleSales(
                 BillingClient.ProductType.INAPP
             }
 
-        mainScope.launch(dispatcher.io()) {
-            if (isNewVersion) {
-                val params = QueryPurchaseHistoryParams.newBuilder()
-                    .setProductType(skuType)
-                    .build()
-                client.getBillingClient()?.queryPurchaseHistory(params)?.let { purchaseHistoryResult ->
-                    processPurchaseHistoryResult(skuType, purchaseHistoryResult)
-                }
-            } else {
-                client.getBillingClient()?.queryPurchaseHistory(skuType)?.let { purchaseHistoryResult ->
-                    processPurchaseHistoryResult(skuType, purchaseHistoryResult)
-                }
+        val params = QueryPurchasesParams.newBuilder()
+            .setProductType(skuType)
+            .build()
+        client.getBillingClient()?.queryPurchasesAsync(params) { billingResult, purchases ->
+            mainScope.launch(dispatcher.io()) {
+                processQueriedReceipts(skuType, billingResult, purchases)
             }
         }
     }
 
-    private suspend fun processPurchaseHistoryResult(type: String, purchaseHistoryResult: PurchaseHistoryResult) {
-        Logger.v(TAG, "processPurchaseHistoryResult")
-        val billingResult = purchaseHistoryResult.billingResult
-        val records = purchaseHistoryResult.purchaseHistoryRecordList
-        // log billingResult
+    private suspend fun processQueriedReceipts(type: String, billingResult: BillingResult?, purchases: List<Purchase>) {
+        Logger.v(TAG, "processQueriedReceipts")
         GoogleResponse.logResult(billingResult)
 
-        if (records.isNullOrEmpty()) {
+        if (purchases.isEmpty()) {
             Logger.w(TAG, "No receipts found for product type: $type")
             // notify empty list
         } else {
-            // convert records into receipts
+            // convert purchases into receipts
             if (type == BillingClient.ProductType.SUBS) {
                 activeSubscriptions.clear()
             } else {
@@ -930,20 +884,16 @@ class GoogleSales(
             }
 
             val receipts = ArrayMap<String, GoogleReceipt>()
-            records.forEach { record ->
+            purchases.forEach { purchase ->
                 val receipt = GoogleReceipt(
-                    purchase = null
+                    purchase = purchase
                 )
-                receipt.entitlement = record.purchaseToken
-                receipt.orderDate = Date(record.purchaseTime)
-                if (isNewVersion) {
-                    receipt.skus = record.products.toList()
-                } else {
-                    receipt.skus = record.skus.toList()
-                }
-                receipt.originalJson = record.originalJson
-                receipt.quantity = record.quantity
-                receipt.signature = record.signature
+                receipt.entitlement = purchase.purchaseToken
+                receipt.orderDate = Date(purchase.purchaseTime)
+                receipt.skus = purchase.products.toList()
+                receipt.originalJson = purchase.originalJson
+                receipt.quantity = purchase.quantity
+                receipt.signature = purchase.signature
                 receipts[receipt.entitlement] = receipt
             }
 
