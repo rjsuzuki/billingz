@@ -875,7 +875,14 @@ class GoogleSales(
 
         if (purchases.isEmpty()) {
             Logger.w(TAG, "No receipts found for product type: $type")
-            // notify empty list
+            if (type == BillingClient.ProductType.SUBS) {
+                activeSubscriptions.clear()
+            } else {
+                activeInAppProducts.clear()
+            }
+            val orderHistory = GoogleOrderHistory(receipts = ArrayMap())
+            orderHistoryLiveData.postValue(orderHistory)
+            orderHistoryStateFlow.emit(orderHistory)
         } else {
             // convert purchases into receipts
             if (type == BillingClient.ProductType.SUBS) {
