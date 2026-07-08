@@ -95,10 +95,3 @@ dependencies {
 
     testImplementation "junit:junit:4.13.2"
 }
-dokkaHtml.configure {
-    dokkaSourceSets {
-        named("main") {
-            noAndroidSdkLink.set(false)
-        }
-    }
-}

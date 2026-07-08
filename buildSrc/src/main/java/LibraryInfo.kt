@@ -23,10 +23,10 @@ object LibraryInfo {
 
     const val versionCode = 1
 
-    const val compileSDK = 34
-    const val buildTools = "34.0.0"
+    const val compileSDK = 35
+    const val buildTools = "35.0.0"
     const val minSDK = 24
-    const val targetSDK = 34
+    const val targetSDK = 35
 
     const val kotlinJvmTarget = "17"
     private val javaVersion: JavaVersion = JavaVersion.VERSION_17

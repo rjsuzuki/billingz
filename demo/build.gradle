@@ -22,13 +22,13 @@ plugins {
     id "kotlin-android"
     id "kotlin-kapt"
     id "kotlin-parcelize"
+    id "org.jetbrains.kotlin.plugin.compose"
     id "org.jetbrains.dokka"
 }
 ext {
-    // Compose UI/runtime artifact version.
-    compose_version = '1.5.4'
-    // Compose compiler extension compatible with Kotlin 1.9.20.
-    compose_compiler_version = '1.5.4'
+    // Compose UI/runtime artifact version. The Compose compiler is now supplied by the
+    // Kotlin Compose plugin (org.jetbrains.kotlin.plugin.compose), versioned with Kotlin.
+    compose_version = '1.7.6'
 }
 android {
 
@@ -64,9 +64,6 @@ android {
     buildFeatures {
         viewBinding true
         compose true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion compose_compiler_version
     }
     packagingOptions {
         resources {
