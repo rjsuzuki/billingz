@@ -95,6 +95,9 @@ interface Orderz : ModuleIdentifier {
 
     /**
      * Indicates the final state of an order.
+     *
+     * @property code Numeric value aligned to Google Play Billing response codes (used only by Google orders; Amazon orders ignore this value):
+     *   https://developer.android.com/reference/com/android/billingclient/api/BillingClient.BillingResponseCode#summary
      */
     enum class Result(val code: Int) {
         SERVICE_TIMEOUT(-3),
@@ -110,6 +113,7 @@ interface Orderz : ModuleIdentifier {
         PRODUCT_ALREADY_OWNED(7),
         PRODUCT_NOT_OWNED(8),
         NO_RESULT(9),
-        PENDING(10)
+        PENDING(10),
+        UNKNOWN_RESPONSE_CODE(11)
     }
 }

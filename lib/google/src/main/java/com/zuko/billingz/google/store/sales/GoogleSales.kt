@@ -463,11 +463,20 @@ class GoogleSales(
                     if (billingResult == null) {
                         // only queried orders start with a null billingResult
                         isQueriedOrders = true
-                        val order = GoogleOrder(
-                            purchase = p,
-                            billingResult = null
-                        )
-                        processOrder(order)
+                        if (isNewPurchase(p)) {
+                            // Only unacknowledged queried purchases represent orders that still
+                            // need to be validated/completed. Already-acknowledged purchases are
+                            // existing entitlements (already cached by querySubscriptions/
+                            // queryInAppProducts); re-processing them would deliver a spurious
+                            // ITEM_ALREADY_OWNED onFailure on every refresh/resume.
+                            val order = GoogleOrder(
+                                purchase = p,
+                                billingResult = null
+                            )
+                            processOrder(order)
+                        } else {
+                            Logger.d(TAG, "Skipping already-acknowledged queried purchase: ${p.orderId}")
+                        }
                     } else {
                         isQueriedOrders = false
                         when (p.purchaseState) {
