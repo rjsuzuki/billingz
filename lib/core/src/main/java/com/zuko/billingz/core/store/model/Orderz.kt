@@ -95,8 +95,9 @@ interface Orderz : ModuleIdentifier {
 
     /**
      * Indicates the final state of an order.
-     * @param code is mapped to the Google Play Billing response codes. [BillingClient.BillingResponseCode](https://developer.android.com/reference/com/android/billingclient/api/BillingClient.BillingResponseCode#summary). This parameter value is only needed for Google Orders.
-     * Amazon Orders are mapped to the enum value and does not reference the [code] parameter.
+     *
+     * @property code Numeric value aligned to Google Play Billing response codes (used only by Google orders; Amazon orders ignore this value):
+     *   https://developer.android.com/reference/com/android/billingclient/api/BillingClient.BillingResponseCode#summary
      */
     enum class Result(val code: Int) {
         SERVICE_TIMEOUT(-3),
