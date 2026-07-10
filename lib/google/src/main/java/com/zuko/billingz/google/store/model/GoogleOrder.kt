@@ -20,6 +20,7 @@ package com.zuko.billingz.google.store.model
 
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.Purchase
+import com.zuko.billingz.core.misc.Logger
 import com.zuko.billingz.core.store.model.Orderz
 
 /**
@@ -89,5 +90,16 @@ data class GoogleOrder(
     override val resultMessage: String =
         billingResult?.debugMessage ?: "No result message available."
     override val result: Orderz.Result =
-        if (billingResult != null) Orderz.Result.entries[billingResult.responseCode + 3] else Orderz.Result.NO_RESULT
+        billingResult?.let { br ->
+            // Look up by the response code the enum carries, not by ordinal position.
+            // Billing response codes are not contiguous (e.g. NETWORK_ERROR = 12), so an
+            // ordinal-based index (responseCode + 3) walks off the end of `entries`.
+            val result = Orderz.Result.entries.firstOrNull { it.code == br.responseCode }
+            if (result == null) {
+                Logger.wtf(this.javaClass.name, "Unhandled Google Play billing repsonse code: ${br.responseCode}")
+                Orderz.Result.UNKNOWN_RESPONSE_CODE
+            } else {
+                result
+            }
+        } ?: Orderz.Result.NO_RESULT
 }

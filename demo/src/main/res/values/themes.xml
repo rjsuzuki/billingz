@@ -38,5 +38,12 @@
     <style name="NeutralButtonStyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
         <item name="android:backgroundTint">@null</item>
     </style>
-    v
+
+    <!-- Base application/activity theme. NoActionBar because the Compose UI draws its own
+         TopAppBar. The visible colors come from BillingzTheme (Compose) at runtime. -->
+    <style name="Theme.Billingz" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/purple_500</item>
+        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <item name="colorSecondary">@color/teal_200</item>
+    </style>
 </resources>

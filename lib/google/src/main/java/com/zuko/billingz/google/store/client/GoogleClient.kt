@@ -80,7 +80,9 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
                 return
             }
             context?.let {
-                billingClient = BillingClient.newBuilder(context)
+                // Use the application context so the long-lived BillingClient never
+                // retains an Activity (or other short-lived context), which would leak it.
+                billingClient = BillingClient.newBuilder(it.applicationContext)
                     .setListener(purchasesUpdatedListener)
                     .enablePendingPurchases(
                         PendingPurchasesParams.newBuilder()
@@ -116,6 +118,10 @@ class GoogleClient(private val purchasesUpdatedListener: PurchasesUpdatedListene
                         BillingClient.BillingResponseCode.OK -> {
                             // The BillingClient is ready. You can query purchases here.
                             isConnected = true
+                            // Reset so future disconnects get a fresh set of retry attempts;
+                            // otherwise auto-reconnect stops permanently after maxAttempts is
+                            // reached over the client's lifetime.
+                            retryAttempts = 0
                             connectionListener?.connected()
                             connectionState.postValue(getConnectionState())
                             GoogleFeatureCheck.logSupportedFeatures(billingClient)

@@ -89,13 +89,5 @@ android {
 
 dependencies {
     api project(':lib:core')
-    api "com.android.billingclient:billing-ktx:7.1.1"
-}
-
-dokkaHtml.configure {
-    dokkaSourceSets {
-        named("main") {
-            noAndroidSdkLink.set(false)
-        }
-    }
+    api "com.android.billingclient:billing-ktx:9.1.0"
 }
